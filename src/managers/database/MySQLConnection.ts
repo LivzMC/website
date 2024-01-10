@@ -39,7 +39,7 @@ export function querySync(statement: string, values: Array<string> = []): Promis
 }
 
 export function connectToDatabase(): void {
-  connection.connect(async function (err) {
+  connection.connect(err => {
     if (err) {
       console.error('!! Could not connect to MySQL !!');
       console.error(err);
