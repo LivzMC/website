@@ -1,0 +1,87 @@
+<%
+  const config = {
+    CLASS: "px-4 rounded bg-gray-100 dark:bg-gray-900 ml-[5px] py-1 font-semibold border-2 border-indigo-600/50 dark:border-indigo-500/50 hover:underline",
+    ACTIVECLASS: "border-indigo-600/100 dark:border-indigo-500/100",
+  }
+%>
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%-
+    include('../partials/meta.ejs', {
+      title: 'Minecraft Skins | LivzMC'
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    include('../partials/header.ejs', {
+    });
+  %>
+  <div class="text-center py-3">
+    <div id="options" class="flex justify-center items-center text-center">
+      <div class="<%= config.CLASS %><%= !random ? " " + config.ACTIVECLASS : "" %>">
+        <a href="/skins/new">Recent</a>
+      </div>
+      <div class="<%= config.CLASS %><%= random ? " " + config.ACTIVECLASS : "" %>">
+        <a href="/skins/random">Random</a>
+      </div>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-1">
+    <div>
+      <% if (true) { // ads %>
+        <div class="dark:bg-gray-600 bg-gray-200 p-2 m-2 rounded">
+          <div class="text-center">
+            <p class="uppercase">Advertisement</p>
+          </div>
+          <div>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="4924359001" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    <div id="content">
+      <div class="flex justify-center items-center text-center">
+        <div class="w-[50rem]">
+          <div class="flex flex-row flex-wrap gap-1">
+            <% for (let i = 0; i < skins.length; i++) { %>
+              <%
+                const skin = skins[i];
+                const SKINUSER = skin.recentUser;
+              %>
+              <div class="mx-auto bg-white rounded shadow-md overflow-hidden dark:bg-gray-700 ">
+                <% if (SKINUSER && !random) { %>
+                  <div class="max-w-[200px] text-ellipsis overflow-clip">
+                    <a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/skins/<%= skin.skinId %>"><%= SKINUSER.username %> <%# getEmoji(SKINUSER, '22', '22') %></a>
+                    <hr class="dark:border-gray-900 w-full">
+                  </div>
+                <% } %>
+                <div class="p-2">
+                  <a href="/skins/<%= skin.skinId %>">
+                    <img src="http://localhost:8080/body.png?skin=<%= skin.skinId %>&slim=<%= skin.model == 1 %>" alt="Skin render for <%= skin.skinId %>" draggable="false" width="160" height="160" class="md:rounded-none rounded-lg mx-auto md:py-0 py-1">
+                  </a>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <% if (true) { // ads %>
+        <div class="dark:bg-gray-600 bg-gray-200 p-2 m-2 rounded">
+          <div class="text-center">
+            <p class="uppercase">Advertisement</p>
+          </div>
+          <div>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="4924359001" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

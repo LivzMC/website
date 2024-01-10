@@ -1,0 +1,27 @@
+{
+  "ejs_template": {
+    "scope": "html",
+    "prefix": "ejstemplate",
+    "body": [
+      "<!DOCTYPE html>",
+      "<html class=\"<%= theme %>\" lang=\"en\">",
+      "<head>",
+      "  <%-",
+      "    include('../partials/meta', {",
+      "      title: \"$1\",",
+      "    });",
+      "  %>"
+      "</head>",
+      "<body class=\"dark:bg-gray-800 dark:text-gray-300\">",
+      "  <%-",
+      "    include('../partials/header', {",
+      "    });",
+      "  %>",
+      "  <div class=\"container px-4 mx-auto\">",
+      "    $2",
+      "  </div>",
+      "</body>",
+      "</html>",
+    ]
+  }
+}

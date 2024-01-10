@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    include('../../partials/meta', {
+      title: "OptiFine Cape | " + banner.bannerId,
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    include('../../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-[35px]">
+      <div id="info-0-container">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+          <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+            <h3 class="text-lg text-gray-900 dark:text-gray-300">Cape Information</h3>
+          </div>
+          <div>
+            <dl>
+              <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">First Cached</dt>
+                <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300"><time data-int="true" data-time="<%= banner.createdAt %>"></time></dd>
+              </div>
+              <% if (banner.cleanUrl) { %>
+                <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">Banner URL</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100">
+                    <% if (banner.isBanner) { %>
+                      <a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/banner/?=<%= cape.cleanUrl %>"><%= cape.cleanUrl %></a>
+                    <% } else { %>
+                      <p>In moderation queue.</p>
+                    <% } %>
+                  </dd>
+                </div>
+              <% } %>
+              <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">Players</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100"><%= length %></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div id="skin-container" class="justify-items-center grid">
+        <div class="rounded transition duration-200 border-2 border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-900 bg-gray-100 dark:bg-gray-900" style="width: min-content;">
+          <canvas id="skin" width="270" height="360" style="cursor:pointer;"></canvas>
+        </div>
+        <div class="py-1">
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinPauseButton" data-paused="false" onclick="pauseSkin()">Pause</button>
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinElytraButton" data-cape="OF/<%= banner.bannerId %>" data-elytra="false" onclick="showElytra()">Elytra</button>
+        </div>
+      </div>
+      <% if (true) { // ads %>
+        <div>
+          <div class="mt-[5px]"></div>
+          <!-- ad-cape_page-1 -->
+          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="6649828351" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+      <% } %>
+    </div>
+    <!-- users -->
+    <div class="py-2 w-full mx-auto sm:px-6 lg:px-8">
+      <div class="overflow-hidden shadow-md rounded-lg">
+        <div class="px-6 py-4 bg-white border-b border-gray-200 font-bold text-center dark:bg-gray-900 dark:border-gray-700">Users</div>
+        <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
+          <% for (let i = 0; i < profiles.length; i++) { %>
+            <% const account = profiles[i]; %>
+            <a href="/user/<%= account.username %>.<%# await getUserIndex(account.username, account.uuid) + 1 %>" class="hover:underline" <%# setStyle(account, acc) %>><%= account.username %><span data-emoji="<%= account.uuid %>" id="<%= account.uuid %>-emojis-container" data-height="22" data-width="22"><%# getEmoji(account, '22') %></span></a>
+          <% } %>
+          <% if (hasMore) { %>
+            ...
+          <% } %>
+        </div>
+        <div id="requestId" class="p-6 bg-white border-gray-200 text-center dark:bg-gray-900 dark:border-gray-700 justify-center items-center flex">
+          <% if (banner.isBanner && banner.cleanUrl) { %>
+            <a class="bg-blue-500 shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-blue-400 rounded uppercase" href="/banner/?=<%= banner.cleanUrl.split('?=')[1] %>">Banner Editor</a>
+          <% } %>
+          <div class="py-1 pr-1"></div>
+          <a class="bg-blue-500 shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-blue-400 rounded uppercase" href="/download/optifine-capes/<%= banner.bannerId %>.png">Download Cape</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js" integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/js/formatDate.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%-
+    include('../partials/meta.ejs', {
+      title: 'Minecraft Skin | ' + skin.skinId,
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    include('../partials/header.ejs', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="grid lg:grid-cols-3 gap-3 justify-items-center">
+      <div id="skin-info" class="text-center w-full mx-auto sm:px-6 lg:px-8 py-5">
+        <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300">skin.stats<%# getLocaleString(language, 'skins', 'skin.stats') %></h3>
+        </div>
+        <div>
+          <!-- statistics -->
+          <dl>
+            <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">cached.on<%# getLocaleString(language, 'skins', 'cached.on') %></dt>
+              <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
+                <time data-int="true" data-time="<%= skin.createdAt %>"></time>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      <div id="skin-content" class="w-full text-center">
+        <div class="py-2"></div>
+        <div class="flex justify-center items-center">
+          <div class="rounded transition duration-200 border-2 border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-900 bg-gray-100 dark:bg-gray-900" style="width: min-content;">
+            <canvas id="skin" width="270" height="360" style="cursor:pointer;"></canvas>
+          </div>
+        </div>
+        <div class="py-1">
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinPauseButton" data-paused="false" onclick="pauseSkin()">Pause</button>
+        </div>
+      </div>
+      <!-- other content. Mostly advertisements -->
+      <div id="skin-other" class="text-center w-full mx-auto sm:px-6 lg:px-8 py-5">
+        <% if (true) { // ads %>
+          <!-- ads -->
+          <div class="dark:bg-gray-600 bg-gray-200 p-2 m-2 rounded">
+            <div class="text-center">
+              <p class="uppercase">Advertisement</p>
+            </div>
+            <div>
+              <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="4924359001" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  <div id="spacer" class="mt-[10px]"></div>
+  <div id="user-content" class="w-full mx-auto sm:px-6 lg:px-8">
+    <div class="overflow-hidden shadow-md rounded-lg">
+      <div class="px-6 py-4 bg-white border-b border-gray-200 font-bold text-center dark:bg-gray-900 dark:border-gray-700">users<%# getLocaleString(language, 'skins', 'users') %></div>
+      <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
+        <% for (let i = 0; i < users.length; i++) { %>
+          <% const user = users[i]; %>
+          <a
+            class="text-indigo-600 dark:text-indigo-500 hover:underline"
+            href="/user/<%= user.username %>.<%# await getUserIndex(user.username, user.uuid) + 1 %>"
+            <%- user.enabledColor || user.enabledFont ? setStyle(user, acc) : '' %>
+          >
+            <%= user.username %>
+            <% if (user.enabledEmoji) { %>
+              <span data-emoji="<%= user.uuid %>" id="<%= user.uuid %>-emojis-container" data-height="22" data-width="22"><%# getEmoji(user, '22') %></span>
+            <% } %>
+          </a>
+        <% } %>
+        <%- hasMoreUsers ? "\n..." : "" %>
+      </div>
+      <div id="requestId" class="p-6 bg-white border-gray-200 text-center dark:bg-gray-900 dark:border-gray-700">
+        <a class="bg-[#073C92] shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-[#073392] rounded uppercase" href="/download/skin/<%= skin.skinId %>.png">download.skin<%# getLocaleString(language, 'skins', 'download.skin') %></a>
+      </div>
+    </div>
+  </div>
+  <script src="/js/formatDate.js"></script>
+</body>
+</html>

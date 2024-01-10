@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    include('../partials/meta', {
+      title: "OptiFine Banners",
+    });
+  %>
+  <style>
+    .scaleNearest {
+      image-rendering: optimizeSpeed;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -o-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    include('../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="text-center py-2">
+      <div id="sort"></div>
+      <div id="layers">
+        <label class="text-lg" for="layers">Layers:</label>
+        <%
+          function formatLayerUrl(layerIn) {
+            const options = [];
+            if (url) options.push('&url=' + url);
+            return `/optifine-capes?page=${page}&layer=${layerIn}&${options.join('&')}`;
+          }
+
+          function formatLayerClass(layerIn) {
+            return `text-indigo-${layers == layerIn ? '0' : '600'} dark:text-indigo-${layers == layerIn ? '' : '500'} text-lg`
+          }
+        %>
+        <% for (let i = 1; i < 9; i++) { %>
+          <a href="<%= formatLayerUrl(i) %>" class="<%= formatLayerClass(i) %>"><%= i %></a>
+        <% } %>
+      </div>
+    </div>
+    <div id="banner_container" class="flex justify-center items-center">
+      <div class="flex flex-wrap">
+        <% for (let i = 0; i < banners.length; i++) { %>
+          <% const row = banners[i]; %>
+          <div>
+            <% for (let j = 0; j < row.length; j++) { %>
+              <% const design = row[j]; %>
+              <div class="pl-[5px]">
+                <a href="/optifine-capes/<%= design.bannerId %>">
+                  <img alt="Banner Design <%= design.bannerId %>" class="scaleNearest w-[70px] h-[120px] rounded-md hover:cursor-pointer" src="/user/2d/cape/OF/<%= design.bannerId %>.png" loading="lazy">
+                </a>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <div class="mt-[10px]"></div>
+    <%
+      const options = [];
+      if (layers && parseInt(layers) > 0) options.push('layers=' + layers);
+      if (url) options.push('url=' + url);
+    %>
+    <%-
+      include('../partials/pagination.ejs', {
+        page,
+        path: '/optifine-capes',
+        options,
+      });
+    %>
+  </div>
+</body>
+</html>

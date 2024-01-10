@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%-
+    include('../partials/meta.ejs', {
+      title: 'LivzMC Home'
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    include('../partials/header.ejs', {
+    });
+  %>
+  <% if (true) { // ads %>
+    <div class="container mx-auto">
+      <div class="dark:bg-gray-600 bg-gray-200 p-2 m-2 rounded" style="height: 400px;">
+        <div class="text-center">
+          <p class="uppercase">Advertisement</p>
+        </div>
+        <div>
+          <div id="ad-home-0">
+            <ins class="adsbygoogle" style="display: block;" data-ad-client="ca-pub-2978659071440635" data-ad-slot="7956761890" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  <div class="py-6 md:py-12">
+    <% let divs = []; %>
+    <!-- divs.forLoop -->
+  </div>
+</body>
+</html>

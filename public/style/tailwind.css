@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+
+  /* native dark scrollbar chromium/firefox */
+  .dark {
+    color-scheme: dark;
+  }
+
+  /* custom scrollbar chromium only */
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply border-gray-900 bg-gray-800;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply border-gray-700 bg-gray-800;
+  }
+
+  ::-webkit-scrollbar {
+    width: auto;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-lg border-solid border-gray-200 bg-gray-400;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply border-gray-300;
+  }
+}

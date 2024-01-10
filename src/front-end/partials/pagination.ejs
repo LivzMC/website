@@ -1,0 +1,21 @@
+<%
+  if (typeof options != 'undefined') {
+    if (options.length > 0) {
+      options = `&${options.join('&')}`;
+    } else {
+      options = null;
+    }
+  } else {
+    options = null;
+  }
+%>
+<div class="text-center">
+  <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+    <a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 cursor-pointer" href="<%= path %>?page=<%= parseInt(page) - 1 %><%= options %>">Previous</a>
+    <a class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium"                  href="<%= path %>?page=<%= parseInt(page) %><%= options %>"><%= parseInt(page) %></a>
+    <a class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"              href="<%= path %>?page=<%= parseInt(page) + 1 %><%= options %>"><%= parseInt(page) + 1 %></a>
+    <a class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"              href="<%= path %>?page=<%= parseInt(page) + 2 %><%= options %>"><%= parseInt(page) + 2 %></a>
+    <a class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 hidden md:inline-flex relative items-center px-4 py-2 border text-sm font-medium"    href="<%= path %>?page=<%= parseInt(page) + 3 %><%= options %>"><%= parseInt(page) + 3 %></a>
+    <a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" href="<%= path %>?page=<%= parseInt(page) + 1 %><%= options %>">Next</a>
+  </nav>
+</div>

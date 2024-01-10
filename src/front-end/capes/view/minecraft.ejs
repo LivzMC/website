@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    include('../../partials/meta', {
+      title: `Minecraft Cape | ${cape.capeId}`,
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    include('../../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-[35px]">
+      <div id="info-0-container">
+        <div style="height: min-content;" class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+          <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300">Cape Information</h3>
+          </div>
+          <div>
+            <dl>
+              <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">First Cached</dt>
+                <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300"><time data-int="true" data-time="<%= cape.createdAt %>"></time></dd>
+              </div>
+              <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">Players</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100"><%= userLength ?? '0' %></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+        <% if (true) { // ads %>
+          <div class="mt-[5px]"></div>
+          <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded">
+            <div class="text-center">
+              <p class="uppercase">Advertisement</p>
+            </div>
+            <div>
+              <!-- ad-cape_page-1 -->
+              <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="6649828351" data-ad-format="auto" data-full-width-responsive="true"></ins>
+              <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+              </script>
+            </div>
+          </div>
+        <% } %>
+      </div>
+      <div id="skin-container" class="justify-items-center grid">
+        <div class="rounded transition duration-200 border-2 border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-900 bg-gray-100 dark:bg-gray-900" style="width: min-content;">
+          <canvas id="skin" width="270" height="360" style="cursor:pointer;"></canvas>
+        </div>
+        <div class="py-1">
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinPauseButton" data-paused="false" onclick="pauseSkin()">Pause</button>
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinElytraButton" data-cape="<%= cape.capeId %>" data-elytra="false" onclick="showElytra()">Elytra</button>
+        </div>
+      </div>
+      <div>
+        <div style="height: min-content;" class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+          <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300"><%= cape.title %></h3>
+          </div>
+          <div>
+            <dl>
+              <div class="border border-gray-100 dark:border-gray-900 px-4 py-5">
+                <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
+                  <%- cape.description ? cape.description : "No description was set." %>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+        <% if (true) { // ads %>
+          <div class="mt-[5px]"></div>
+          <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded">
+            <div class="text-center">
+              <p class="uppercase">Advertisement</p>
+            </div>
+            <div>
+              <!-- ad-cape_page-0 -->
+              <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="9275991690" data-ad-format="auto" data-full-width-responsive="true"></ins>
+              <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+              </script>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <div class="w-full mx-auto sm:px-6 lg:px-8">
+      <div class="overflow-hidden shadow-md rounded-lg">
+        <div class="px-6 py-4 bg-white border-b border-gray-200 font-bold text-center dark:bg-gray-900 dark:border-gray-700">users<%# getLocaleString(language, 'capes', 'users') %></div>
+        <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
+          <% for (let i = 0; i < users.length; i++) { %>
+            <% const user = users[i]; %>
+            <% if (user) { %>
+              <a class="text-indigo-600 dark:text-indigo-500 hover:underline" <%# setStyle(user, acc) %> href="/user/<%= user.username %>.<%# await getUserIndex(user.username, user.uuid) + 1 %>">
+                <%= user.username %>
+                <%# getEmoji(user, '20') %>
+              </a>
+            <% } %>
+          <% } %>
+          <% if (more) { %>
+            ...
+          <% } %>
+        </div>
+        <div id="requestId" class="p-6 bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700 flex flex-wrap justify-center text-center">
+          <a class="bg-blue-500 shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-blue-400 rounded uppercase" href="/download/minecraft-capes/<%= cape.capeId %>.png">download.cape<%# getLocaleString(language, 'capes', 'download.cape') %></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js" integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/js/formatDate.js"></script>
+</body>
+</html>

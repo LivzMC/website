@@ -1,0 +1,35 @@
+<title><%= title %></title>
+<!-- Meta Tags -->
+<meta name="og:site_name" content="LivzMC">
+<meta name="title" content="<%= title %>">
+<!--  -->
+<% if (DEVMODE) { %>
+<script src="https://cdn.tailwindcss.com/3.2.4"></script>
+<script>
+  console.warn('Website is in developer mode!');
+
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {},
+    },
+    variants: {
+      extend: {
+        opacity: ['disabled'],
+      },
+    },
+    plugins: [],
+  }
+</script>
+<% } else { %>
+<link rel="stylesheet" href="/style/index.css">
+<% } %>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7M0QTYLST3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-7M0QTYLST3');
+</script>
