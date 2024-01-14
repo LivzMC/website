@@ -13,7 +13,7 @@ type SkinsPageTypes = {
   recentUser: {
     username: string,
     uuid: string,
-  },
+  } | undefined,
 };
 
 async function generateSkinUserCache(skinId: string, filePath: string): Promise<void> {
@@ -84,7 +84,7 @@ app.get('/new', async function (req, res) {
     const skinsDb = await querySync(`select * from livzmc.skins where enabled = 1 order by createdAt desc limit ${(page - 1) * nPerPage}, ${nPerPage}`);
     const skins: Skin[] & SkinsPageTypes[] = await Promise.all(
       skinsDb.map(async function (skin: Skin & SkinsPageTypes) {
-        skin.recentUser = (await querySync('select uuid from livzmc.profileSkins where skinId = ? and hidden = 0 and enabled = 1', [skin.skinId]))[0];
+        skin.recentUser = (await querySync('select uuid from livzmc.profileSkins where skinId = ? and hidden = 0', [skin.skinId]))[0];
         if (skin.recentUser) {
           skin.recentUser = (await querySync('select username, uuid from livzmc.profiles where uuid = ?', [skin.recentUser.uuid]))[0];
         }
