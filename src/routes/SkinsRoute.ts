@@ -9,12 +9,12 @@ import { isFileCacheExpired } from "../utils/Utils";
 const app = express.Router();
 const skinsCache = new NodeCache();
 
-interface SkinsPageTypes extends Skin {
+type SkinsPageTypes = {
   recentUser: {
     username: string,
     uuid: string,
   },
-}
+};
 
 async function generateSkinUserCache(skinId: string, filePath: string): Promise<void> {
   const MAX_LIMIT = 501; // limit to 501 instead of 500 so that the front-end can display '...' 
@@ -81,9 +81,9 @@ app.get('/new', async function (req, res) {
       }
     }
 
-    const skinsDb: Skin[] = await querySync(`select * from livzmc.skins where enabled = 1 order by createdAt desc limit ${(page - 1) * nPerPage}, ${nPerPage}`);
-    const skins: SkinsPageTypes[] = await Promise.all(
-      skinsDb.map(async function (skin: any) {
+    const skinsDb = await querySync(`select * from livzmc.skins where enabled = 1 order by createdAt desc limit ${(page - 1) * nPerPage}, ${nPerPage}`);
+    const skins: Skin[] & SkinsPageTypes[] = await Promise.all(
+      skinsDb.map(async function (skin: Skin & SkinsPageTypes) {
         skin.recentUser = (await querySync('select uuid from livzmc.profileSkins where skinId = ? and hidden = 0 and enabled = 1', [skin.skinId]))[0];
         if (skin.recentUser) {
           skin.recentUser = (await querySync('select username, uuid from livzmc.profiles where uuid = ?', [skin.recentUser.uuid]))[0];
