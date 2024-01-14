@@ -1,0 +1,245 @@
+<%
+  const colours = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+  ];
+  const patterns = [
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+  ];
+%>
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    include('partials/meta', {
+      title: "Banner Editor",
+    });
+  %>
+  <style>.tbc{width:42px;height:82px}.tbc canvas,.tbc img{border:1px solid gray;cursor:pointer}#toolbar-patterns i{width:40px;height:80px;cursor:pointer;display:inline-block}.active{border:1px solid #f76868}.hover-trigger .hover-target{display:none}.hover-trigger:hover .hover-target{display:block}</style>
+  <style>.selected{border:1px solid rgb(156, 76, 156);cursor:pointer}</style>
+  <style>
+    div.tbc img, div#history img {
+      image-rendering: optimizeSpeed;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -o-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    include('partials/header', {
+    });
+  %>
+  <div class="py-3"></div>
+  <div class="container px-4 mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-1">
+      <%# holds layers list and advertisement %>
+      <div id="parent-layers">
+        <div id="layers" class="overflow-y-hidden h-96 overflow-x-hidden">
+          <div style="height: min-content;" class="bg-gray-100 dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+            <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-200">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">layers<%# getLocaleString(language, 'banner', 'layers') %></h3>
+            </div>
+            <div>
+              <div id="layers-list">
+                <%# generated server side, read Utils.ts %>
+                <%- formattedPatterns %>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% if (true) { // ads %>
+          <div class="dark:bg-gray-600 bg-gray-100 p-2 m-2 rounded">
+            <div class="text-center">
+              <p class="uppercase">Advertisement</p>
+            </div>
+            <div>
+              <!-- ad-banner-0 -->
+              <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="1883165952" data-ad-format="auto" data-full-width-responsive="true"></ins>
+              <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+          </div>
+        <% } %>
+      </div>
+      <div id="skins">
+        <div style="margin: auto; width: 310px; height: 410px;" class="rounded transition duration-200 border-2 border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-900 bg-gray-100 dark:bg-gray-900 w-min h-min">
+          <canvas id="skin" style="cursor: move;"></canvas>
+        </div>
+        <div class="pt-[10px]"></div>
+        <div class="flex justify-center items-center py-1">
+          <button class="transition duration-200 text-white dark:bg-[#024A33] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#024d33] hover:bg-[#059669]" id="skinPauseButton" data-paused="false" onclick="pauseSkin()">Pause</button>
+          <div class="pl-1"></div>
+          <button class="transition duration-200 text-white dark:bg-[#024A33] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#024d33] hover:bg-[#059669]" id="skinElytraButton" data-cape="irisjs" data-elytra="false" onclick="showElytraCustom()">Elytra</button>
+          <div class="pl-1"></div>
+          <button class="transition duration-200 text-white dark:bg-[#024A33] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#024d33] hover:bg-[#059669]" id="skinCrouchButton" data-crouch="false" onclick="hasShiftAnimationPlayed ? unshift() : shift()">Crouch</button>
+        </div>
+        <div class="py-2 flex flex-wrap justify-center items-center">
+          <input onchange="changeSkin(event)" value="<%= skin %>" type="text" name="skin" id="skinUser" placeholder="Username for skin" class="bg-gray-200 dark:bg-gray-900 py-1 px-1 rounded">
+          <div class="ml-[5px]"></div>
+          <input onchange="searchCapeDesign(event)" type="text" name="cape" id="capeUser" placeholder="Username for banner" class="bg-gray-200 dark:bg-gray-900 py-1 px-1 rounded">
+        </div>
+        <div class="pb-1 flex flex-wrap justify-center items-center">
+          <label for="skin_type">
+            Skin Type:
+            <select class="bg-gray-200 dark:bg-gray-900 rounded py-1 px-1" name="skin_type" id="skin_type" onchange="changeModel(event)">
+              <option value="auto-detect" selected>Auto detect</option>
+              <option value="default">Default</option>
+              <option value="slim">Slim</option>
+            </select>
+          </label>
+          <div class="pl-[5px]"></div>
+          <label for="hide-skin">
+            Visible Skin:
+            <select class="bg-gray-200 dark:bg-gray-900 rounded py-1 px-1" id="hide-skin" onchange="hideSkin()">
+              <option label="Show" value="true" selected>Show</option>
+              <option label="Hide" value="false">Hide</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div id="options">
+        <div class="text-center py-2">
+          <label for="topColor"><%#await getLocaleString(language, 'banner', 'top') %>:</label>
+          <div class="pl-1"></div>
+          <input data-jscolor="{preset:'myPreset'}" onchange="colorTopUpdate(event)" class="bg-gray-200 dark:bg-gray-900 py-1 px-1 rounded" type="text" value="<%= colTop %>" id="topColor" name="topColor" size="6">
+          <div class="py-1">
+            <label for="bottomColor"><%# await getLocaleString(language, 'banner', 'bottom') %>:</label>
+            <div class="pl-1"></div>
+            <input data-jscolor="{preset:'myPreset'}" onchange="colorBottomUpdate(event)" class="bg-gray-200 dark:bg-gray-900 py-1 px-1 rounded" type="text" value="<%= colBottom %>" id="bottomColor" name="bottomColor" size="6">
+          </div>
+          <label for="valign"><%# await getLocaleString(language, 'banner', 'align') %>:</label>
+          <div class="pl-1"></div>
+          <select class="bg-gray-100 dark:bg-gray-900 rounded py-1 px-1" name="valign" id="valign" onchange="changeAlign(event)">
+            <% if (valign == "s") { %>
+              <option value="s">Scale</option>
+            <% } if (valign == "t") { %>
+              <option value="t">Top</option>
+            <% } if (valign == "m") { %>
+              <option value="m">Middle</option>
+            <% } if (valign == "b") { %>
+              <option value="b">Bottom</option>
+            <% } if (valign != "s") { %>
+              <option value="s">Scale</option>
+            <% } if (valign != "t") { %>
+              <option value="t">Top</option>
+            <% } if (valign != "m") { %>
+              <option value="m">Middle</option>
+            <% } if (valign != "b") { %>
+              <option value="b">Bottom</option>
+            <% } %>
+          </select>
+          <div class="py-4">
+            <label for="validURL"><%# await getLocaleString(language, 'banner', 'valid.banner') %>:</label>
+            <p id="validURL" class="flex justify-center items-center text-center font-bold">
+              <span id="validURL_text" onclick="copyText(event)">https://livzmc.net/banner/?=<%= pattern %></span> <span class="pl-3 text-indigo-600 dark:text-indigo-500 hover:underline" onclick="copyText(event)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hover:cursor-pointer bi-clipboard" viewBox="0 0 16 16">
+                  <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                  <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                </svg>
+              </span>
+            </p>
+          </div>
+          <div id="warning">
+            <small class="font-bold"><%# await getLocaleString(language, 'banner', 'warning.microsoft') %></small>
+            <br>
+            <small class="font-bold"><%# await getLocaleString(language, 'banner', 'warning.domain') %></small>
+          </div>
+          <div class="pt-[10px]"></div>
+          <div class="py-1">
+            <div class="flex justify-center items-center" id="loading_button">
+              <svg class="animate-spin -ml-1 mr-3 h-7 w-7 dark:text-white text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="py-3">
+            <button onclick="random_banner(event)" class="bg-[#073C92] shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-[#073392] rounded uppercase"><%# await getLocaleString(language, 'banner', 'random.banner') %></button>
+            <div class="pt-2 lg:hidden"></div>
+            <button class="modal-0-open bg-[#073C92] shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-[#073392] rounded uppercase"><%# await getLocaleString(language, 'banner', 'import.pmc') %></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="content">
+      <div class="py-2 flex justify-center items-center">
+        <div id="toolbar-colors" onmousedown="mouseDownColor(event)" class="flex flex-wrap gap-2 dark:bg-gray-700 py-3 px-3 rounded shadow w-max h-max">
+          <% for (let i = 0; i < colours.length; i++) { %>
+            <% const colour = colours[i]; %>
+            <div class="tbc"><canvas width="40" height="80" class="tb-color" clr="<%= colour %>"></canvas></div>
+          <% } %>
+        </div>
+      </div>
+      <div class="py-2 flex justify-center items-center">
+        <div onmouseout="mouseHoverLeave(event)" onmouseover="mouseHover(event)" onmousedown="mouseDown(event)" class="flex flex-wrap gap-2 dark:bg-gray-700 py-3 px-3 rounded shadow h-max w-[816px]" id="toolbar-patterns">
+          <% for (let i = 0; i < patterns.length; i++) { %>
+            <% const pattern = patterns[i]; %>
+            <div class="tbc"><canvas width="40" height="80" class="tb-ptn" style="background-color: #D4D4D4; box-shadow: 0px 0px 0px 1px rgba(50, 50, 50, 0.25);" ptn="<%= pattern %>" clr="a"></canvas></div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js" integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://textures.livzmc.net/js/color.js"></script>
+  <script src="https://textures.livzmc.net/js/crypto-js.js"></script>
+  <script src="https://textures.livzmc.net/js/banner_modal.js"></script>
+</body>
+</html>

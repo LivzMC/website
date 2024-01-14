@@ -8,6 +8,7 @@ import HomeRoute from './routes/HomeRoute';
 import SkinsRoute from './routes/SkinsRoute';
 import MinecraftCapesRoute from './routes/capes/MinecraftCapesRoute';
 import OptiFineCapesRoute from './routes/capes/OptiFineCapesRoute';
+import BannerRoute from './routes/BannerRoute';
 // constants
 const HOSTNAME: string = process.env.HOSTNAME ?? 'localhost';
 const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
@@ -45,6 +46,7 @@ app.use('/', HomeRoute);
 app.use('/skins', SkinsRoute);
 app.use('/minecraft-capes', MinecraftCapesRoute);
 app.use('/optifine-capes', OptiFineCapesRoute);
+app.use('/banner', BannerRoute);
 //
 
 app.all('*', (req, res) => {
