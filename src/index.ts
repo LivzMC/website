@@ -2,7 +2,11 @@ import express from 'express';
 import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config(); // init .env
+import ejs from 'ejs';
 import { connectToDatabase } from './managers/database/MySQLConnection';
+import {
+  getLocaleString,
+} from './utils/Utils';
 // routes
 import HomeRoute from './routes/HomeRoute';
 import SkinsRoute from './routes/SkinsRoute';
@@ -25,6 +29,14 @@ const app = express();
 
 app.set('views', 'src/front-end');
 app.set('view engine', 'ejs');
+app.engine('ejs', async function (path, data, cb) {
+  try {
+    const html = await ejs.renderFile(path, data, { async: true });
+    cb(null, html);
+  } catch (e) {
+    cb(e, '');
+  }
+});
 
 // middleware
 app.use(function (req, res, next) {
@@ -41,6 +53,7 @@ app.use(express.json());
 app.use(express.static('public'));
 // locals
 app.locals.DEVMODE = DEVMODE;
+app.locals.getLocaleString = getLocaleString;
 // create routes
 app.use('/', HomeRoute);
 app.use('/skins', SkinsRoute);

@@ -62,7 +62,7 @@
 <html class="<%= theme %>" lang="en">
 <head>
   <%-
-    include('partials/meta', {
+    await include('partials/meta', {
       title: "Banner Editor",
     });
   %>
@@ -82,7 +82,7 @@
 </head>
 <body class="dark:bg-gray-800 dark:text-gray-300">
   <%-
-    include('partials/header', {
+    await include('partials/header', {
     });
   %>
   <div class="py-3"></div>

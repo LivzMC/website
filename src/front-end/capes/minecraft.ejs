@@ -34,7 +34,7 @@
 <html class="<%= theme %>" lang="en">
 <head>
   <%-
-    include('../partials/meta', {
+    await include('../partials/meta', {
       title: "Minecraft Capes",
     });
   %>
@@ -52,7 +52,7 @@
 </head>
 <body class="dark:bg-gray-800 dark:text-gray-300">
   <%-
-    include('../partials/header', {
+    await include('../partials/header', {
     });
   %>
   <div class="container px-4 mx-auto">
