@@ -72,7 +72,7 @@
         <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
           <% for (let i = 0; i < profiles.length; i++) { %>
             <% const account = profiles[i]; %>
-            <a href="/user/<%= account.username %>.<%# await getUserIndex(account.username, account.uuid) + 1 %>" class="hover:underline" <%# setStyle(account, acc) %>><%= account.username %><span data-emoji="<%= account.uuid %>" id="<%= account.uuid %>-emojis-container" data-height="22" data-width="22"><%# getEmoji(account, '22') %></span></a>
+            <a href="/user/<%= account.username %>.<%= await getUserNameIndex(account.username, account.uuid) + 1 %>" class="hover:underline" <%# setStyle(account, acc) %>><%= account.username %><span data-emoji="<%= account.uuid %>" id="<%= account.uuid %>-emojis-container" data-height="22" data-width="22"><%# getEmoji(account, '22') %></span></a>
           <% } %>
           <% if (hasMore) { %>
             ...

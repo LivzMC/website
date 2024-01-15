@@ -96,7 +96,7 @@
           <% for (let i = 0; i < users.length; i++) { %>
             <% const user = users[i]; %>
             <% if (user) { %>
-              <a class="text-indigo-600 dark:text-indigo-500 hover:underline" <%# setStyle(user, acc) %> href="/user/<%= user.username %>.<%# await getUserIndex(user.username, user.uuid) + 1 %>">
+              <a class="text-indigo-600 dark:text-indigo-500 hover:underline" <%# setStyle(user, acc) %> href="/user/<%= user.username %>.<%= await getUserNameIndex(user.username, user.uuid) + 1 %>">
                 <%= user.username %>
                 <%# getEmoji(user, '20') %>
               </a>

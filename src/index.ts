@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import { connectToDatabase, querySync } from './managers/database/MySQLConnection';
 import {
   getLocaleString,
+  getUserNameIndex,
 } from './utils/Utils';
 import { User } from './managers/database/types/UserTypes';
 // routes
@@ -59,6 +60,7 @@ app.use(cookieParser());
 // locals
 app.locals.DEVMODE = DEVMODE;
 app.locals.getLocaleString = getLocaleString;
+app.locals.getUserNameIndex = getUserNameIndex;
 // create routes
 app.use('/', HomeRoute);
 app.use('/skins', SkinsRoute);

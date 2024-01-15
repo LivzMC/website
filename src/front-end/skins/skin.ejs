@@ -68,7 +68,7 @@
           <% const user = users[i]; %>
           <a
             class="text-indigo-600 dark:text-indigo-500 hover:underline"
-            href="/user/<%= user.username %>.<%# await getUserIndex(user.username, user.uuid) + 1 %>"
+            href="/user/<%= user.username %>.<%= await getUserNameIndex(user.username, user.uuid) + 1 %>"
             <%- user.enabledColor || user.enabledFont ? setStyle(user, acc) : '' %>
           >
             <%= user.username %>
