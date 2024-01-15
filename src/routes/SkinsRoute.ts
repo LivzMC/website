@@ -1,5 +1,6 @@
 import express from 'express';
 import fs from 'fs';
+import fsp from 'fs/promises';
 import renderPage from '../utils/RenderPage';
 import NodeCache from 'node-cache';
 import { querySync } from '../managers/database/MySQLConnection';
@@ -7,6 +8,7 @@ import { Skin, SkinUsers } from '../managers/database/types/SkinTypes';
 import { isFileCacheExpired } from '../utils/Utils';
 
 const app = express.Router();
+const MAX_LIMIT = 501;
 const skinsCache = new NodeCache();
 
 type SkinsPageTypes = {
@@ -17,21 +19,23 @@ type SkinsPageTypes = {
 };
 
 async function generateSkinUserCache(skinId: string, filePath: string): Promise<void> {
-  const MAX_LIMIT = 501; // limit to 501 instead of 500 so that the front-end can display '...' 
-  // use an index here: (skinId, skinId, 'desc')
-  const skinUsers: SkinUsers[] = await querySync('select * from livzmc.profileSkins where skinId = ? order by cachedOn desc limit ' + MAX_LIMIT, [skinId]);
-  const users = await Promise.all(
-    skinUsers.map(async function (skinUser) {
-      if (skinUser.hidden) return undefined;
-      const user = (await querySync('select username, uuid, banned from livzmc.profiles where uuid = ?', [skinUser.uuid]))[0];
-      if (user.banned) return undefined;
-      user.skinData = skinUser;
+  const skinUsers: SkinUsers[] = await querySync(`
+    SELECT 
+      profileSkins.hidden,
+      profiles.uuid as profiles_uuid,
+      profiles.username as profiles_username,
+      profiles.banned as profiles_banned
+    FROM
+      profileSkins
+          INNER JOIN
+      profiles ON profileSkins.uuid = profiles.uuid
+    WHERE
+      skinId = ?
+      ORDER BY profileSkins.id DESC
+    LIMIT ${MAX_LIMIT};
+  `, [skinId]);
 
-      return user;
-    }).filter(skin => skin != undefined)
-  );
-
-  fs.writeFileSync(filePath, JSON.stringify(users)); // cache on disk
+  await fsp.writeFile(filePath, JSON.stringify(skinUsers)); // cache on disk
 }
 
 // This is stupid
@@ -139,10 +143,10 @@ app.get('/:skinId', async function (req, res) {
       await generateSkinUserCache(req.params.skinId, filePath);
     }
 
-    const users = JSON.parse(fs.readFileSync(filePath).toString());
+    const users = JSON.parse((await fsp.readFile(filePath)).toString());
     let hasMoreUsers = false;
-    if (users.length > 500) {
-      users.length = 500;
+    if (users.length > (MAX_LIMIT - 1)) {
+      users.length = (MAX_LIMIT - 1);
       hasMoreUsers = true;
     }
 

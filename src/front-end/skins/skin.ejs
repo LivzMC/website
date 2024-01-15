@@ -66,16 +66,18 @@
       <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
         <% for (let i = 0; i < users.length; i++) { %>
           <% const user = users[i]; %>
-          <a
-            class="text-indigo-600 dark:text-indigo-500 hover:underline"
-            href="/user/<%= user.username %>.<%= await getUserNameIndex(user.username, user.uuid) + 1 %>"
-            <%- user.enabledColor || user.enabledFont ? setStyle(user, acc) : '' %>
-          >
-            <%= user.username %>
-            <% if (user.enabledEmoji) { %>
-              <span data-emoji="<%= user.uuid %>" id="<%= user.uuid %>-emojis-container" data-height="22" data-width="22"><%# getEmoji(user, '22') %></span>
-            <% } %>
-          </a>
+          <% if (!user.hidden) { %>
+            <a
+              class="text-indigo-600 dark:text-indigo-500 hover:underline"
+              href="/user/<%= user.profiles_username %>.<%= await getUserNameIndex(user.profiles_username, user.profiles_uuid) + 1 %>"
+              <%# user.enabledColor || user.enabledFont ? setStyle(user, acc) : '' %>
+            >
+              <%= user.profiles_username %>
+              <% if (user.enabledEmoji) { %>
+                <span data-emoji="<%= user.profiles_uuid %>" id="<%= user.profiles_uuid %>-emojis-container" data-height="22" data-width="22"><%# getEmoji(user, '22') %></span>
+              <% } %>
+            </a>
+          <% } %>
         <% } %>
         <%- hasMoreUsers ? "\n..." : "" %>
       </div>
