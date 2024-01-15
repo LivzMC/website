@@ -4,10 +4,11 @@ import dotenv from 'dotenv';
 dotenv.config(); // init .env
 import ejs from 'ejs';
 import cookieParser from 'cookie-parser';
-import { connectToDatabase } from './managers/database/MySQLConnection';
+import { connectToDatabase, querySync } from './managers/database/MySQLConnection';
 import {
   getLocaleString,
 } from './utils/Utils';
+import { User } from './managers/database/types/UserTypes';
 // routes
 import HomeRoute from './routes/HomeRoute';
 import SkinsRoute from './routes/SkinsRoute';
@@ -63,6 +64,37 @@ app.use('/minecraft-capes', MinecraftCapesRoute);
 app.use('/optifine-capes', OptiFineCapesRoute);
 app.use('/banner', BannerRoute);
 //
+
+async function findVanity(vanity: string): Promise<User | null> {
+  const linkedProfile = (await querySync('select * from linkedAccounts where vanityUrl = ? and linked = 1', [vanity.toLowerCase()]))[0];
+  if (!linkedProfile) return null;
+  const user: User = (await querySync('select * from profiles where uuid = ? and banned = 0', [linkedProfile.uuid]))[0];
+
+  return user;
+}
+
+// legacy vanity urls
+app.get('/v/:vanity', async function (req, res) {
+  try {
+    const user = await findVanity(req.params.vanity);
+    if (!user) return res.sendStatus(404);
+    res.send(user);
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
+app.get('/:vanity', async function (req, res) {
+  try {
+    const user = await findVanity(req.params.vanity);
+    if (!user) return res.sendStatus(404);
+    res.send(user);
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
 
 app.all('*', (req, res) => {
   res.sendStatus(404);
