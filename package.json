@@ -4,7 +4,7 @@
   "description": "A website designed to display Minecraft profiles, skins and capes.",
   "main": "src/index.ts",
   "scripts": {
-    "build": "npm run tailwind:build && tsc",
+    "build": "npm run tailwind:build && npx eslint src && tsc",
     "tailwind:build": "postcss ./public/style/tailwind.css -o ./public/style/index.css",
     "start": "node dist/index.js",
     "devStart": "nodemon src/index.ts"
@@ -24,7 +24,10 @@
     "@types/cookie-parser": "^1.4.6",
     "@types/ejs": "^3.1.5",
     "@types/express": "^4.17.21",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
     "autoprefixer": "^10.4.16",
+    "eslint": "^8.56.0",
     "nodemon": "^3.0.2",
     "postcss": "^8.4.32",
     "postcss-cli": "^11.0.0",
