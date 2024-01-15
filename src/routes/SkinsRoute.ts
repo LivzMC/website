@@ -1,10 +1,10 @@
-import express from "express";
+import express from 'express';
 import fs from 'fs';
 import renderPage from '../utils/RenderPage';
 import NodeCache from 'node-cache';
-import { querySync } from "../managers/database/MySQLConnection";
-import { Skin, SkinUsers } from "../managers/database/types/SkinTypes";
-import { isFileCacheExpired } from "../utils/Utils";
+import { querySync } from '../managers/database/MySQLConnection';
+import { Skin, SkinUsers } from '../managers/database/types/SkinTypes';
+import { isFileCacheExpired } from '../utils/Utils';
 
 const app = express.Router();
 const skinsCache = new NodeCache();

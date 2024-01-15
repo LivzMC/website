@@ -1,12 +1,12 @@
-import express from "express";
+import express from 'express';
 import fs from 'fs';
 import wcmatch from 'wildcard-match';
-import renderPage from "../../utils/RenderPage";
-import NodeCache from "node-cache";
-import { querySync } from "../../managers/database/MySQLConnection";
-import { isFileCacheExpired } from "../../utils/Utils";
-import { Banner, BannerUser } from "../../managers/database/types/OptiFineCapeTypes";
-import { User } from "../../managers/database/types/UserTypes";
+import renderPage from '../../utils/RenderPage';
+import NodeCache from 'node-cache';
+import { querySync } from '../../managers/database/MySQLConnection';
+import { isFileCacheExpired } from '../../utils/Utils';
+import { Banner, BannerUser } from '../../managers/database/types/OptiFineCapeTypes';
+import { User } from '../../managers/database/types/UserTypes';
 
 const app = express.Router();
 const BannerUserLengthCache = new NodeCache();

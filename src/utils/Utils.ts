@@ -2,7 +2,7 @@
 import fs from 'fs';
 import fsp from 'fs/promises';
 
-const DEFAULT_LANGUAGE = JSON.parse(fs.readFileSync(`LivzMC/lang/en-us/core.json`).toString());
+const DEFAULT_LANGUAGE = JSON.parse(fs.readFileSync('LivzMC/lang/en-us/core.json').toString());
 
 export async function generateBannerPatterns(pattern: string, language: string): Promise<string> {
   const matchedPatterns = pattern.match(/(..)/g);

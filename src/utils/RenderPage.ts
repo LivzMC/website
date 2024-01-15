@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
 function getCookie(req: Request, cookieName: string, defaultValue: string | null): string | null {
   if (!req || !req.cookies) return defaultValue;
@@ -40,8 +40,8 @@ export default function renderPage(req: Request, res: Response, path: string, op
         <h2>Website launched in developer mode!</h2>
         <code>
         ${err.message
-          .replace(/\</g, '&lt;')
-          .replace(/\>/g, '&gt;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
           .replace(/\n/, '<br>')
           .replace(/\r/, '<br>')
         }
