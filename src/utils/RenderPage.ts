@@ -8,7 +8,7 @@ function getCookie(req: Request, cookieName: string, defaultValue: string | null
 
 export default function renderPage(req: Request, res: Response, path: string, options: any): void {
   const theme = getCookie(req, 'theme', 'dark');
-  const language = getCookie(req, 'language', 'en_us');
+  const language = getCookie(req, 'language', 'en-us');
   // modify global options
   // stuff like theme, acc, language
   options.theme = theme;

@@ -1,14 +1,18 @@
 <%
-  function capeLayout(cape) {
-  /*
-  const string = getLocaleString(language, 'capes', 'tooltip.1').replace('%n', kFormatter(cape.users)).replace('%s', cape.users > 1 ? 's' : '');
-  let desc = [string];
-  if (string.includes('[')) {
-    const options = string.split('[')[1].split(']')[0].split('|');
-    desc = [string.replace(`[${options[0]}|${options[1]}]`, cape.users > 1 ? options[0] : options[1])]
+  function kFormatter(num) {
+    if (isNaN(num)) return '0';
+    return Math.abs(num) > 999 ? Math.sign(num) * ((Math.abs(num) / 1000).toFixed(1)) + 'k' : Math.sign(num) * Math.abs(num);
   }
-  cape.users > 0 ? desc.join('\<br') : getLocaleString(language, 'capes', 'tooltip.2');
-  */
+
+  async function capeLayout(cape) {
+    const string = (await getLocaleString(language, 'capes', 'tooltip.1')).replace('%n', kFormatter(cape.users)).replace('%s', cape.users > 1 ? 's' : '');
+    let desc = [string];
+    if (string.includes('[')) {
+      const options = string.split('[')[1].split(']')[0].split('|');
+      desc = [string.replace(`[${options[0]}|${options[1]}]`, cape.users > 1 ? options[0] : options[1])]
+    }
+
+    const description = cape.users > 0 ? desc.join('\<br') : await getLocaleString(language, 'capes', 'tooltip.2');
 
     return `
 <div class="max-h-[330px]" style="padding-top: .2rem; padding-left: .2rem; padding-right: .2rem;">
@@ -23,6 +27,7 @@
       <div class="px-2 py-2">
         <a href="/minecraft-capes/${cape.capeId}" class="block mt-1 text-lg leading-tight font-medium text-black hover:underline dark:text-gray-300">${cape.title}</a>
         <p id="desc" data-id="${cape.capeId}" class="mt-2 text-gray-500 dark:text-gray-400">
+          ${description}
         </p>
       </div>
     </div>
@@ -82,7 +87,7 @@
         %>
         <% for (let i = 0; i < Capes.length; i++) { %>
           <% const cape = Capes[i]; %>
-          <%- capeLayout(cape); %>
+          <%- await capeLayout(cape); %>
         <% } %>
       </div>
     </div>
@@ -102,11 +107,11 @@
       </div>
     <% } %>
     <div class="text-center">
-      <h2 class="text-lg font-semibold">removed.or.unused<%# getLocaleString(language, 'capes', 'removed.or.unused') %>:</h2>
+      <h2 class="text-lg font-semibold"><%= await getLocaleString(language, 'capes', 'removed.or.unused') %>:</h2>
       <div class="mx-auto grid grid-cols-3 gap-1">
         <% for (let i = 0; i < rCapes.length; i++) { %>
           <% const cape = rCapes[i]; %>
-          <%- capeLayout(cape); %>
+          <%- await capeLayout(cape); %>
         <% } %>
       </div>
     </div>
@@ -133,7 +138,7 @@
           <div class="mx-auto grid grid-cols-3 gap-1">
             <% for (let i = 0; i < cat.length; i++) { %>
               <% const cape = cat[i]; %>
-              <%- capeLayout(cape); %>
+              <%- await capeLayout(cape); %>
             <% } %>
           </div>
         <% } %>

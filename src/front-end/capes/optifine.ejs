@@ -68,7 +68,7 @@
       if (url) options.push('url=' + url);
     %>
     <%-
-      include('../partials/pagination.ejs', {
+      await include('../partials/pagination.ejs', {
         page,
         path: '/optifine-capes',
         options,

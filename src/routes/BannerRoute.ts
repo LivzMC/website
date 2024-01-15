@@ -15,23 +15,28 @@ function parsePattern(url: string): string {
   return raw;
 }
 
-app.get('/', (req, res) => {
-  const pattern: string = parsePattern(req.url);
-  const valign = req.query.valign || 's';
-  const colTop = req.query.colTop || '404040';
-  const colBottom = req.query.colBottom || '202020';
-  const skin = req.query.skin || null;
+app.get('/', async function (req, res) {
+  try {
+    const pattern: string = parsePattern(req.url);
+    const valign = req.query.valign || 's';
+    const colTop = req.query.colTop || '404040';
+    const colBottom = req.query.colBottom || '202020';
+    const skin = req.query.skin || null;
 
-  const formattedPatterns = generateBannerPatterns(pattern);
+    const formattedPatterns = await generateBannerPatterns(pattern, req.cookies?.language ?? 'en-us');
 
-  renderPage(req, res, 'banner', {
-    pattern,
-    valign,
-    colTop,
-    colBottom,
-    skin,
-    formattedPatterns,
-  });
+    renderPage(req, res, 'banner', {
+      pattern,
+      valign,
+      colTop,
+      colBottom,
+      skin,
+      formattedPatterns,
+    });
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
 });
 
 export default app;

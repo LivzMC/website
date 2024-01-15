@@ -93,7 +93,7 @@
         <div id="layers" class="overflow-y-hidden h-96 overflow-x-hidden">
           <div style="height: min-content;" class="bg-gray-100 dark:bg-gray-800 shadow overflow-hidden rounded-lg">
             <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-200">
-              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">layers<%# getLocaleString(language, 'banner', 'layers') %></h3>
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center"><%= await getLocaleString(language, 'banner', 'layers') %></h3>
             </div>
             <div>
               <div id="layers-list">
@@ -154,15 +154,15 @@
       </div>
       <div id="options">
         <div class="text-center py-2">
-          <label for="topColor"><%#await getLocaleString(language, 'banner', 'top') %>:</label>
+          <label for="topColor"><%= await await getLocaleString(language, 'banner', 'top') %>:</label>
           <div class="pl-1"></div>
           <input data-jscolor="{preset:'myPreset'}" onchange="colorTopUpdate(event)" class="bg-gray-200 dark:bg-gray-900 py-1 px-1 rounded" type="text" value="<%= colTop %>" id="topColor" name="topColor" size="6">
           <div class="py-1">
-            <label for="bottomColor"><%# await getLocaleString(language, 'banner', 'bottom') %>:</label>
+            <label for="bottomColor"><%= await await getLocaleString(language, 'banner', 'bottom') %>:</label>
             <div class="pl-1"></div>
             <input data-jscolor="{preset:'myPreset'}" onchange="colorBottomUpdate(event)" class="bg-gray-200 dark:bg-gray-900 py-1 px-1 rounded" type="text" value="<%= colBottom %>" id="bottomColor" name="bottomColor" size="6">
           </div>
-          <label for="valign"><%# await getLocaleString(language, 'banner', 'align') %>:</label>
+          <label for="valign"><%= await await getLocaleString(language, 'banner', 'align') %>:</label>
           <div class="pl-1"></div>
           <select class="bg-gray-100 dark:bg-gray-900 rounded py-1 px-1" name="valign" id="valign" onchange="changeAlign(event)">
             <% if (valign == "s") { %>
@@ -184,7 +184,7 @@
             <% } %>
           </select>
           <div class="py-4">
-            <label for="validURL"><%# await getLocaleString(language, 'banner', 'valid.banner') %>:</label>
+            <label for="validURL"><%= await await getLocaleString(language, 'banner', 'valid.banner') %>:</label>
             <p id="validURL" class="flex justify-center items-center text-center font-bold">
               <span id="validURL_text" onclick="copyText(event)">https://livzmc.net/banner/?=<%= pattern %></span> <span class="pl-3 text-indigo-600 dark:text-indigo-500 hover:underline" onclick="copyText(event)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="hover:cursor-pointer bi-clipboard" viewBox="0 0 16 16">
@@ -195,9 +195,9 @@
             </p>
           </div>
           <div id="warning">
-            <small class="font-bold"><%# await getLocaleString(language, 'banner', 'warning.microsoft') %></small>
+            <small class="font-bold"><%= await await getLocaleString(language, 'banner', 'warning.microsoft') %></small>
             <br>
-            <small class="font-bold"><%# await getLocaleString(language, 'banner', 'warning.domain') %></small>
+            <small class="font-bold"><%= await await getLocaleString(language, 'banner', 'warning.domain') %></small>
           </div>
           <div class="pt-[10px]"></div>
           <div class="py-1">
@@ -209,9 +209,9 @@
             </div>
           </div>
           <div class="py-3">
-            <button onclick="random_banner(event)" class="bg-[#073C92] shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-[#073392] rounded uppercase"><%# await getLocaleString(language, 'banner', 'random.banner') %></button>
+            <button onclick="random_banner(event)" class="bg-[#073C92] shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-[#073392] rounded uppercase"><%= await await getLocaleString(language, 'banner', 'random.banner') %></button>
             <div class="pt-2 lg:hidden"></div>
-            <button class="modal-0-open bg-[#073C92] shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-[#073392] rounded uppercase"><%# await getLocaleString(language, 'banner', 'import.pmc') %></button>
+            <button class="modal-0-open bg-[#073C92] shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-[#073392] rounded uppercase"><%= await await getLocaleString(language, 'banner', 'import.pmc') %></button>
           </div>
         </div>
       </div>
