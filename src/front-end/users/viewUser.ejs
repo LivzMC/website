@@ -162,7 +162,7 @@
                           <td class="px-2 py-2 font-semibold"><%= profile.names.length - i %></td>
                           <td class="px-2 py-2">
                             <% if (name.username) { %>
-                              <a class="px-2 py-1 bg-gray-100 rounded-sm dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 hover:underline" href="/search/<%= name.username %>">
+                              <a class="px-2 py-1 bg-gray-100 rounded-sm dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 hover:underline" href="/search?u=<%= name.username %>">
                                 <%= name.username %>
                               </a>
                             <% } else { %>

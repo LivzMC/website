@@ -1,0 +1,61 @@
+<%
+  async function generateHTML(user) {
+    return `
+      <div class="px-2 py-2">
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl dark:bg-gray-700">
+          <div class="md:flex">
+            <div class="md:flex-shrink-0 md:px-0 md:py-0 px-2 py-2">
+              <img class="md:rounded-none rounded-lg mx-auto" src="https://render.livzmc.net/skin/head/${user.profileSkins_skinId}.png?size=64" alt="">
+            </div>
+            <div class="px-2 py-2 text-left">
+              <div class="tracking-wide text-sm dark:text-indigo-400 text-indigo-500 font-semibold">${user.uuid}</div>
+              <h3 class="text-xl">
+                <a class="hover:underline font-bold" href="/user/${user.username}.${user.index + 1}">${user.username}</a>
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+%>
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('partials/meta', {
+      title: "Search Results for " + searchedName,
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div id="header">
+      <div class="pt-[5px]"></div>
+      <h1 class="text-3xl font-semibold">Search Results for: <span style="font-family: monospace;"><%= searchedName %></span></h1>
+      <div class="pt-[5px]"></div>
+      <h3><%= currentUsers.length + pastUsers.length %> result(s) gathered in <%= timeMs %>ms</h3>
+      <div class="pt-[5px]"></div>
+    </div>
+    <hr>
+    <div class="flex justify-center items-center text-center">
+      <div class="py-[5px] lg:py-0">
+        <div class="my-4">
+          <% for (let i = 0; i < currentUsers.length; i++) { %>
+            <% const user = currentUsers[i]; %>
+            <%- await generateHTML(user); %>
+          <% } %>
+          <% for (let i = 0; i < pastUsers.length; i++) { %>
+            <% const user = pastUsers[i]; %>
+            <%- await generateHTML(user); %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,6 +1,8 @@
 // random misc utility functions
 import fs from 'fs';
 import fsp from 'fs/promises';
+import { querySync } from '../managers/database/MySQLConnection';
+import { UserNameHistory } from '../managers/database/types/UserTypes';
 
 const DEFAULT_LANGUAGE = JSON.parse(fs.readFileSync('LivzMC/lang/en-us/core.json').toString());
 
@@ -72,5 +74,14 @@ export async function getLocaleString(languageName: string = 'en-us', fileName: 
     return file[key];
   } catch (e) {
     return key;
+  }
+}
+
+export async function getUserNameIndex(username: string, uuid: string): Promise<number> {
+  try {
+    const usernames: UserNameHistory[] = await querySync('select username, uuid from profileNames where username = ?', [username]);
+    return usernames.findIndex(name => name.uuid === uuid);
+  } catch (e) {
+    return 0;
   }
 }
