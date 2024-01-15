@@ -1,0 +1,286 @@
+<%
+  let BORDER = "transition border-2 duration-200 border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-900 bg-gray-100 dark:bg-gray-900";
+  // if (linkedAcc && linkedAcc.prideBorder) BORDER = linkedAcc.prideBorder;
+%>
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../partials/meta', {
+      title: `${profile.username}'${!profile.username.endsWith('s') ? 's' : ''} Profile`,
+    });
+  %>
+  <style>
+    img.scaleNearest {
+      image-rendering: optimizeSpeed;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -o-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="flex">
+      <h1 class="text-4xl py-3 pl-5"><%= profile.username %></h1>
+      <div class="flex ml-auto order-2 text-xl flex-wrap justify-center items-center">
+        <a href="/privacy" class="bg-gray-400 dark:bg-gray-700 text-white px-1 py-1 rounded hover:underline">Privacy</a>
+      </div>
+      <% if (profile.optOut) { %>
+        <div class="align-middle" style="padding-top: 1.19rem; padding-left: 0.2rem;">
+          <div class="text-white font-semibold px-2 py-2 rounded bg-[#5f636c]" title="<%= new Date(profile.lastSearched).toLocaleString() %>">Archived</div>
+        </div>
+      <% } %>
+    </div>
+    <hr class="dark:border-gray-400">
+    <div class="pt-[10px] flex justify-center items-center">
+      <!-- Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-3">
+        <!-- User Information -->
+        <div>
+          <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg h-min">
+            <!-- header -->
+            <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+              <h3 class="text-lg leading-6 text-gray-900 dark:text-gray-300">
+                <%= await getLocaleString(language, 'user', 'account.information'); %>
+              </h3>
+            </div>
+            <!-- body -->
+            <div>
+              <dl id="first-cached">
+                <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'user', 'first.cached') %></dt>
+                  <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
+                    <time data-int="true" data-time="<%= profile.createdAt %>"></time>
+                  </dd>
+                </div>
+              </dl>
+              <dl id="uuid">
+                <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">UUID</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100">
+                    <%= profile.uuid %>
+                    <br>
+                    <%= dashedUUID %>
+                  </dd>
+                </div>
+              </dl>
+              <dl id="views">
+                <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'user', 'views') %></dt>
+                  <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
+                    <%# monthlyViews %>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <!-- Main User Container -->
+        <div class="text-center">
+          <div class="lg:py-0 py-1"></div>
+          <div style="margin: auto;" class="<%= BORDER %> rounded w-min h-min"><canvas id="skin" style="cursor: move;"></canvas></div>
+          <div class="py-1"></div>
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinPauseButton" data-paused="false" onclick="pauseSkin()"><%= await getLocaleString(language, 'user', 'pause') %></button>
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinElytraButton" data-cape="<%# getCape() %>" data-elytra="false" data-gif="false" onclick="showElytra()">Elytra</button>
+          <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinCrouchButton" data-crouch="false" onclick="hasShiftAnimationPlayed ? unshift() : shift()">Crouch</button>
+          <!-- todo: about me -->
+          <div class="py-2 text-center"></div>
+        </div>
+        <!-- skins, capes, names -->
+        <div class="w-full">
+          <% if (profile.skins.length > 0) { %>
+            <!-- skins -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg h-min">
+              <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">
+                  <a href="/user/<%= profile.username %>.<%# userIndex %>/skins" class="text-indigo-600 dark:text-indigo-500 hover:underline">
+                    <%= await getLocaleString(language, 'user', 'skins') %>
+                  </a>
+                </h3>
+              </div>
+              <div>
+                <dl class="flex flex-wrap gap-1 items-center text-center justify-center pt-[5px] pb-[5px]" id="skinHeadsContainer">
+                  <% for (let i = 0; i < profile.skins.length; i++) { %>
+                    <% const skin = profile.skins[i]; %>
+                    <% if (skin.hidden == 0) { %>
+                      <div class="relative inline-block" id="<%= skin.skinId %>-container">
+                        <a href="/skins/<%= skin.skinId %>">
+                          <img class="scaleNearest h-[48px] w-[48px] rounded-md"<%- skin.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : '' %> src="https://render.livzmc.net/skin/head/<%= skin.skinId %>.png" alt="<%= skin.skinId %>" skin="<%= skin.skinId %>" model="<%= skin.model ? skin.model : 'classic' %>" data-time-title="<%= new Date(skin.cachedOn).getTime() %>" title=" (<%= skin.applied ?? '??' %>)">
+                        </a>
+                      </div>
+                    <% } %>
+                  <% } %>
+                </dl>
+              </div>
+            </div>
+          <% } %>
+          <% if (profile.capes && profile.capes.length > 0) { %>
+            <div class="pt-3"></div>
+            <!-- capes -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg h-min">
+              <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">
+                  <%= await getLocaleString(language, 'user', 'capes') %>
+                </h3>
+              </div>
+              <div>
+                <dl class="flex flex-wrap gap-1 items-center text-center justify-center pt-[5px] pb-[5px]">
+                  <% for (let i = 0; i < profile.capes.length; i++) { %>
+                    <% const cape = profile.capes[i]; %>
+                    <% if (cape.hidden == 0) { %>
+                      <div class="relative inline-block" id="<%= cape.capeId %>-container">
+                        <a href="/minecraft-capes/<%= cape.capeId %>">
+                          <img class="scaleNearest h-[64px] w-[40px] rounded-md" src="" alt="<%= cape.capeId %>" data-time-title="<%= new Date(cape.cachedOn).getTime() %>" title=" (<%= cape.applied ?? '??' %>)">
+                        </a>
+                      </div>
+                    <% } %>
+                  <% } %>
+                </dl>
+              </div>
+            </div>
+          <% } %>
+          <% if (profile.names && profile.names.length > 0) { %>
+            <div class="pt-3"></div>
+            <!-- name history -->
+            <div class="<%- nameLength > 7 ? 'overflow-y-scroll h-72 overflow-x-hidden' : 'h-min' %>">
+              <div id="nameHistory" class="flex justify-center items-center text-center">
+                <div class="py-2"></div>
+                <table class="w-full">
+                  <tbody class="bg-white border dark:border-gray-900">
+                    <% for (let i = 0; i < profile.names.length; i++) { %>
+                      <% const name = profile.names[i]; %>
+                      <% if (!name.hidden) { %>
+                        <tr class="text-center text-gray-700 dark:bg-gray-800 dark:text-gray-200 border-b dark:border-gray-900">
+                          <td class="px-2 py-2 font-semibold"><%= profile.names.length - i %></td>
+                          <td class="px-2 py-2">
+                            <% if (name.username) { %>
+                              <a class="px-2 py-1 bg-gray-100 rounded-sm dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 hover:underline" href="/search/<%= name.username %>">
+                                <%= name.username %>
+                              </a>
+                            <% } else { %>
+                              <p>-</p>
+                            <% } %>
+                          </td>
+                          <td>
+                            <% if (name.changedToAt) { %>
+                              <time data-time="<%= new Date(name.diff ? name.diff : name.changedToAt) %>"></time>
+                              <div></div>
+                              <% if (name.diff) { %>
+                                <span data-time-title="<%= name.diff %> <%= name.changedToAt %>">± <%= name.giveOrTake %></span>
+                              <% } %>
+                            <% } %>
+                          </td>
+                          <td>
+                            <% if (name.changedToAt) { %>
+                              ~<%= name.formattedChanged %>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% } %>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          <% } %>
+          <% if (profile.ofCapes && profile.ofCapes.length > 0) { %>
+            <div class="pt-3"></div>
+            <!-- optifine capes -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">
+                  <a href="https://optifine.net/donate" class="text-indigo-600 dark:text-indigo-500 hover:underline">
+                    OptiFine
+                  </a>
+                </h3>
+              </div>
+              <div>
+                <dl class="flex flex-wrap gap-1 items-center text-center justify-center pt-[5px] pb-[5px]">
+                  <% for (let i = 0; i < profile.ofCapes.length; i++) { %>
+                    <% const cape = profile.ofCapes[i]; %>
+                    <% if (cape && !cape.hidden) { %>
+                      <a href="/optifine-capes/<%= cape.capeId %>">
+                        <div class="relative inline-block py-1">
+                          <img height="64" width="40" class="scaleNearest rounded-md capes"<%- cape.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : "" %> cape="OF/<%= cape.removed ? '{{defaultCape.capeId}}' : cape.capeId %>" src="" alt="<%= cape.capeId %>" data-time-title="<%= new Date(cape.cachedOn).getTime() %>">
+                        </div>
+                      </a>
+                    <% } %>
+                  <% } %>
+                </dl>
+              </div>
+            </div>
+          <% } %>
+          <% if (profile.MCCapes && profile.MCCapes.length > 0) { %>
+            <div class="pt-3"></div>
+            <!-- minecraft capes mod capes -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">
+                  <a href="https://minecraftcapes.net" class="text-indigo-600 dark:text-indigo-500 hover:underline">
+                    MinecraftCapes Mod
+                  </a>
+                </h3>
+              </div>
+              <div>
+                <dl class="flex flex-wrap gap-1 items-center text-center justify-center pt-[5px] pb-[5px]">
+                  <% for (let i = 0; i < profile.MCCapes.length; i++) { %>
+                    <% const cape = profile.MCCapes[i]; %>
+                    <% if (cape && !cape.hidden) { %>
+                      <a href="/minecraft-capes-mod/<%= cape.capeId %>">
+                        <div class="relative inline-block py-1">
+                          <img height="64" width="40" class="scaleNearest rounded-md capes"<%- cape.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : "" %> cape="MC/<%= cape.capeId %>" src="" alt="<%= cape.capeId %>" data-time-title="<%= new Date(cape.cachedOn).getTime() %>">
+                        </div>
+                      </a>
+                    <% } %>
+                  <% } %>
+                </dl>
+              </div>
+            </div>
+          <% } %>
+          <% if (profile.lbCapes && profile.lbCapes.length > 0) { %>
+            <div class="pt-3"></div>
+            <!-- labymod capes -->
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">
+                  <a href="https://labymod.net" class="text-indigo-600 dark:text-indigo-500 hover:underline">
+                    LabyMod
+                  </a>
+                </h3>
+              </div>
+              <div>
+                <dl class="flex flex-wrap gap-1 items-center text-center justify-center pt-[5px] pb-[5px]">
+                  <% for (let i = 0; i < profile.lbCapes.length; i++) { %>
+                    <% const cape = profile.lbCapes[i]; %>
+                    <% if (cape && !cape.hidden) { %>
+                      <a href="/laby-cloak/<%= cape.capeId %>">
+                        <div class="relative inline-block py-1">
+                          <img height="64" width="40" class="scaleNearest rounded-md capes"<%- cape.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : "" %> cape="LB/<%= cape.capeId %>" src="" alt="<%= cape.capeId %>" data-time-title="<%= new Date(cape.cachedOn).getTime() %>">
+                        </div>
+                      </a>
+                    <% } %>
+                  <% } %>
+                </dl>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-5"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js" integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://textures.livzmc.net/js/three.min.js"></script>
+  <script src="/js/formatDate.js"></script>
+</body>
+</html>

@@ -11,3 +11,13 @@ export type User = {
   deletedAccount: boolean,
   optOut: boolean,
 };
+
+export type UserNameHistory = {
+  id: number,
+  uuid: string,
+  username: string,
+  changedToAt: number,
+  diff: number,
+  removed: boolean,
+  hidden: boolean,
+};
