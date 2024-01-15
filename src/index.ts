@@ -3,6 +3,7 @@ import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config(); // init .env
 import ejs from 'ejs';
+import cookieParser from 'cookie-parser';
 import { connectToDatabase } from './managers/database/MySQLConnection';
 import {
   getLocaleString,
@@ -51,6 +52,7 @@ app.use(function (req, res, next) {
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static('public'));
+app.use(cookieParser());
 // locals
 app.locals.DEVMODE = DEVMODE;
 app.locals.getLocaleString = getLocaleString;
