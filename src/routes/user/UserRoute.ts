@@ -39,7 +39,6 @@ async function hasOptiFineEventModel(profile: User): Promise<boolean> {
  */
 app.get('/:username.:number', async function (req, res) {
   try {
-    console.time('username');
     const user = await findUser(req.params.username, parseInt(req.params.number));
     if (!user) return res.sendStatus(404);
 
@@ -88,7 +87,6 @@ app.get('/:username.:number', async function (req, res) {
       dashedUUID: uuidToDashed(user.uuid),
       hasOptiFineEvent,
     });
-    console.timeEnd('username');
   } catch (e) {
     console.error(e);
     res.sendStatus(500);
