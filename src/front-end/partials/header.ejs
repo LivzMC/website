@@ -12,14 +12,16 @@
       <div id="logo" style="background: url('/favicon.ico') no-repeat center; height: 32px; width: 32px; display: inline-block; background-size: 32px; border-radius: 8%;"></div>
       <a href="/" class="text-xl hidden lg:flex"><div id="logoText" style="text-align: center; margin-left: .3rem;">LivzMC</div></a>
       <div class="flex lg:hidden">
-        <form id="searchAccounts"><input id="searchAccountInput" class="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-800 rounded py-2 px-2 text-gray-700 dark:text-white leading-tight focus:outline-none focus:bg-white focus:border-blue-900 dark:focus:border-gray-600" type="search" name="username" placeholder="<%= await getLocaleString(language, 'core', 'nav.search.placeholder') %>" autocomplete="off" spellcheck="false" value="<%= formValue %>"></form>
+        <form id="searchAccounts" method="get" action="/search">
+          <input id="searchAccountInput" class="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-800 rounded py-2 px-2 text-gray-700 dark:text-white leading-tight focus:outline-none focus:bg-white focus:border-blue-900 dark:focus:border-gray-600" type="search" name="u" placeholder="<%= await getLocaleString(language, 'core', 'nav.search.placeholder') %>" autocomplete="off" spellcheck="false" value="<%= formValue %>">
+        </form>
         <div class="origin-top-right flex-auto items-center z-10 absolute mt-[50px] w-[220px] rounded-md shadow-lg py-1 bg-white dark:bg-gray-900 ring-1 ring-black ring-opacity-5 focus:outline-none hidden" id="searchedUsers"></div>
       </div>
       <button role="button" aria-label="NavBar Toggle" class="border border-solid border-gray-600 px-3 py-1 rounded text-gray-600 dark:text-white dark:border-white opacity-50 hover:opacity-75 xl:hidden" id="Navbar-toggle"><i class="fas fa-bars"><svg class="w-6 h-6" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(0, 0, 0, 0.55)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg></i></button>
     </div>
     <div class="hidden xl:flex flex-col xl:flex-row xl:ml-auto mt-3 xl:mt-0" id="Navbar-collapse">
       <a href="/" class="truncate p-2 lg:px-2 xl:mx-2 rounded transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1 <%- getButtonStyle('/') %>"><%= await getLocaleString(language, 'core', 'nav.home') %></a>
-      <% if (true) { %>
+      <% if (false) { %>
         <a href="/admin" class="truncate p-2 lg:px-2 xl:mx-2 rounded transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1 <%- getButtonStyle('/admin') %>"><%= await getLocaleString(language, 'core', 'nav.admin') %></a>
       <% } %>
       <a href="/skins/new" class="truncate p-2 lg:px-2 xl:mx-2 rounded transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1 <%- getButtonStyle('/skins') %>"><%= await getLocaleString(language, 'core', 'nav.skins') %></a>
@@ -42,8 +44,8 @@
         </div>
       </div>
       <div class="text-center">
-        <form id="searchAccounts">
-          <input id="searchAccountInput" class="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-800 rounded py-2 px-2 text-gray-700 dark:text-white leading-tight focus:outline-none focus:bg-white focus:border-blue-900 dark:focus:border-gray-600" type="search" name="username" placeholder="<%= await getLocaleString(language, 'core', 'nav.search.placeholder') %>" autocomplete="off" spellcheck="false" value="<%= formValue %>">
+        <form id="searchAccounts" method="get" action="/search">
+          <input id="searchAccountInput" class="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-800 rounded py-2 px-2 text-gray-700 dark:text-white leading-tight focus:outline-none focus:bg-white focus:border-blue-900 dark:focus:border-gray-600" type="search" name="u" placeholder="<%= await getLocaleString(language, 'core', 'nav.search.placeholder') %>" autocomplete="off" spellcheck="false" value="<%= formValue %>">
         </form>
         <div class="origin-top-right flex-auto items-center z-10 absolute mt-[15px] w-[220px] rounded-md shadow-lg py-1 bg-white dark:bg-gray-900 ring-1 ring-black ring-opacity-5 focus:outline-none hidden" id="searchedUsers"></div>
       </div>
@@ -52,7 +54,7 @@
           <img width="24" class="text-center" src="https://textures.livzmc.net/emoji/<%= theme == 'dark' ? '1f319' : '2600' %>.svg" alt="☀">
         </button>
       </div>
-      <% if (true) { %>
+      <% if (false) { %>
         <div class="text-center" id="usermenu">
           <div class="xl:flex items-center px-2">
             <button id="usermenu-toggle">
@@ -71,7 +73,11 @@
             </button>
           </div>
         </div>
+      <% } else { %>
+        <a href="/account/login" class="p-2 lg:px-2 xl:mx-2 text-indigo-600 dark:text-white text-center border border-transparent rounded hover:bg-indigo-100 hover:text-indigo-700 dark:hover:bg-gray-800 transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1">Login</a>
+        <a href="/account/register" class="p-2 lg:px-2 xl:mx-2 text-indigo-600 dark:text-white text-center border border-solid border-indigo-600 rounded hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1">Signup</a>
       <% } %>
     </div>
   </div>
 </nav>
+<script src="/js/header.js"></script>
