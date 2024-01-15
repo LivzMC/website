@@ -17,6 +17,13 @@ app.get('/', (req, res) => {
   renderPage(req, res, 'home', {});
 });
 
+app.get('/contact', (req, res) => {
+  res.write('You can contact me at these places:\n');
+  res.write('Discord: https://discord.gg/ytrKev7xZD\n');
+  res.write('Email: support@livzmc.net\n');
+  res.send();
+});
+
 // legacy vanity urls
 app.get('/v/:vanity', async function (req, res) {
   try {
@@ -38,13 +45,6 @@ app.get('/:vanity', async function (req, res) {
     console.error(e);
     res.sendStatus(500);
   }
-});
-
-app.get('/contact', (req, res) => {
-  res.write('You can contact me at these places:\n');
-  res.write('Discord: https://discord.gg/ytrKev7xZD\n');
-  res.write('Email: support@livzmc.net\n');
-  res.send();
 });
 
 export default app;
