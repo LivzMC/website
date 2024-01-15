@@ -20,7 +20,7 @@ const connection = mysql.createConnection({
  * @param values The values that should be used inside the statement
  * @returns a promise of the query
  */
-export function querySync(statement: string, values: Array<string> = []): Promise<any> {
+export function querySync(statement: string, values: Array<string> = []): Promise<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
   const promise = new Promise((res, rej) => {
     connection.query(
       {

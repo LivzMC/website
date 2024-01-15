@@ -43,7 +43,7 @@ async function generateSkinUserCache(skinId: string, filePath: string): Promise<
     fs.rmSync('cache/skins.json');
   }
 
-  const skinsCache: any[][] = [];
+  const skinsCache: Skin[][] = [];
 
   for (let i = 0; i < 100; i++) {
     const skins: Skin[] = await querySync(`

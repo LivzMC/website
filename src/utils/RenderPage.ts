@@ -6,7 +6,7 @@ function getCookie(req: Request, cookieName: string, defaultValue: string | null
   return cookie || defaultValue;
 }
 
-export default function renderPage(req: Request, res: Response, path: string, options: any): void {
+export default function renderPage(req: Request, res: Response, path: string, options: any): void { // eslint-disable-line @typescript-eslint/no-explicit-any
   const theme = getCookie(req, 'theme', 'dark');
   const language = getCookie(req, 'language', 'en-us');
   // modify global options

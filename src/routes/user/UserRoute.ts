@@ -27,7 +27,7 @@ async function hasOptiFineEventModel(profile: User): Promise<boolean> {
     const pathToFile = `${process.env.FILEPATH}/users/${profile.username}.cfg`;
     if (fs.existsSync(pathToFile)) {
       const models = JSON.parse((await fsp.readFile(pathToFile)).toString());
-      if (models.items.filter((a: any) => a.type === type)[0]) return true;
+      if (models.items.filter((a: { type: string, }) => a.type === type)[0]) return true;
     }
   }
 
@@ -43,12 +43,12 @@ app.get('/:username.:number', async function (req, res) {
     const user = await findUser(req.params.username, parseInt(req.params.number));
     if (!user) return res.sendStatus(404);
 
-    let names = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
+    let names: (UserNameHistory & { giveOrTake: number, formattedChanged: number; })[] = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
     const nameLength = names.length;
     if (names) {
-      names = names.filter((a: any) => !a.hidden);
-      names = names.filter((a: any) => a.username != null);
-      names = names.map((name: any) => {
+      names = names.filter(a => !a.hidden);
+      names = names.filter(a => a.username != null);
+      names = names.map(name => {
         if (name.changedToAt) {
           if (name.diff != 0) {
             name.giveOrTake = (name.changedToAt - name.diff) / 1000;
@@ -60,7 +60,7 @@ app.get('/:username.:number', async function (req, res) {
         return name;
       });
 
-      names = names.sort((a: any, b: any) => {
+      names = names.sort((a, b) => {
         return b.changedToAt - a.changedToAt;
       });
     }
