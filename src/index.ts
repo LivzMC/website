@@ -25,7 +25,8 @@ const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
 if (!fs.existsSync('cache')) fs.mkdirSync('cache', { recursive: true });
 if (!fs.existsSync('cache/skins')) fs.mkdirSync('cache/skins', { recursive: true });
 if (!fs.existsSync('cache/capes')) fs.mkdirSync('cache/capes', { recursive: true });
-if (!fs.existsSync('cache/banner')) fs.mkdirSync('cache/capes/banner', { recursive: true });
+if (!fs.existsSync('cache/capes/banner')) fs.mkdirSync('cache/capes/banner', { recursive: true });
+if (!fs.existsSync('cache/users')) fs.mkdirSync('cache/users', { recursive: true });
 
 connectToDatabase(); // connect to database
 
