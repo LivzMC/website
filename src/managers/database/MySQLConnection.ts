@@ -1,4 +1,5 @@
 import mysql from 'mysql2';
+import fs from 'fs';
 
 const HOST: string = process.env.SQL_SERVER || 'localhost';
 const USER: string = process.env.SQL_USER || 'user';
@@ -45,6 +46,12 @@ export function connectToDatabase(): void {
       console.error(err);
     } else {
       console.log(`Connected to database '${HOST}:${PORT}' as '${USER}'`);
+      fs.readdirSync('schemas').forEach(async function (s) {
+        if (s.endsWith('.sql')) {
+          const schema = fs.readFileSync(`schemas/${s}`).toString();
+          await querySync(schema);
+        }
+      });
     }
   });
 }
