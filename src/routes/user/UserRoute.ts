@@ -4,6 +4,9 @@ import fsp from 'fs/promises';
 import renderPage from '../../utils/RenderPage';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { User, UserNameHistory } from '../../managers/database/types/UserTypes';
+import { secondsToTime } from '../../utils/Utils';
+import { SkinUsers } from '../../managers/database/types/SkinTypes';
+import { CapeUser } from '../../managers/database/types/CapeTypes';
 
 const app = express.Router();
 
@@ -42,7 +45,8 @@ app.get('/:username.:number', async function (req, res) {
     const user = await findUser(req.params.username, parseInt(req.params.number));
     if (!user) return res.sendStatus(404);
 
-    let names: (UserNameHistory & { giveOrTake: number, formattedChanged: number; })[] = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
+    const start = performance.now();
+    let names: (UserNameHistory & { giveOrTake: string, formattedChanged: string; })[] = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
     const nameLength = names.length;
     if (names) {
       names = names.filter(a => !a.hidden);
@@ -50,10 +54,10 @@ app.get('/:username.:number', async function (req, res) {
       names = names.map(name => {
         if (name.changedToAt) {
           if (name.diff != 0) {
-            name.giveOrTake = (name.changedToAt - name.diff) / 1000;
+            name.giveOrTake = secondsToTime((name.changedToAt - name.diff) / 1000);
           }
 
-          name.formattedChanged = (Date.now() - name.changedToAt) / 1000;
+          name.formattedChanged = secondsToTime((Date.now() - name.changedToAt) / 1000);
         }
 
         return name;
@@ -63,8 +67,14 @@ app.get('/:username.:number', async function (req, res) {
         return b.changedToAt - a.changedToAt;
       });
     }
-    const skins = await querySync('select skinId, cachedOn, model, enabled, hidden from profileSkins where uuid = ?', [user.uuid]);
-    const capes = await querySync('select capeId, cachedOn, hidden from profileCapes where uuid = ?', [user.uuid]);
+    let skins: SkinUsers[] = await querySync('select skinId, cachedOn, model, enabled, hidden from profileSkins where uuid = ?', [user.uuid]);
+    skins = skins.filter(skin => !skin.hidden);
+    skins = skins.sort((a, b) => {
+      if (b.enabled && !a.enabled) return 1;
+      return b.cachedOn - a.cachedOn;
+    });
+    if (skins.length > 27) skins.length = 27;
+    const capes = (await querySync('select capeId, cachedOn, hidden from profileCapes where uuid = ?', [user.uuid])).filter((cape: CapeUser) => !cape.hidden);
     const ofCapes = await querySync('select capeId, cachedOn, hidden, banners.removed, banners.isBanner, banners.cleanUrl from profileOFCapes join banners on profileOFCapes.capeId = banners.bannerId where uuid = ?', [user.uuid]);
     const lbCapes = await querySync('select capeId, cachedOn, hidden from profileLBCapes where uuid = ?', [user.uuid]);
     const mcCapes = await querySync('select capeId, cachedOn, hidden from profileMCCapes where uuid = ?', [user.uuid]);
@@ -80,12 +90,15 @@ app.get('/:username.:number', async function (req, res) {
     };
 
     const hasOptiFineEvent = await hasOptiFineEventModel(user);
+    const end = performance.now();
+    const timeToLoad = (end - start).toFixed(2);
 
     renderPage(req, res, 'users/viewUser', {
       profile,
       nameLength,
       dashedUUID: uuidToDashed(user.uuid),
       hasOptiFineEvent,
+      timeToLoad,
     });
   } catch (e) {
     console.error(e);

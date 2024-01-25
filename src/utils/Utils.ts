@@ -85,3 +85,26 @@ export async function getUserNameIndex(username: string, uuid: string): Promise<
     return 0;
   }
 }
+
+export function secondsToTime(seconds: number): string {
+  if (isNaN(seconds)) seconds = new Date(0).getTime();
+  const y = Math.floor(seconds / (3600 * (24 * 365)));
+  const d = Math.floor(seconds / (3600 * 24));
+  const h = Math.floor(seconds % (3600 * 24) / 3600);
+  const m = Math.floor(seconds % 3600 / 60);
+  const s = Math.floor(seconds % 60);
+
+  const yDisplay: string = y > 0 ? y + 'y' : '';
+  const dDisplay: string = d > 0 ? d + 'd ' : '';
+  const hDisplay: string = h > 0 ? h + 'h ' : '';
+  const mDisplay: string = m > 0 ? m + 'm ' : '';
+  const sDisplay: string = s > 0 ? s + 's ' : '';
+
+  if (y > 0) return yDisplay;
+  if (d > 0) return dDisplay;
+  if (h > 0) return hDisplay;
+  if (m > 0) return mDisplay;
+  if (s > 0) return sDisplay;
+
+  return 'NULL';
+}
