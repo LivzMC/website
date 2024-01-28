@@ -18,6 +18,8 @@ import OptiFineCapesRoute from './routes/capes/OptiFineCapesRoute';
 import UserRoute from './routes/user/UserRoute';
 import SearchRoute from './routes/SearchRoute';
 import BannerRoute from './routes/BannerRoute';
+import AccountRoute from './routes/account/AccountRoute';
+import SessionManager from './managers/SessionManager';
 // constants
 const HOSTNAME: string = process.env.HOSTNAME ?? 'localhost';
 const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
@@ -27,6 +29,7 @@ if (!fs.existsSync('cache/skins')) fs.mkdirSync('cache/skins', { recursive: true
 if (!fs.existsSync('cache/capes')) fs.mkdirSync('cache/capes', { recursive: true });
 if (!fs.existsSync('cache/capes/banner')) fs.mkdirSync('cache/capes/banner', { recursive: true });
 if (!fs.existsSync('cache/users')) fs.mkdirSync('cache/users', { recursive: true });
+if (!fs.existsSync('cache/sessions')) fs.mkdirSync('cache/sessions', { recursive: true });
 
 connectToDatabase(); // connect to database
 
@@ -45,19 +48,25 @@ app.engine('ejs', async function (path, data, cb) {
 });
 
 // middleware
-app.use(function (req, res, next) {
-  // check ip address
-  // if blocked, return 403
-
-  // check hostname, if different then return 403
-  if (req.hostname !== HOSTNAME) return res.status(403).send();
-  next();
-});
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static('public'));
 app.use(cookieParser());
+
+app.use(async function (req, res, next) {
+  try {
+    // check ip address
+    // if blocked, return 403
+
+    // check hostname, if different then return 403
+    if (req.hostname !== HOSTNAME) return res.status(403).send();
+    res.locals.account = req.cookies && req.cookies.sessionId ? await SessionManager.getCachedSession(req.cookies.sessionId) : null;
+    next();
+  } catch (e) {
+    console.error(e);
+    return res.sendStatus(500);
+  }
+});
 // locals
 app.locals.DEVMODE = DEVMODE;
 app.locals.getLocaleString = getLocaleString;
@@ -70,6 +79,7 @@ app.use('/optifine-capes', OptiFineCapesRoute);
 app.use('/user', UserRoute);
 app.use('/search', SearchRoute);
 app.use('/banner', BannerRoute);
+app.use('/account', AccountRoute);
 //
 
 async function findVanity(vanity: string): Promise<User | null> {

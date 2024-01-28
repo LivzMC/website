@@ -1,6 +1,7 @@
 // random misc utility functions
 import fs from 'fs';
 import fsp from 'fs/promises';
+import crypto from 'crypto';
 import { querySync } from '../managers/database/MySQLConnection';
 import { UserNameHistory } from '../managers/database/types/UserTypes';
 
@@ -46,6 +47,13 @@ export async function generateBannerPatterns(pattern: string, language: string):
   }
 
   return formatted.join('');
+}
+
+/**
+ * Converts the provided text into MD5
+ */
+export function generateRandomId(text: string, length: number = 8) {
+  return crypto.createHash('md5').update(text).digest('hex').substring(32 - length);
 }
 
 /**

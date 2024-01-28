@@ -21,7 +21,7 @@
     </div>
     <div class="hidden xl:flex flex-col xl:flex-row xl:ml-auto mt-3 xl:mt-0" id="Navbar-collapse">
       <a href="/" class="truncate p-2 lg:px-2 xl:mx-2 rounded transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1 <%- getButtonStyle('/') %>"><%= await getLocaleString(language, 'core', 'nav.home') %></a>
-      <% if (false) { %>
+      <% if (account && account.permission > 9) { %>
         <a href="/admin" class="truncate p-2 lg:px-2 xl:mx-2 rounded transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1 <%- getButtonStyle('/admin') %>"><%= await getLocaleString(language, 'core', 'nav.admin') %></a>
       <% } %>
       <a href="/skins/new" class="truncate p-2 lg:px-2 xl:mx-2 rounded transition-colors duration-300 mt-1 xl:mt-0 xl:ml-1 <%- getButtonStyle('/skins') %>"><%= await getLocaleString(language, 'core', 'nav.skins') %></a>
@@ -54,7 +54,7 @@
           <img width="24" class="text-center" src="https://textures.livzmc.net/emoji/<%= theme == 'dark' ? '1f319' : '2600' %>.svg" alt="☀">
         </button>
       </div>
-      <% if (false) { %>
+      <% if (account) { %>
         <div class="text-center" id="usermenu">
           <div class="xl:flex items-center px-2">
             <button id="usermenu-toggle">
@@ -67,7 +67,7 @@
             <button id="usermenu-toggle_name">
               <div class="ml-1">
                 <div class="font-semibold dark:text-white">
-                  Username
+                  <%= account.accountId %>
                 </div>
               </div>
             </button>
