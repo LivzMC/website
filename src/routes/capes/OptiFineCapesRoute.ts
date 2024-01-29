@@ -4,6 +4,7 @@ import fsp from 'fs/promises';
 import wcmatch from 'wildcard-match';
 import renderPage from '../../utils/RenderPage';
 import NodeCache from 'node-cache';
+import ErrorManager from '../../managers/ErrorManager';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { isFileCacheExpired } from '../../utils/Utils';
 import { Banner } from '../../managers/database/types/OptiFineCapeTypes';
@@ -66,7 +67,7 @@ app.get('/', async function (req, res) {
     });
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -102,7 +103,7 @@ app.get('/:bannerId', async function (req, res) {
     if (!BannerUserLengthCache.has(banner.bannerId)) BannerUserLengthCache.set(banner.bannerId, length, 60 * 5);
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 

@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import sharp from 'sharp';
+import ErrorManager from '../../managers/ErrorManager';
 
 const app = express.Router();
 
@@ -34,7 +35,7 @@ app.get('/cape/OF/:capeId.png', async function (req, res) {
     res.end(image);
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -55,7 +56,7 @@ app.get('/cape/MC/:capeId.png', async function (req, res) {
     res.end(image);
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -76,7 +77,7 @@ app.get('/cape/LB/:capeId.png', async function (req, res) {
     res.end(image);
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -95,7 +96,7 @@ app.get('/cape/:capeId.png', async function (req, res) {
     res.end(image);
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 

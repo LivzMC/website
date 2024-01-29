@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import renderPage from '../../utils/RenderPage';
+import ErrorManager from '../../managers/ErrorManager';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { User, UserNameHistory } from '../../managers/database/types/UserTypes';
 import { secondsToTime } from '../../utils/Utils';
@@ -102,7 +103,7 @@ app.get('/:username.:number', async function (req, res) {
     });
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 

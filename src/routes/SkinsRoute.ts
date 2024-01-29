@@ -3,6 +3,7 @@ import fs from 'fs';
 import fsp from 'fs/promises';
 import renderPage from '../utils/RenderPage';
 import NodeCache from 'node-cache';
+import ErrorManager from '../managers/ErrorManager';
 import { querySync } from '../managers/database/MySQLConnection';
 import { Skin, SkinUsers } from '../managers/database/types/SkinTypes';
 import { isFileCacheExpired } from '../utils/Utils';
@@ -108,7 +109,7 @@ app.get('/new', async function (req, res) {
     skinsCache.set(page, skins, 10); // cache database response for 10 seconds
   } catch (e) {
     console.error(e);
-    return res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -129,7 +130,7 @@ app.get('/random', async function (req, res) {
     });
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -163,7 +164,7 @@ app.get('/:skinId', async function (req, res) {
     }
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 

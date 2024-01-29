@@ -1,5 +1,6 @@
 import express from 'express';
 import renderPage from '../utils/RenderPage';
+import ErrorManager from '../managers/ErrorManager';
 import { generateBannerPatterns } from '../utils/Utils';
 
 const app = express.Router();
@@ -35,7 +36,7 @@ app.get('/', async function (req, res) {
     });
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 

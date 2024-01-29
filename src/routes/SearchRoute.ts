@@ -1,5 +1,6 @@
 import express from 'express';
 import renderPage from '../utils/RenderPage';
+import ErrorManager from '../managers/ErrorManager';
 import { querySync } from '../managers/database/MySQLConnection';
 import { User } from '../managers/database/types/UserTypes';
 import { getUserNameIndex } from '../utils/Utils';
@@ -60,7 +61,7 @@ app.get('/', async function (req, res) {
     });
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 

@@ -3,6 +3,7 @@ import fs from 'fs';
 import fsp from 'fs/promises';
 import NodeCache from 'node-cache';
 import renderPage from '../../utils/RenderPage';
+import ErrorManager from '../../managers/ErrorManager';
 import { isFileCacheExpired } from '../../utils/Utils';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { Cape, CapeUser } from '../../managers/database/types/CapeTypes';
@@ -54,7 +55,7 @@ app.get('/', async function (req, res) {
     if (isFileCacheExpired('cache/capes.json', 60 * 5)) await generateCapesCache();
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -90,7 +91,7 @@ app.get('/:capeId', async function (req, res) {
     }
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 

@@ -6,6 +6,7 @@ import { Account } from '../../managers/database/types/AccountTypes';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { encrypt, generateRandomId } from '../../utils/Utils';
 import SessionManager from '../../managers/SessionManager';
+import ErrorManager from '../../managers/ErrorManager';
 
 const app = express.Router();
 
@@ -25,7 +26,7 @@ app.get('/', async function (req, res) {
     });
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -96,7 +97,7 @@ app.post('/login', async function (req, res) {
     res.redirect('/account');
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
@@ -185,7 +186,7 @@ app.post('/register', async function (req, res) {
     // todo: send email to verify email
   } catch (e) {
     console.error(e);
-    res.sendStatus(500);
+    new ErrorManager(req, res, e as Error).write();
   }
 });
 
