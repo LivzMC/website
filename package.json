@@ -18,7 +18,7 @@
     "livzmc"
   ],
   "author": "IrisJS <kaiaf@protonmail.com> (https://livzmc.net)",
-  "license": "GPL-3.0-only",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
     "@types/bcrypt": "^5.0.2",
