@@ -1,0 +1,82 @@
+<%
+  // default options
+  if (typeof cameraZ == 'undefined') cameraZ = 60;
+  if (typeof speed == 'undefined') speed = 0.55;
+  if (typeof paused == 'undefined') paused = false;
+  if (typeof profile == 'undefined') profile = null;
+%>
+<script src="https://textures.livzmc.net/js/three.min.js"></script>
+<script src="https://textures.livzmc.net/js/3d/2.3.9.bundle.js"></script>
+<script>
+  const skinViewer = new skinview3d.SkinViewer({
+    canvas: document.getElementById('skin'),
+    width: 280,
+    height: 360,
+    skin: '<%= skin %>',
+    model: '<%= slim ? "slim" : "default" %>',
+    <% if (cape) { %>
+      cape: '<%= cape %>',
+    <% } %>
+    <% if (profile && (profile.uuid == '61699b2ed3274a019f1e0ea8c3f06bc6' || profile.uuid == 'e6b5c088068044df9e1b9bf11792291b')) { %>
+      flipped: true,
+    <% } %>
+    cameraZ: <%= cameraZ %>,
+  });
+
+  skinViewer.fov = 10;
+  skinViewer.background = <%= theme == 'dark' ? 1120295 : 15987958 %>;
+  const control = skinview3d.createOrbitControls(skinViewer);
+  control.enableRotate = true;
+  control.enableZoom = false;
+  control.enablePan = false;
+  const walk = skinViewer.animations.add(skinview3d.WalkingAnimation);
+  walk.speed = <%= speed %>;
+  walk.paused = <%= paused %>;
+  document.getElementById('skinPauseButton').setAttribute('data-paused', walk.paused);
+  // functions
+  function pauseSkin() {
+    const doc = document.getElementById('skinPauseButton');
+    if (doc) {
+      const isPaused = doc.getAttribute('data-paused') === 'true';
+      walk.paused = !isPaused;
+      doc.setAttribute('data-paused', !isPaused);
+    }
+  }
+
+  function showElytra() {
+    const doc = document.getElementById('skinElytraButton');
+    if (doc) {
+      const hasElyta = doc.getAttribute('data-elytra') === 'true';
+      const cape = doc.getAttribute('data-cape');
+      if (!cape) return;
+      skinViewer.loadCape("<%= cape %>", {
+        backEquipment: hasElyta ? "elytra" : null,
+      });
+      doc.setAttribute('data-elytra', !hasElyta);
+    }
+  }
+
+  let hasShiftAnimationPlayed = false;
+  document.addEventListener('keydown', (e) => {
+    if (e.shiftKey) shift();
+  });
+  document.addEventListener('keyup', (e) => unshift());
+
+  function shift() {
+    skinViewer.shift(true);
+    hasShiftAnimationPlayed == false ? skinViewer.animations.add(skinview3d.ElytraShiftAnimation).removeAfter(500) : '';
+    hasShiftAnimationPlayed = true;
+    skinViewer.animations.speed = 0.33;
+  }
+
+  function unshift() {
+    skinViewer.shift(false);
+    hasShiftAnimationPlayed == true ? skinViewer.animations.add(skinview3d.ElytraUnshiftAnimation).removeAfter(500) : '';
+    hasShiftAnimationPlayed = false;
+    skinViewer.animations.speed = 0.55;
+  }
+
+  if (!document.getElementById('skinElytraButton').getAttribute('data-cape')) {
+    document.getElementById('skinElytraButton').classList.add('hidden');
+  }
+</script>

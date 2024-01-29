@@ -30,7 +30,7 @@
                   <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">Banner URL</dt>
                   <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100">
                     <% if (banner.isBanner) { %>
-                      <a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/banner/?=<%= cape.cleanUrl %>"><%= cape.cleanUrl %></a>
+                      <a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/banner/?=<%= banner.cleanUrl %>"><%= banner.cleanUrl %></a>
                     <% } else { %>
                       <p>In moderation queue.</p>
                     <% } %>
@@ -92,5 +92,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js" integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="/js/formatDate.js"></script>
+  <%-
+    await include('../../partials/skinviewer', {
+      skin: `https://textures.livzmc.net/skin/alex.png`,
+      cape: `https://textures.livzmc.net/cape/OF/${banner.bannerId}.png?uuid=${profiles[0] ? profiles[0].uuid : ''}`,
+      slim: true,
+      cameraZ: -300,
+    });
+  %>
 </body>
 </html>

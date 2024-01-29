@@ -22,6 +22,7 @@ async function generateSkinUserCache(skinId: string, filePath: string): Promise<
   const skinUsers: SkinUsers[] = await querySync(`
     SELECT 
       profileSkins.hidden,
+      profileSkins.model,
       profiles.uuid as profiles_uuid,
       profiles.username as profiles_username,
       profiles.banned as profiles_banned
