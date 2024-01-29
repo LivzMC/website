@@ -61,7 +61,36 @@ app.use(async function (req, res, next) {
 
     // check hostname, if different then return 403
     if (req.hostname !== HOSTNAME) return res.status(403).send();
-    res.locals.account = req.cookies && req.cookies.sessionId ? await SessionManager.getCachedSession(req.cookies.sessionId) : null;
+
+    const account = req.cookies && req.cookies.sessionId ? await SessionManager.getCachedSession(req.cookies.sessionId) : null;
+    if (account) {
+      const linkedAccounts = await querySync(
+        `
+          select
+            profiles.uuid,
+            profiles.username,
+            profiles.enabledColor,
+            profiles.enabledEmoji,
+            profiles.enabledFont,
+            skins.skinId,
+            linkedAccounts.createdAt as linked_createdAt,
+            linkedAccounts.linked as linked_linked,
+            linkedAccounts.active as linked_active
+          from
+            livzmc.linkedAccounts
+          join
+            livzmc.profiles on profiles.uuid = linkedAccounts.uuid
+          join
+            livzmc.skins on skins.url = profiles.currentSkin 
+          where accountId = ?
+        `,
+        [account.accountId]
+      );
+
+      res.locals.linkedAccounts = linkedAccounts;
+    }
+
+    res.locals.account = account;
     next();
   } catch (e) {
     console.error(e);
@@ -72,6 +101,7 @@ app.use(async function (req, res, next) {
 app.locals.DEVMODE = DEVMODE;
 app.locals.getLocaleString = getLocaleString;
 app.locals.getUserNameIndex = getUserNameIndex;
+app.locals.LMCButton = 'rounded dark:bg-[#047857] bg-[#059669] text-white font-semibold px-2 py-1 hover:underline';
 // create routes
 app.use('/', HomeRoute);
 app.use('/skins', SkinsRoute);

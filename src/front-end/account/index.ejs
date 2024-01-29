@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../partials/meta', {
+      title: await getLocaleString(language, 'account', 'title'),
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="py-5 grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+        <div class="px-4 py-5 sm:px-6 dark:bg-gray-900 bg-gray-100">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300"><%= await getLocaleString(language, 'account', 'information') %></h3>
+        </div>
+        <div>
+          <dl>
+            <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'account', 'id') %></dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100"><%= account.accountId %></dd>
+            </div>
+            <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'account', 'email.address') %></dt>
+              <dd class="mt-1 text-sm text-gray-900 font-semibold sm:mt-0 sm:col-span-2 dark:text-gray-300 flex">
+                <%= email %>
+                <% if (!account.emailVerified || account.emailVerified === '0') { %>
+                  (<a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/account/sendVerifyEmail">Unverified</a>)
+                <% } else { %>
+                  <%# Verified email badge %>
+                  <div class="ml-[2px]"></div>
+                  <img width="24" src="https://raw.githubusercontent.com/LivzMC/LivzMC/main/assets/badges/livzmc_staff.svg" alt="">
+                <% } %>
+                (<a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/account/change-email">change</a>)
+              </dd>
+            </div>
+            <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'account', 'password') %></dt>
+              <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
+                <a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/account/forgot-password">change</a>
+              </dd>
+            </div>
+            <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">Discord Account</dt>
+              <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
+                <% if (!account.discord || !discord) { %>
+                  <a href="/account/discord/link" class="text-indigo-600 dark:text-indigo-500 hover:underline">Link Discord</a>
+                <% } else { %>
+                  <%= discord.username %><% discord.discriminator != null && discord.discriminator != '0' ? `#${discord.discriminator}` : '' %>
+                <% } %>
+              </dd>
+            </div>
+            <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'account', 'creation.date') %></dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100">
+                <time data-int="true" data-time="<%= account.createdAt %>"></time>
+              </dd>
+            </div>
+            <% if (account.permission > 7) { %>
+              <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-200">2FA</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100">
+                  <% if (account['2FA']) { %>
+                    Enabled
+                  <% } else { %>
+                    <a href="/admin/enable_2fa" class="text-indigo-600 dark:text-indigo-500 hover:underline">Disabled</a>
+                  <% } %>
+                </dd>
+              </div>
+            <% } %>
+          </dl>
+        </div>
+      </div>
+      <!-- Linked Profiles -->
+      <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+        <div class="px-4 py-5 sm:px-6 dark:bg-gray-900 bg-gray-100">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300">Linked Profiles</h3>
+        </div>
+        <div class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-100 flex flex-wrap pt-2">
+          <div class="relative overflow-x-auto w-full">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+              <thead class="text-xs text-gray-700 bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                  <th scope="col" class="px-6 py-3">
+                    Linked
+                  </th>
+                  <th scope="col" class="px-6 py-3">
+                    Status
+                  </th>
+                  <th scope="col" class="px-6 py-3">
+                    Username
+                  </th>
+                  <th scope="col" class="px-6 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (linkedAccounts && linkedAccounts.length > 0) { %>
+                  <% for (let i = 0; i < linkedAccounts.length; i++) { %>
+                    <% const profile = linkedAccounts[i]; %>
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                      <th class="px-6 py-4">
+                        <time data-int="true" data-time="<%= profile.linked_createdAt %>"></time>
+                      </th>
+                      <td class="px-6 py-4">
+                        <%= profile.linked_linked ? 'Linked' : 'Unlinked' %>
+                      </td>
+                      <td class="px-6 py-4">
+                        <%= profile.username %>
+                      </td>
+                      <td class="px-6 py-4">
+                        <% if (profile.linked_linked) { %>
+                          <form action="/account/unlink/<%= profile.username %>.<%= await getUserNameIndex(profile.username, profile.uuid) + 1 %>" method="post">
+                            <button type="submit" class="hover:underline font-semibold px-1 py-1 rounded inline align-middle <%= LMCButton %>">Unlink</button>
+                          </form>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% } %>
+                <% } else { %>
+                  <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"> </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js" integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/js/formatDate.js"></script>
+</body>
+</html>

@@ -55,20 +55,22 @@
         </button>
       </div>
       <% if (account) { %>
+        <% const activeUser = linkedAccounts.filter(a => a.linked_active)[0]; %>
         <div class="text-center" id="usermenu">
           <div class="xl:flex items-center px-2">
             <button id="usermenu-toggle">
               <div class="xl:flex items-center px-2">
                 <div class="xl:flex-shrink">
-                  <img width="40" class="rounded-[10%]" src="https://textures.livzmc.net/skin/alex.png" alt=""> 
+                  <img width="40" class="rounded-[10%]" src="https://textures.livzmc.net/skin/<%= activeUser ? activeUser.skinId : 'alex' %>.png" alt=""> 
                 </div>
               </div>
             </button>
             <button id="usermenu-toggle_name">
               <div class="ml-1">
-                <div class="font-semibold dark:text-white">
-                  <%= account.accountId %>
-                </div>
+                <p class="font-semibold dark:text-white">
+                  <!-- todo: add colour and emoji -->
+                  <%= activeUser ? activeUser.username : account.accountId %>
+                </p>
               </div>
             </button>
           </div>

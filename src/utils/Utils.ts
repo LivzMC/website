@@ -2,6 +2,7 @@
 import fs from 'fs';
 import fsp from 'fs/promises';
 import crypto from 'crypto';
+import CryptoJS from 'crypto-js';
 import { querySync } from '../managers/database/MySQLConnection';
 import { UserNameHistory } from '../managers/database/types/UserTypes';
 
@@ -115,4 +116,14 @@ export function secondsToTime(seconds: number): string {
   if (s > 0) return sDisplay;
 
   return 'NULL';
+}
+
+export function encrypt(text: string, key: string | null = (process.env.KEY || null)): string {
+  if (!key) throw new Error('Invalid encryption key!');
+  return CryptoJS.AES.encrypt(text, key).toString();
+}
+
+export function decrypt(text: string, key: string | null = (process.env.KEY || null)): string {
+  if (!key) throw new Error('Invalid encryption key!');
+  return CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
 }

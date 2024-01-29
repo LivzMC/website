@@ -560,6 +560,9 @@ video {
 .ml-\[10px\] {
   margin-left: 10px;
 }
+.ml-\[2px\] {
+  margin-left: 2px;
+}
 .ml-\[5px\] {
   margin-left: 5px;
 }
@@ -781,6 +784,9 @@ video {
 .overflow-clip {
   overflow: clip;
 }
+.overflow-x-auto {
+  overflow-x: auto;
+}
 .overflow-x-hidden {
   overflow-x: hidden;
 }
@@ -872,6 +878,10 @@ video {
 }
 .border-transparent {
   border-color: transparent;
+}
+.bg-\[\#059669\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(5 150 105 / var(--tw-bg-opacity));
 }
 .bg-\[\#073C92\] {
   --tw-bg-opacity: 1;
@@ -1048,6 +1058,10 @@ video {
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
+}
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 .font-bold {
   font-weight: 700;
@@ -1384,6 +1398,10 @@ video {
     display: none;
   }
 
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .lg\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1495,6 +1513,10 @@ video {
 :is(:where(.dark) .dark\:bg-\[\#024A33\]) {
   --tw-bg-opacity: 1;
   background-color: rgb(2 74 51 / var(--tw-bg-opacity));
+}
+:is(:where(.dark) .dark\:bg-\[\#047857\]) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(4 120 87 / var(--tw-bg-opacity));
 }
 :is(:where(.dark) .dark\:bg-\[\#059669\]) {
   --tw-bg-opacity: 1;
