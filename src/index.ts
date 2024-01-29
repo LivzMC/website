@@ -10,6 +10,7 @@ import {
   getUserNameIndex,
 } from './utils/Utils';
 import { User } from './managers/database/types/UserTypes';
+import SessionManager from './managers/SessionManager';
 // routes
 import HomeRoute from './routes/HomeRoute';
 import SkinsRoute from './routes/SkinsRoute';
@@ -19,7 +20,7 @@ import UserRoute from './routes/user/UserRoute';
 import SearchRoute from './routes/SearchRoute';
 import BannerRoute from './routes/BannerRoute';
 import AccountRoute from './routes/account/AccountRoute';
-import SessionManager from './managers/SessionManager';
+import Render2DRoute from './routes/api/Render2DRoute';
 // constants
 const HOSTNAME: string = process.env.HOSTNAME ?? 'localhost';
 const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
@@ -80,6 +81,7 @@ app.use('/user', UserRoute);
 app.use('/search', SearchRoute);
 app.use('/banner', BannerRoute);
 app.use('/account', AccountRoute);
+app.use('/api/render/2d', Render2DRoute);
 //
 
 async function findVanity(vanity: string): Promise<User | null> {

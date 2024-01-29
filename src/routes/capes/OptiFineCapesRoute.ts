@@ -6,8 +6,7 @@ import renderPage from '../../utils/RenderPage';
 import NodeCache from 'node-cache';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { isFileCacheExpired } from '../../utils/Utils';
-import { Banner, BannerUser } from '../../managers/database/types/OptiFineCapeTypes';
-import { User } from '../../managers/database/types/UserTypes';
+import { Banner } from '../../managers/database/types/OptiFineCapeTypes';
 
 const app = express.Router();
 const BannerUserLengthCache = new NodeCache();
