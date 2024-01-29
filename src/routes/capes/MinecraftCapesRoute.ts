@@ -1,5 +1,6 @@
 import express from 'express';
 import fs from 'fs';
+import fsp from 'fs/promises';
 import NodeCache from 'node-cache';
 import renderPage from '../../utils/RenderPage';
 import { isFileCacheExpired } from '../../utils/Utils';
@@ -12,23 +13,29 @@ const userLengthCache = new NodeCache();
 
 async function generateCapesCache(): Promise<void> {
   const capes = await querySync('select * from livzmc.capes');
-  fs.writeFileSync('cache/capes.json', JSON.stringify(capes));
+  await fsp.writeFile('cache/capes.json', JSON.stringify(capes));
 }
 
 async function generateCapeUsersCache(capeId: string, filePath: string): Promise<void> {
-  const capeUsers: CapeUser[] = await querySync('select * from livzmc.profileCapes where capeId = ? order by cachedOn desc limit 500', [capeId]);
-  const users = await Promise.all(
-    capeUsers.map(async function (cape) {
-      if (cape.hidden) return undefined;
-      const user = (await querySync('select username, uuid, banned from livzmc.profiles where uuid = ?', [cape.uuid]))[0];
-      if (user.banned) return undefined;
-      user.capeData = cape;
-
-      return user;
-    }).filter(cape => cape != undefined)
+  const users: CapeUser[] = await querySync(
+    `
+    select profileCapes.id,
+    profileCapes.capeId,
+    profileCapes.applied,
+    profileCapes.enabled,
+    profileCapes.hidden,
+    profiles.username,
+    profiles.uuid
+    from livzmc.profileCapes
+    join profiles on profiles.uuid = profileCapes.uuid
+    where capeId = ?
+    order by cachedOn desc
+    limit 500
+    `,
+    [capeId]
   );
 
-  fs.writeFileSync(filePath, JSON.stringify(users)); // cache on disk
+  await fsp.writeFile(filePath, JSON.stringify(users));
 }
 
 app.get('/', async function (req, res) {
@@ -63,7 +70,7 @@ app.get('/:capeId', async function (req, res) {
       await generateCapeUsersCache(cape.capeId, filePath);
     }
 
-    const users: CapeUser[] = JSON.parse(fs.readFileSync(filePath).toString());
+    const users: CapeUser[] = JSON.parse((await fsp.readFile(filePath)).toString());
     const userLength: number = userLengthCache.has(cape.capeId) ? userLengthCache.get(cape.capeId) : (await querySync('select count(capeId) from livzmc.profileCapes where capeId = ? and hidden = 0', [cape.capeId]))[0]['count(capeId)'];
 
     renderPage(req, res, './capes/view/minecraft', {

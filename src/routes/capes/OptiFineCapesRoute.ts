@@ -1,5 +1,6 @@
 import express from 'express';
 import fs from 'fs';
+import fsp from 'fs/promises';
 import wcmatch from 'wildcard-match';
 import renderPage from '../../utils/RenderPage';
 import NodeCache from 'node-cache';
@@ -26,15 +27,18 @@ type SearchOptions = {
 })();
 
 async function generateUsersCache(bannerId: string, path: string): Promise<void> {
-  let profiles = await querySync('select * from livzmc.profileOFCapes where capeId = ? order by cachedOn desc limit 501', [bannerId]);
-  profiles = await Promise.all(
-    profiles.map(async function (p: BannerUser) {
-      const profile: User = (await querySync('select * from livzmc.profiles where uuid = ?', [p.uuid]))[0];
-      return { ...profile, bannerData: p };
-    }).filter((a: BannerUser) => a != undefined)
-  );
+  const profiles = await querySync(
+    `
+    select *
+    from livzmc.profileOFCapes
+    join profiles on profiles.uuid = profileOFCapes.uuid
+    where capeId = ?
+    order by cachedOn desc
+    limit 501
+    `,
+    [bannerId]);
 
-  fs.writeFileSync(path, JSON.stringify(profiles));
+  await fsp.writeFile(path, JSON.stringify(profiles));
 }
 
 app.get('/', async function (req, res) {
@@ -44,28 +48,22 @@ app.get('/', async function (req, res) {
     const url = req.query.url ? req.query.url.toString() : null;
     // don't use sync functions here for non-blocking reading
     // since this is probably a more popular page
-    fs.readFile('cache/banners.json', async (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('There was an unknown error');
-      }
-
-      const cachedBanners: Banner[] = JSON.parse(data.toString());
-      const banners: Banner[][] = parseBanners(
-        cachedBanners,
-        {
-          page,
-          layers,
-          url,
-        }
-      );
-
-      renderPage(req, res, './capes/optifine', {
-        banners,
+    const data = await fsp.readFile('cache/banners.json');
+    const cachedBanners: Banner[] = JSON.parse(data.toString());
+    const banners: Banner[][] = parseBanners(
+      cachedBanners,
+      {
         page,
         layers,
         url,
-      });
+      }
+    );
+
+    renderPage(req, res, './capes/optifine', {
+      banners,
+      page,
+      layers,
+      url,
     });
   } catch (e) {
     console.error(e);
@@ -83,24 +81,19 @@ app.get('/:bannerId', async function (req, res) {
     if (!isCached) await generateUsersCache(banner.bannerId, path);
     const length = BannerUserLengthCache.has(banner.bannerId) ? BannerUserLengthCache.get(banner.bannerId) : (await querySync('SELECT count(capeId) from livzmc.profileOFCapes WHERE capeId = ? and hidden = 0', [banner.bannerId]))[0]['count(capeId)'];
 
-    fs.readFile(path, (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('There was an error reading banner information');
-      }
-      const profiles = JSON.parse(data.toString());
-      let hasMore = false;
-      if (profiles.length > 500) {
-        hasMore = true;
-        profiles.length = 500;
-      }
+    const data = await fsp.readFile(path);
+    const profiles = JSON.parse(data.toString());
+    let hasMore = false;
+    if (profiles.length > 500) {
+      hasMore = true;
+      profiles.length = 500;
+    }
 
-      renderPage(req, res, './capes/view/optifine', {
-        banner,
-        profiles,
-        hasMore,
-        length,
-      });
+    renderPage(req, res, './capes/view/optifine', {
+      banner,
+      profiles,
+      hasMore,
+      length,
     });
 
     if (isCached && isFileCacheExpired(path, 60 * 5)) {
