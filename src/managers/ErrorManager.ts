@@ -1,6 +1,6 @@
 import path from 'path';
 import fsp from 'fs/promises';
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 import { generateRandomId } from '../utils/Utils';
 
 export default class ErrorManager {
