@@ -41,6 +41,12 @@ app.get('/register', (req, res) => {
   });
 });
 
+app.get('/logout', (req, res) => {
+  SessionManager.deleteCachedSession(req.cookies.sessionId);
+  res.clearCookie('sessionId');
+  res.redirect('/');
+});
+
 // todo: add request limit
 app.post('/login', async function (req, res) {
   try {

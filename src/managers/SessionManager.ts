@@ -30,6 +30,10 @@ export default class SessionManager {
     return account || null;
   }
 
+  public static deleteCachedSession(sessionId: string): void {
+    SessionIDCache.del(sessionId);
+  }
+
   private static createCachedSession(sessionId: string, account: Account): void {
     SessionIDCache.set(sessionId, account, 60 * 10); // save in memory for 10 minutes
     fsp.writeFile(`cache/sessions/${sessionId}.json`, JSON.stringify(account));
