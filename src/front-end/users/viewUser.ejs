@@ -113,7 +113,7 @@
                     <% if (skin.hidden == 0) { %>
                       <div class="relative inline-block" id="<%= skin.skinId %>-container">
                         <a href="/skins/<%= skin.skinId %>">
-                          <img class="scaleNearest h-[48px] w-[48px] rounded-md"<%- skin.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : '' %> src="https://render.livzmc.net/skin/head/<%= skin.skinId %>.png" alt="<%= skin.skinId %>" skin="<%= skin.skinId %>" model="<%= skin.model ? skin.model : 'classic' %>" data-time-title="<%= new Date(skin.cachedOn).getTime() %>" title=" (<%= skin.applied ?? '??' %>)">
+                          <img class="scaleNearest h-[48px] w-[48px] rounded-md"<%- skin.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : '' %> src="/api/render/2d/skin/head/<%= skin.skinId %>.png" alt="<%= skin.skinId %>" skin="<%= skin.skinId %>" model="<%= skin.model ? skin.model : 'classic' %>" data-time-title="<%= new Date(skin.cachedOn).getTime() %>" title=" (<%= skin.applied ?? '??' %>)">
                         </a>
                       </div>
                     <% } %>

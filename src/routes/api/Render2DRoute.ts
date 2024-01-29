@@ -14,6 +14,40 @@ function capeScale(height: number = 32): number {
   return Math.max(1, Math.floor(height / 17));
 }
 
+// skin heads
+app.get('/skin/head/:skinId.png', async function (req, res) {
+  try {
+    const path = `${process.env.FILEPATH}/skins/${req.params.skinId}.png`;
+    if (!fs.existsSync(path)) return res.sendStatus(404);
+    const buffer = await fsp.readFile(path);
+    const sharpImage = sharp(buffer);
+    const outerLayerImage = await sharpImage
+      .clone()
+      .extract({ left: 40, top: 8, width: 8, height: 8 })
+      .resize(64, 64, { kernel: 'nearest' })
+      .toBuffer();
+
+    const image = await sharpImage
+      .extract({ left: 8, top: 8, width: 8, height: 8 })
+      .composite(
+        [
+          {
+            input: outerLayerImage,
+          },
+        ]
+      )
+      .resize(64, 64, { kernel: 'nearest' })
+      .toBuffer();
+
+    res.set('cache-control', 'public, max-age=604800');
+    res.writeHead(200, { 'Content-Type': 'image/png', 'Content-Length': image.length });
+    res.end(image);
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
 // OptiFine capes
 app.get('/cape/OF/:capeId.png', async function (req, res) {
   try {
