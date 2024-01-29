@@ -11,7 +11,7 @@ import { CapeUser } from '../../managers/database/types/CapeTypes';
 const app = express.Router();
 
 async function findUser(username: string, number: number): Promise<User | null> {
-  if (number < 0) return null;
+  if (number < 0 || isNaN(number)) return null;
   const usernames: UserNameHistory[] = (await querySync('select * from profileNames where username = ?', [username])).filter((n: UserNameHistory) => !n.removed);
   if (!usernames[number - 1]) return null;
 
