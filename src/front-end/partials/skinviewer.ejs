@@ -50,7 +50,7 @@
       const cape = doc.getAttribute('data-cape');
       if (!cape) return;
       skinViewer.loadCape("<%= cape %>", {
-        backEquipment: hasElyta ? "elytra" : null,
+        backEquipment: !hasElyta ? "elytra" : "cape",
       });
       doc.setAttribute('data-elytra', !hasElyta);
     }
