@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import renderPage from '../../utils/RenderPage';
 import { Account } from '../../managers/database/types/AccountTypes';
 import { querySync } from '../../managers/database/MySQLConnection';
-import { encrypt, generateRandomId } from '../../utils/Utils';
+import { decrypt, encrypt, generateRandomId } from '../../utils/Utils';
 import SessionManager from '../../managers/SessionManager';
 import ErrorManager from '../../managers/ErrorManager';
 
@@ -16,8 +16,7 @@ app.get('/', async function (req, res) {
   try {
     const account: Account = res.locals.account;
     if (!account) return res.redirect('/account/login');
-    // todo: decrypt encrypted text
-    const email = account.email;
+    const email = decrypt(account.email);
     const discord = JSON.parse(account.discord);
     // todo: add transaction history
     renderPage(req, res, 'account', {
