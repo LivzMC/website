@@ -52,8 +52,9 @@ app.get('/:username.:number', async function (req, res) {
     if (names) {
       names = names.filter(a => !a.hidden);
       names = names.filter(a => a.username != null);
-      names = names.map(name => {
+      names = names.map((name, index) => {
         if (name.changedToAt) {
+          if (index == 0) name.changedToAt = 0;
           if (name.diff != 0) {
             name.giveOrTake = secondsToTime((name.changedToAt - name.diff) / 1000);
           }
