@@ -64,8 +64,7 @@ app.get('/verifyEmail/:emailToken', async function (req, res) {
     await querySync('update livzmc.accounts set emailVerified = 1 where accountId = ?', [account.accountId]);
     await fsp.rm(path);
 
-    // todo: add a way to update the session cache
-    //       easiest way is to maybe create a new session?
+    await SessionManager.refreshSession(req.cookies.sessionId);
 
     renderPage(req, res, 'account/verifiedEmail', {
     });

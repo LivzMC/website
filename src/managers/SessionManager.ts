@@ -2,6 +2,7 @@ import NodeCache from 'node-cache';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import { Account } from './database/types/AccountTypes';
+import { querySync } from './database/MySQLConnection';
 
 const SessionIDCache = new NodeCache();
 
@@ -32,6 +33,26 @@ export default class SessionManager {
 
   public static deleteCachedSession(sessionId: string): void {
     SessionIDCache.del(sessionId);
+  }
+
+  /**
+   * @todo test this
+   */
+  public static async refreshSession(sessionId: string): Promise<Account | null> {
+    const account: Account | null = await this.getCachedSession(sessionId);
+    if (!account) {
+      this.deleteCachedSession(sessionId);
+      return null;
+    }
+
+    const newAccount: Account = (await querySync('select * from livzmc.accounts where accountId = ?', [account.accountId]))[0];
+    if (!newAccount) {
+      this.deleteCachedSession(sessionId);
+      return null;
+    }
+
+    this.createCachedSession(sessionId, newAccount);
+    return account;
   }
 
   private static createCachedSession(sessionId: string, account: Account): void {
