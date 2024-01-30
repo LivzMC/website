@@ -1,12 +1,15 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import fs from 'fs';
+import fsp from 'fs/promises';
 import renderPage from '../../utils/RenderPage';
 import { Account } from '../../managers/database/types/AccountTypes';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { decrypt, encrypt, generateRandomId } from '../../utils/Utils';
 import SessionManager from '../../managers/SessionManager';
 import ErrorManager from '../../managers/ErrorManager';
+import EmailManager from '../../managers/EmailManager';
 
 const app = express.Router();
 
@@ -45,6 +48,31 @@ app.get('/logout', (req, res) => {
   SessionManager.deleteCachedSession(req.cookies.sessionId);
   res.clearCookie('sessionId');
   res.redirect('/');
+});
+
+app.get('/verifyEmail/:emailToken', async function (req, res) {
+  try {
+    const account: Account = res.locals.account;
+    if (!account) return res.redirect('/account/login?redirect=/account/verifyEmail/' + req.params.emailToken);
+    if (account.emailVerified) return res.sendStatus(404);
+
+    const path = `cache/email_verification/${req.params.emailToken}.txt`;
+    if (!fs.existsSync(path)) return res.sendStatus(404);
+    const accountToVerifyId = (await fsp.readFile(path)).toString();
+    if (!accountToVerifyId || accountToVerifyId !== account.accountId) return res.sendStatus(404);
+
+    await querySync('update livzmc.accounts set emailVerified = 1 where accountId = ?', [account.accountId]);
+    await fsp.rm(path);
+
+    // todo: add a way to update the session cache
+    //       easiest way is to maybe create a new session?
+
+    renderPage(req, res, 'account/verifiedEmail', {
+    });
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
 });
 
 // todo: add request limit
@@ -182,7 +210,27 @@ app.post('/register', async function (req, res) {
     new SessionManager(randomToken, account);
     res.cookie('sessionId', randomToken);
     res.redirect('/account');
-    // todo: send email to verify email
+    const randomEmailVerifyToken = crypto.randomUUID().replace(/-/g, '');
+    const linkUrl = `${req.hostname == 'localhost' ? 'http' : 'https'}://${req.hostname}/account/verifyEmail/${randomEmailVerifyToken}`;
+    const email = new EmailManager(req.body.user);
+    email.setTitle('LivzMC - Email Verification required');
+    email.setBody(
+      `
+        <h1>Hey ${req.body.user.split('@')[0].toLowerCase()}</h1>
+        <p>
+          Thank you for signing up with us. To complete the process, please click the following link.
+          <a href="${linkUrl}" target="__">${linkUrl}</a>
+        </p>
+        <small style="color: #444;">
+          If you did not sign up with LivzMC.net or do not wish to be with us any longer, you can request to delete your data here:
+          <a href="https://livzmc.net/account/delete">DATA DELETION</a>
+        </small>
+        `
+    );
+
+    const emailResponse = await email.send();
+    if (!emailResponse || emailResponse.rejected.length > 0) return;
+    await fsp.writeFile(`cache/email_verification/${randomEmailVerifyToken}.txt`, id);
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();

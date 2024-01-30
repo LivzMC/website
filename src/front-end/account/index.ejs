@@ -28,7 +28,7 @@
               <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'account', 'email.address') %></dt>
               <dd class="mt-1 text-sm text-gray-900 font-semibold sm:mt-0 sm:col-span-2 dark:text-gray-300 flex">
                 <%= email %>
-                <% if (!account.emailVerified || account.emailVerified === '0') { %>
+                <% if (!account.emailVerified) { %>
                   (<a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/account/sendVerifyEmail">Unverified</a>)
                 <% } else { %>
                   <%# Verified email badge %>

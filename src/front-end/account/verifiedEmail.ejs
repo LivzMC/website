@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../partials/meta', {
+      title: "Verified Email",
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <h1 class="text-4xl">Success</h1>
+    <div class="mt-[5px]"></div>
+    <hr>
+    <p>You successfully verified the email address.</p>
+  </div>
+</body>
+</html>

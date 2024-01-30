@@ -31,6 +31,7 @@ if (!fs.existsSync('cache/capes')) fs.mkdirSync('cache/capes', { recursive: true
 if (!fs.existsSync('cache/capes/banner')) fs.mkdirSync('cache/capes/banner', { recursive: true });
 if (!fs.existsSync('cache/users')) fs.mkdirSync('cache/users', { recursive: true });
 if (!fs.existsSync('cache/sessions')) fs.mkdirSync('cache/sessions', { recursive: true });
+if (!fs.existsSync('cache/email_verification')) fs.mkdirSync('cache/email_verification', { recursive: true });
 
 connectToDatabase(); // connect to database
 
