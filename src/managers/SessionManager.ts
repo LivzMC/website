@@ -33,6 +33,7 @@ export default class SessionManager {
 
   public static deleteCachedSession(sessionId: string): void {
     SessionIDCache.del(sessionId);
+    if (fs.existsSync(`cache/sessions/${sessionId}.json`)) fsp.rm(`cache/sessions/${sessionId}.json`);
   }
 
   /**
