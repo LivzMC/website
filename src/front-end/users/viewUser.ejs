@@ -86,13 +86,13 @@
                   <div class="border border-gray-100 dark:border-gray-900 text-center">
                     <dt class="text-gray-500 dark:text-gray-200 font-semibold py-2">Badges</dt>
                     <dd class="font-semibold text-gray-900 dark:text-gray-300">
-                      <div class="flex flex-wrap">
+                      <div class="flex flex-wrap p-1">
                         <%
                           const formattedBadges = profile.badges.map((badge) => {
-                            return `\<a draggable="false" class="px-1" href="/badges/${badge.badgeId}?user=${profile.uuid}">
+                            return `\<a draggable="false" class="px-1 hover:underline" href="/badges/${badge.badgeId}?user=${profile.uuid}">
                               \<div class="h-[44px] bg-gray-100 dark:bg-gray-900 rounded px-2 py-2 flex flex-wrap justify-center items-center text-center">
                                 \<img draggable="false" src="${badge.image}" width="28" height="28" class="inline align-middle" />
-                                \<p class="hover:underline">${badge.title}\</p>
+                                \<p class="ml-[5px]">${badge.title}\</p>
                               \</div>
                             \</a>`;
                           })
