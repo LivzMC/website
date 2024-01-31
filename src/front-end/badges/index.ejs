@@ -38,6 +38,64 @@
         </div>
       <% } %>
     </div>
+    <% if (account && account.permission === 11) { %>
+      <div class="mt-[5px]"></div>
+      <h2 class="text-4xl font-bold">Admin</h2>
+      <div class="mt-[5px]"></div>
+      <hr>
+      <p id="error" class="text-red-500 text-center"></p>
+      <div class="mt-[5px]"></div>
+      <div class="text-center">
+        <form onsubmit="createBadge(event)">
+          <label for="badgeName">Badge Title:</label>
+          <div class="mt-[5px]"></div>
+          <input class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" type="text" name="badgeName" placeholder="Name" id="badgeName" autocomplete="off">
+          <div class="mt-[5px]"></div>
+          <label for="badgeImage">Badge Image URL:</label>
+          <div class="mt-[5px]"></div>
+          <input class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" type="text" name="badgeImage" placeholder="Image" id="badgeImage" autocomplete="off">
+          <div class="mt-[5px]"></div>
+          <label for="description">Badge Description:</label>
+          <div class="mt-[5px]"></div>
+          <textarea class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" name="badgeDescription" id="description" cols="30" rows="5"></textarea>
+          <div class="mt-[10px]"></div>
+          <button type="submit" class="<%= LMCButton %>">Create Badge</button>
+        </form>
+      </div>
+      <script>
+        /**
+         * @param {SubmitEvent} event
+         */
+        function createBadge(event) {
+          event.preventDefault();
+          document.getElementById('error').innerText = '';
+          const formData = new FormData(event.target);
+          const badgeName = formData.get('badgeName');
+          const badgeImage = formData.get('badgeImage');
+          const badgeDescription = formData.get('badgeDescription');
+
+          if (!badgeName || !badgeImage || !badgeDescription) {
+            document.getElementById('error').innerText = 'Missing required fields';
+            return;
+          }
+
+          fetch(`/badges/${badgeName}`, {
+            method: 'put',
+            body: new URLSearchParams(formData),
+          }).then((r) => {
+            if (r.status !== 200) {
+              document.getElementById('error').innerText = 'There was an error creating this\nRead console.';
+              console.log(r);
+              console.log('403 means already exists or not logged in');
+              console.log('401 means not authorized');
+            } else {
+              window.location.reload();
+            }
+          });
+        }
+      </script>
+      <div class="mt-[10px]"></div>
+    <% } %>
   </div>
   <script src="/js/formatDate.js"></script>
 </body>

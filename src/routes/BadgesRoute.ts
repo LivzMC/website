@@ -4,6 +4,8 @@ import ErrorManager from '../managers/ErrorManager';
 import { querySync } from '../managers/database/MySQLConnection';
 import { Badge } from '../managers/database/types/BadgesTypes';
 import { User } from '../managers/database/types/UserTypes';
+import { Account } from '../managers/database/types/AccountTypes';
+import { generateRandomId } from '../utils/Utils';
 
 const app = express.Router();
 
@@ -18,7 +20,7 @@ app.get('/', async function (req, res) {
       badges.createdAt,
       count(badgeUsers.uuid) as user_count
       from livzmc.badges
-      join livzmc.badgeUsers on badges.badgeId = badgeUsers.badgeId
+      left join livzmc.badgeUsers on badges.badgeId = badgeUsers.badgeId
       where badges.hidden = 0
       group by badges.badgeId
       `
@@ -35,7 +37,7 @@ app.get('/', async function (req, res) {
 
 app.get('/:badgeId', async function (req, res) {
   try {
-    const badge: Badge = (await querySync('select * from livzmc.badges where badgeId = ? and hidden = 0', [req.params.badgeId]))[0];
+    const badge: Badge = (await querySync('select * from livzmc.badges where badgeId = ?', [req.params.badgeId]))[0];
     if (!badge) return res.sendStatus(404);
 
     const users: User[] & { badgeUser_hidden: boolean; } =
@@ -53,6 +55,59 @@ app.get('/:badgeId', async function (req, res) {
       badge,
       users,
     });
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
+app.put('/:badgeTitle', async function (req, res) {
+  try {
+    const account: Account = res.locals.account;
+    if (!account || account.permission !== 11) return res.sendStatus(401);
+
+    const checkName: Badge = (await querySync('select badgeId from livzmc.badges where title = ?', [req.params.badgeTitle]))[0];
+    if (checkName) return res.sendStatus(403);
+
+    const badgeId = generateRandomId(req.params.badgeTitle);
+
+    try {
+      // make sure the provided image URL is a valid one.
+      // probably should also check if it's a valid image, but since I am the only person that can do this, it's probably fine.
+      new URL(req.body.badgeImage);
+    } catch (ignored) {
+      return res.sendStatus(403);
+    }
+
+    await querySync(
+      `
+        insert into livzmc.badges (
+          createdAt,
+          badgeId,
+          title,
+          description,
+          image,
+          hidden
+        ) values (
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?
+        )
+      `,
+      [
+        Date.now(),
+        badgeId,
+        req.body.badgeName,
+        req.body.badgeDescription,
+        req.body.badgeImage,
+        0
+      ]
+    );
+
+    res.sendStatus(200);
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();
