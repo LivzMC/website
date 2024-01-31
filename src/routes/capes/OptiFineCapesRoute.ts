@@ -18,11 +18,14 @@ type SearchOptions = {
   url: string | null,
 };
 
-(function () {
+(async function () {
   if (!fs.existsSync('cache/banners.json') && isFileCacheExpired('cache/banners.json', (60 * 60) * 6)) { // cache for 6 hours
-    querySync('select * from livzmc.banners order by createdAt desc').then((r: Banner[]) => {
+    try {
+      const r: Banner[] = await querySync('select * from livzmc.banners order by createdAt desc');
       fs.writeFileSync('cache/banners.json', JSON.stringify(r));
-    });
+    } catch (e) {
+      console.error(e);
+    }
   }
 })();
 
