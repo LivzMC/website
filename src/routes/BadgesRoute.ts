@@ -114,4 +114,31 @@ app.put('/:badgeTitle', async function (req, res) {
   }
 });
 
+app.delete('/:badgeId', async function (req, res) {
+  try {
+    const account: Account = res.locals.account;
+    if (!account || account.permission !== 11) return res.sendStatus(401);
+
+    const badge: Badge = (await querySync('select * from livzmc.badges where badgeId = ?', [req.params.badgeId]))[0];
+    if (!badge) return res.sendStatus(403);
+
+    // todo: make proper type for badgeUsers
+    const checkUsers: Badge[] = await querySync('select uuid from livzmc.badgeUsers where badgeId = ?', [badge.badgeId]);
+    if (checkUsers.length > 0) {
+      // todo:
+      // users have had this badge before, need to handle this
+      // probably needs to hide the badge?
+      // not sure
+    } else {
+      // no user has had this badge so, it's safe to delete entirely from the database
+      await querySync('delete from livzmc.badges where badgeId = ?', [badge.badgeId]);
+    }
+
+    res.sendStatus(200);
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
 export default app;

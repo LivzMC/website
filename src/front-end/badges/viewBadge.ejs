@@ -40,6 +40,27 @@
           </div>
         </div>
       </div>
+      <% if (account && account.permission === 11) { %>
+        <div class="mt-[10px]">
+          <button onclick="deleteBadge(event)">Delete Badge</button>
+        </div>
+        <script>
+          /**
+           * @param {Event} event
+           */
+          function deleteBadge(event) {
+            event.preventDefault();
+            fetch('/badges/<%= badge.badgeId %>', {
+              method: 'delete',
+            }).then(r => {
+              console.log(r);
+              if (r.status === 200) {
+                window.location.reload();
+              }
+            });
+          }
+        </script>
+      <% } %>
     </div>
   </div>
 </body>
