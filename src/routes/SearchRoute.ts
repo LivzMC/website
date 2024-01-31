@@ -15,23 +15,27 @@ app.get('/', async function (req, res) {
 
     const start = performance.now();
 
-    let searches: (User & { profileNames_removed: boolean, profileSkins_skinId: string, index: number; })[] = await querySync(`
-      select distinct 
-          profileNames.removed as profileNames_removed,
-          profileNames.uuid,
-          profiles.*,
-          profileSkins.skinId as profileSkins_skinId
-      from
-          profileNames
-              inner join
-          profiles ON profileNames.uuid = profiles.uuid
-              inner join
-          profileSkins on profileNames.uuid = profileSkins.uuid
-      where
-          profileNames.username = ? and profileNames.hidden = 0
-          and profileSkins.enabled = 1
-      limit 100;`,
-      [searchedName]);
+    let searches: (User & { profileNames_removed: boolean, profileSkins_skinId: string, index: number; })[] =
+      await querySync(
+        `
+          select distinct 
+              profileNames.removed as profileNames_removed,
+              profileNames.uuid,
+              profiles.*,
+              profileSkins.skinId as profileSkins_skinId
+          from
+              profileNames
+                  inner join
+              profiles ON profileNames.uuid = profiles.uuid
+                  inner join
+              profileSkins on profileNames.uuid = profileSkins.uuid
+          where
+              profileNames.username = ? and profileNames.hidden = 0
+              and profileSkins.enabled = 1
+          limit 100;
+          `,
+        [searchedName]
+      );
 
     searches = searches.sort((a, b) => b.createdAt - a.createdAt);
 
