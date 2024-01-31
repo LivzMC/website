@@ -629,6 +629,9 @@ video {
 .h-2 {
   height: 0.5rem;
 }
+.h-32 {
+  height: 8rem;
+}
 .h-5 {
   height: 1.25rem;
 }
@@ -667,6 +670,9 @@ video {
 .max-h-\[330px\] {
   max-height: 330px;
 }
+.w-1\/2 {
+  width: 50%;
+}
 .w-48 {
   width: 12rem;
 }
@@ -678,6 +684,9 @@ video {
 }
 .w-\[220px\] {
   width: 220px;
+}
+.w-\[250px\] {
+  width: 250px;
 }
 .w-\[40px\] {
   width: 40px;
@@ -693,6 +702,9 @@ video {
 }
 .w-\[816px\] {
   width: 816px;
+}
+.w-auto {
+  width: auto;
 }
 .w-full {
   width: 100%;

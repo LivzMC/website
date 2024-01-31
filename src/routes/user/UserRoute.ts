@@ -80,6 +80,18 @@ app.get('/:username.:number', async function (req, res) {
     const ofCapes = await querySync('select capeId, cachedOn, hidden, banners.removed, banners.isBanner, banners.cleanUrl from profileOFCapes join banners on profileOFCapes.capeId = banners.bannerId where uuid = ?', [user.uuid]);
     const lbCapes = await querySync('select capeId, cachedOn, hidden from profileLBCapes where uuid = ?', [user.uuid]);
     const mcCapes = await querySync('select capeId, cachedOn, hidden from profileMCCapes where uuid = ?', [user.uuid]);
+    const badges = await querySync(
+      `
+        select badges.badgeId,
+        badges.image,
+        badges.title,
+        badgeUsers.hidden
+        from livzmc.badges
+        join livzmc.badgeUsers on badges.badgeId = badgeUsers.badgeId
+        where badgeUsers.uuid = ?
+      `,
+      [user.uuid]
+    );
 
     const profile = {
       ...user,
@@ -89,6 +101,7 @@ app.get('/:username.:number', async function (req, res) {
       ofCapes,
       lbCapes,
       mcCapes,
+      badges,
     };
 
     const hasOptiFineEvent = await hasOptiFineEventModel(user);

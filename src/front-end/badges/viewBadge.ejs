@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../partials/meta', {
+      title: `${badge.title} | ${badge.badgeId}`,
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="mt-[10px]"></div>
+    <h1 class="text-4xl font-bold"><%= badge.title %></h1>
+    <div class="mt-[5px]"></div>
+    <hr>
+    <div class="mt-[10px]">
+      <img class="w-auto h-32 rounded-lg mx-auto" draggable="false" src="<%= badge.image %>" alt="<%= badge.image %>">
+      <p class="text-xl text-center font-semibold py-5">
+        <%- badge.description %>
+      </p>
+      <div>
+        <div class="w-1/2 mx-auto sm:px-6 lg:px-8">
+          <div class="overflow-hidden shadow-md rounded-lg">
+            <p class="py-1 bg-gray-100 border-b border-gray-200 font-bold text-center dark:bg-gray-900 dark:border-gray-700 text-xl"><%= await getLocaleString(language, 'core', 'users') %></p>
+            <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
+              <%
+                const formattedUsers = await Promise.all(
+                  users.map(async (user) => {
+                    return `\<a href="/user/${user.username}.${await getUserNameIndex(user.username, user.uuid) + 1}" class="hover:underline">${user.username}\</a>`
+                  })
+                );
+                // do this to save HTML size since doing for loop while generate a lot of whitespace.
+              %>
+              <%- formattedUsers.join('\n') %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

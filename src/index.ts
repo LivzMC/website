@@ -20,6 +20,7 @@ import UserRoute from './routes/user/UserRoute';
 import SearchRoute from './routes/SearchRoute';
 import BannerRoute from './routes/BannerRoute';
 import AccountRoute from './routes/account/AccountRoute';
+import BadgesRoute from './routes/BadgesRoute';
 import Render2DRoute from './routes/api/Render2DRoute';
 // constants
 const HOSTNAME: string = process.env.HOSTNAME ?? 'localhost';
@@ -112,6 +113,7 @@ app.use('/user', UserRoute);
 app.use('/search', SearchRoute);
 app.use('/banner', BannerRoute);
 app.use('/account', AccountRoute);
+app.use('/badges', BadgesRoute);
 app.use('/api/render/2d', Render2DRoute);
 //
 

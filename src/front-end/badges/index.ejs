@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../partials/meta', {
+      title: "All Badges",
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <div class="mt-[10px]"></div>
+    <h1 class="text-4xl font-bold"><%= await getLocaleString(language, 'core', 'badges') %></h1>
+    <div class="mt-[5px]"></div>
+    <hr>
+    <div class="flex flex-wrap justify-center items-center">
+      <% for (let i = 0; i < badges.length; i++) { %>
+        <% const badge = badges[i]; %>
+        <div class="px-2 py-2 w-[250px]">
+          <div class="max-w-mx mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl dark:bg-gray-700">
+            <div class="px-2 py-2">
+              <img class="w-auto h-32 rounded-lg mx-auto" src="<%= badge.image %>" alt="">
+              <a href="/badges/<%= badge.badgeId %>" class="block mt-1 text-lg leading-tight font-semibold text-black hover:underline dark:text-gray-300"><%= badge.title %></a>
+              <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm">
+                Created on: <time data-int="true" data-type="date" data-time="<%= badge.createdAt %>"></time>
+                •
+                <span class="inline-flex align-middle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="#fff" d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"></path></svg>
+                  <%= badge.user_count %>
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  <script src="/js/formatDate.js"></script>
+</body>
+</html>
