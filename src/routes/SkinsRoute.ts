@@ -52,15 +52,19 @@ async function generateSkinUserCache(skinId: string, filePath: string): Promise<
   const skinsCache: Skin[][] = [];
 
   for (let i = 0; i < 100; i++) {
-    const skins: Skin[] = await querySync(`
-      select * from livzmc.skins as t1 join (
-        select id from livzmc.skins order by rand() limit 32
-      )
-      as t2 on t1.id = t2.id
-      where enabled = 1
-    `);
+    try {
+      const skins: Skin[] = await querySync(`
+        select * from livzmc.skins as t1 join (
+          select id from livzmc.skins order by rand() limit 32
+        )
+        as t2 on t1.id = t2.id
+        where enabled = 1
+      `);
 
-    skinsCache.push(skins);
+      skinsCache.push(skins);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   fs.writeFileSync('cache/skins.json', JSON.stringify(skinsCache));
