@@ -8,6 +8,5 @@ create table if not exists `livzmc`.`badges` (
   `hidden` tinyint(1) not null,
 
   primary key (`id`),
-  unique key (`badgeId`),
-  key `badgeId` (`badgeId`)
+  unique key (`badgeId`)
 )
