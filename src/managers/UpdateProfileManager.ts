@@ -7,8 +7,10 @@ import { generateImageHash } from '../utils/Hash';
 import { Skin, SkinUsers } from './database/types/SkinTypes';
 import { querySync } from './database/MySQLConnection';
 import { Cape, CapeUser } from './database/types/CapeTypes';
+import { User } from './database/types/UserTypes';
 
 const USERNAME_UUID = new NodeCache();
+const RECENTLY_UPDATED_USERS = new NodeCache();
 const IS_UPDATING_PROFILE: Map<string, boolean> = new Map();
 
 // public helper funcitons
@@ -50,14 +52,7 @@ export async function createProfile(uuid: string): Promise<void> {
   const time_start = performance.now();
 
   // skin
-  const skinDataPath = `cache/skins/data/${profile.skin.url.substring('http://textures.minecraft.net/texture/'.length)}.json`;
-  let skinData: SkinData | null = null;
-  if (!fs.existsSync(skinDataPath)) {
-    skinData = await generateSkinData(profile.skin.url);
-    await fsp.writeFile(skinDataPath, JSON.stringify(skinData));
-  } else {
-    skinData = JSON.parse((await fsp.readFile(skinDataPath)).toString());
-  }
+  const skinData: SkinData | null = await getSkinData(profile.skin.url);
 
   if (skinData) {
     const now = performance.now();
@@ -105,7 +100,7 @@ export async function createProfile(uuid: string): Promise<void> {
           users,
           category,
           hash
-        ) vales (
+        ) values (
           ?,
           ?,
           ?,
@@ -177,6 +172,67 @@ export async function createProfile(uuid: string): Promise<void> {
   IS_UPDATING_PROFILE.delete(uuid);
 }
 
+export async function updateProfile(user: User): Promise<void> {
+  if (RECENTLY_UPDATED_USERS.has(user.uuid)) return;
+  if (user.banned || user.optOut) return;
+  const parsedProfile = await parseProfileFromMojangAPI(user.uuid);
+  if (!parsedProfile) return;
+
+  if (user.currentSkin !== parsedProfile.skin.url) {
+    // skin has changed
+    await updateSkin(user, parsedProfile);
+  }
+
+  if (parsedProfile.cape) {
+    if (user.currentCape !== parsedProfile.cape.url) {
+      // cape has changed
+      await updateCape(user, parsedProfile);
+    }
+  } else {
+    if (user.currentCape !== 'none') {
+      // cape disabled
+      await querySync(
+        `
+          update livzmc.profileCapes pc, livzmc.profiles p
+          set pc.enabled = 0, p.currentCape = 'none'
+          where pc.uuid = ? and p.uuid = ?
+        `,
+        [user.uuid, user.uuid]
+      );
+    }
+  }
+
+  if (parsedProfile.username !== user.username) {
+    // name has changed
+    await querySync('update livzmc.profiles set username = ? where uuid = ?', [parsedProfile.username, user.uuid]);
+    await querySync(
+      `
+        insert into livzmc.profileNames (
+          uuid,
+          username,
+          changedToAt,
+          diff
+        ) values (
+          ?,
+          ?,
+          ?,
+          ?
+        )
+      `,
+      [
+        parsedProfile.uuid,
+        parsedProfile.username,
+        Date.now().toString(),
+        user.lastSearched.toString() || '0',
+      ]
+    );
+  }
+
+  await querySync('update livzmc.profiles set lastSearched = ? where uuid = ?', [Date.now().toString(), user.uuid]);
+  RECENTLY_UPDATED_USERS.set(user.uuid, true, 15);
+  return;
+}
+
 // private helper functions
 
 /**
@@ -205,7 +261,10 @@ async function parseProfileFromMojangAPI(uuid: string): Promise<ParsedProfile | 
         // mojang could eventually change the metadata field to have something else, so need to add extra check
         slim: json_profile.textures.SKIN?.metadata !== undefined && json_profile.textures.SKIN?.metadata?.model === 'slim',
       },
-      cape: null,
+      cape: json_profile.textures.CAPE ?
+        {
+          url: json_profile.textures.CAPE.url
+        } : null,
     };
   } catch (e) {
     console.error(e);
@@ -248,7 +307,7 @@ async function generateCapeData(url: string, type: 'mc' | 'of' | 'lb' | 'mcm'): 
   const image = await Jimp.read(url);
   const width = image.bitmap.width;
   const height = image.bitmap.height;
-  const hash = generateImageHash(image.bitmap.data, width, height);
+  const hash = generateImageHash(image.bitmap.data, width, height, true);
   switch (type) {
     case 'mc':
       await fsp.writeFile(`${getFilePath()}/capes/${hash.substring(20)}.png`, await image.getBufferAsync('image/png'));
@@ -264,6 +323,117 @@ async function generateCapeData(url: string, type: 'mc' | 'of' | 'lb' | 'mcm'): 
     url,
     type,
   };
+}
+
+async function getSkinData(url: string): Promise<SkinData | null> {
+  const skinDataPath = `cache/skins/data/${url.substring('http://textures.minecraft.net/texture/'.length)}.json`;
+  let skinData = null;
+
+  if (!fs.existsSync(skinDataPath)) {
+    skinData = await generateSkinData(url);
+    await fsp.writeFile(skinDataPath, JSON.stringify(skinData));
+  } else {
+    skinData = JSON.parse((await fsp.readFile(skinDataPath)).toString());
+  }
+
+  return skinData;
+}
+
+async function getCapeData(url: string, type: 'mc' | 'of' | 'lb' | 'mcm'): Promise<CapeData | null> {
+  // todo: add other types of paths
+  const capeDataPath = `cache/capes/data/${url.substring('http://textures.minecraft.net/texture/'.length)}.json`;
+  let capeData = null;
+
+  if (!fs.existsSync(capeDataPath)) {
+    capeData = await generateCapeData(url, type);
+    await fsp.writeFile(capeDataPath, JSON.stringify(capeData));
+  } else {
+    capeData = JSON.parse((await fsp.readFile(capeDataPath)).toString());
+  }
+
+  return capeData;
+}
+
+async function updateSkin(user: User, parsedProfile: ParsedProfile): Promise<void> {
+  const skinData: SkinData | null = await getSkinData(parsedProfile.skin.url);
+  if (!skinData) return;
+  await querySync('update livzmc.profileSkins set enabled = 0 where uuid = ?', [user.uuid]); // disable all existing skins
+
+  let skin: Skin = (await querySync('select * from livzmc.skins where hash = ?', [skinData.hash]))[0];
+  if (!skin) {
+    // skin does not exist, so create a new row
+    await querySync('insert into livzmc.skins (createdAt, url, skinId, userCount, hash) values (?, ?, ?, ?, ?)', [Date.now().toString(), skinData.url, skinData.hash.substring(20), '1', skinData.hash]);
+    skin = (await querySync('select * from livzmc.skins where hash = ?', [skinData.hash]))[0];
+    if (!skin) return; // this shouldn't ever happen, but just in case
+  }
+
+  const skinUser: SkinUsers = (await querySync('select * from livzmc.profileSkins where skinId = ? and uuid = ?', [skin.skinId, user.uuid]))[0];
+  if (!skinUser) {
+    await querySync('insert into livzmc.profileSkins (skinId, uuid, cachedOn, model) values (?, ?, ?, ?)', [skin.skinId, user.uuid, Date.now().toString(), parsedProfile.skin.slim ? '1' : '0']);
+  } else {
+    await querySync('update livzmc.profileSkins set enabled = 1 where skinId = ? and uuid = ?', [skin.skinId, user.uuid]);
+  }
+
+  await querySync('update livzmc.profiles set currentSkin = ? where uuid = ?', [parsedProfile.skin.url, parsedProfile.uuid]);
+}
+
+async function updateCape(user: User, parsedProfile: ParsedProfile): Promise<void> {
+  if (!parsedProfile.cape) return;
+  const capeData: CapeData | null = await getCapeData(parsedProfile.cape.url, 'mc');
+  if (!capeData) return;
+  await querySync('update livzmc.profileCapes set enabled = 0 where uuid = ?', [user.uuid]); // disable all existing capes
+
+  let cape: Cape = (await querySync('select * from livzmc.capes where hash = ?', [capeData.hash]))[0];
+  if (!cape) {
+    // cape does not exist, create a new row
+    await querySync(
+      `
+        insert into livzmc.capes (
+          createdAt,
+          url,
+          capeId,
+          capeType,
+          title,
+          description,
+          users,
+          category,
+          hash
+        ) values (
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?
+        )
+      `,
+      [
+        Date.now().toString(),
+        parsedProfile.cape.url,
+        capeData.hash.substring(20),
+        'UNKNOWN',
+        'Unknown',
+        '',
+        '1',
+        'UNKNOWN',
+        capeData.hash,
+      ]
+    );
+    cape = (await querySync('select * from livzmc.capes where hash = ?', [capeData.hash]))[0];
+    if (!cape) return; // this shouldn't ever happen, but just in case
+  }
+
+  const capeUser: CapeUser = (await querySync('select * from livzmc.profileCapes where capeId = ? and uuid = ?', [cape.capeId, user.uuid]))[0];
+  if (!capeUser) {
+    await querySync('insert into livzmc.profileCapes (capeId, uuid, createdAt) values (?, ?, ?)', [cape.capeId, parsedProfile.uuid, Date.now().toString()]);
+  } else {
+    await querySync('update livzmc.profileCapes set enabled = 1 where capeId = ? and uuid = ?', [cape.capeId, user.uuid]);
+  }
+
+  await querySync('update livzmc.profiles set currentCape = ? where uuid = ?', [parsedProfile.cape.url, parsedProfile.uuid]);
 }
 
 // private types
