@@ -9,7 +9,7 @@ import { querySync } from './database/MySQLConnection';
 import { Cape, CapeUser } from './database/types/CapeTypes';
 
 const USERNAME_UUID = new NodeCache();
-const IS_CREATING_PROFILE: Map<string, boolean> = new Map();
+const IS_UPDATING_PROFILE: Map<string, boolean> = new Map();
 
 // public helper funcitons
 
@@ -42,8 +42,8 @@ export async function usernameToUUID(username: string): Promise<string | null> {
  * If it does, then it will error out though the unique key from mysql
  */
 export async function createProfile(uuid: string): Promise<void> {
-  if (IS_CREATING_PROFILE.get(uuid)) return;
-  IS_CREATING_PROFILE.set(uuid, true);
+  if (IS_UPDATING_PROFILE.get(uuid)) return;
+  IS_UPDATING_PROFILE.set(uuid, true);
   const profile = await parseProfileFromMojangAPI(uuid);
   if (!profile) return;
   const isDev = isDevMode();
@@ -174,7 +174,7 @@ export async function createProfile(uuid: string): Promise<void> {
 
   const time_end = performance.now();
   if (isDev) console.log(`[DEBUG] Creating profile: ${(time_end - time_start).toFixed(2)}ms`);
-  IS_CREATING_PROFILE.delete(uuid);
+  IS_UPDATING_PROFILE.delete(uuid);
 }
 
 // private helper functions
