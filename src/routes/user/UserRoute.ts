@@ -8,6 +8,7 @@ import { User, UserNameHistory } from '../../managers/database/types/UserTypes';
 import { secondsToTime } from '../../utils/Utils';
 import { SkinUsers } from '../../managers/database/types/SkinTypes';
 import { CapeUser } from '../../managers/database/types/CapeTypes';
+import { updateProfile } from '../../managers/UpdateProfileManager';
 
 const app = express.Router();
 
@@ -47,7 +48,8 @@ app.get('/:username.:number', async function (req, res) {
     if (!user) return res.sendStatus(404);
 
     const start = performance.now();
-    let names: (UserNameHistory & { giveOrTake: string, formattedChanged: string; })[] = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
+    const namesDB: (UserNameHistory & { giveOrTake: string, formattedChanged: string; })[] = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
+    let names = namesDB;
     const nameLength = names.length;
     if (names) {
       names = names.filter(a => !a.hidden);
@@ -69,14 +71,15 @@ app.get('/:username.:number', async function (req, res) {
         return b.changedToAt - a.changedToAt;
       });
     }
-    let skins: SkinUsers[] = await querySync('select skinId, cachedOn, model, enabled, hidden from profileSkins where uuid = ?', [user.uuid]);
+    const skinsDB: SkinUsers[] = await querySync('select skinId, cachedOn, model, enabled, hidden from profileSkins where uuid = ?', [user.uuid]);
+    let skins = skinsDB;
     skins = skins.filter(skin => !skin.hidden);
     skins = skins.sort((a, b) => {
       if (b.enabled && !a.enabled) return 1;
       return b.cachedOn - a.cachedOn;
     });
     if (skins.length > 27) skins.length = 27;
-    const capes = (await querySync('select capeId, cachedOn, hidden from profileCapes where uuid = ?', [user.uuid])).filter((cape: CapeUser) => !cape.hidden);
+    const capes = (await querySync('select capeId, cachedOn, enabled, hidden from profileCapes where uuid = ?', [user.uuid]));
     const ofCapes = await querySync('select capeId, cachedOn, hidden, banners.removed, banners.isBanner, banners.cleanUrl from profileOFCapes join banners on profileOFCapes.capeId = banners.bannerId where uuid = ?', [user.uuid]);
     const lbCapes = await querySync('select capeId, cachedOn, hidden from profileLBCapes where uuid = ?', [user.uuid]);
     const mcCapes = await querySync('select capeId, cachedOn, hidden from profileMCCapes where uuid = ?', [user.uuid]);
@@ -97,7 +100,7 @@ app.get('/:username.:number', async function (req, res) {
       ...user,
       names,
       skins,
-      capes,
+      capes: capes.filter((cape: CapeUser) => !cape.hidden),
       ofCapes,
       lbCapes,
       mcCapes,
@@ -115,6 +118,8 @@ app.get('/:username.:number', async function (req, res) {
       hasOptiFineEvent,
       timeToLoad,
     });
+
+    await updateProfile(user);
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();

@@ -7,6 +7,16 @@ import { querySync } from '../managers/database/MySQLConnection';
 import { UserNameHistory } from '../managers/database/types/UserTypes';
 
 const DEFAULT_LANGUAGE = JSON.parse(fs.readFileSync('LivzMC/lang/en-us/core.json').toString());
+const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
+const FILEPATH: string = process.env.FILEPATH?.toString() || 'cache/files';
+
+export function isDevMode(): boolean {
+  return DEVMODE;
+}
+
+export function getFilePath(): string {
+  return FILEPATH;
+}
 
 export async function generateBannerPatterns(pattern: string, language: string): Promise<string> {
   const matchedPatterns = pattern.match(/(..)/g);
@@ -126,4 +136,16 @@ export function encrypt(text: string, key: string | null = (process.env.KEY || n
 export function decrypt(text: string, key: string | null = (process.env.KEY || null)): string {
   if (!key) throw new Error('Invalid encryption key!');
   return CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
+}
+
+export function isUUID(text: string): boolean {
+  return text.match(/([0-9a-f]{8})(?:-|)([0-9a-f]{4})(?:-|)(4[0-9a-f]{3})(?:-|)([89ab][0-9a-f]{3})(?:-|)([0-9a-f]{12})/g) !== null;
+}
+
+export async function fetchImage(url: string): Promise<Buffer | null> {
+  if (!url || !url.startsWith('http')) return null;
+  const response = await fetch(url);
+  if (response.status !== 200) return null;
+  const blob = await response.blob();
+  return Buffer.from(await blob.arrayBuffer());
 }

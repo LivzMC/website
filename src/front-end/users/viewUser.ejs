@@ -161,7 +161,7 @@
                     <% if (cape.hidden == 0) { %>
                       <div class="relative inline-block" id="<%= cape.capeId %>-container">
                         <a href="/minecraft-capes/<%= cape.capeId %>">
-                          <img class="capes scaleNearest h-[64px] w-[40px] rounded-md" src="/api/render/2d/cape/<%= cape.capeId %>.png" cape="<%= cape.capeId %>" alt="<%= cape.capeId %>" data-time-title="<%= new Date(cape.cachedOn).getTime() %>" title=" (<%= cape.applied ?? '??' %>)">
+                          <img class="capes scaleNearest h-[64px] w-[40px] rounded-md"<%- cape.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : '' %> src="/api/render/2d/cape/<%= cape.capeId %>.png" cape="<%= cape.capeId %>" alt="<%= cape.capeId %>" data-time-title="<%= new Date(cape.cachedOn).getTime() %>" title=" (<%= cape.applied ?? '??' %>)">
                         </a>
                       </div>
                     <% } %>
@@ -307,12 +307,13 @@
   <script src="/js/formatDate.js"></script>
   <%
     const currentSkin = profile.skins.filter(s => s.enabled)[0];
+    const currentCape = profile.capes.filter(s => s.enabled)[0];
   %>
   <%-
     await include('../partials/skinviewer', {
       skin: `https://textures.livzmc.net/skins/${currentSkin.skinId}.png`,
       slim: currentSkin.model ? 'slim' : 'classic',
-      cape: null,
+      cape: currentCape ? `https://textures.livzmc.net/capes/${currentCape.capeId}.png` : null,
     });
   %>
   <script src="/js/profile-page.js"></script>

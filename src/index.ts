@@ -8,6 +8,7 @@ import { connectToDatabase, querySync } from './managers/database/MySQLConnectio
 import {
   getLocaleString,
   getUserNameIndex,
+  isDevMode,
 } from './utils/Utils';
 import { User } from './managers/database/types/UserTypes';
 import SessionManager from './managers/SessionManager';
@@ -24,11 +25,10 @@ import BadgesRoute from './routes/BadgesRoute';
 import Render2DRoute from './routes/api/Render2DRoute';
 // constants
 const HOSTNAME: string = process.env.HOSTNAME ?? 'localhost';
-const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
 
 if (!fs.existsSync('cache')) fs.mkdirSync('cache', { recursive: true });
-if (!fs.existsSync('cache/skins')) fs.mkdirSync('cache/skins', { recursive: true });
-if (!fs.existsSync('cache/capes')) fs.mkdirSync('cache/capes', { recursive: true });
+if (!fs.existsSync('cache/skins/data')) fs.mkdirSync('cache/skins/data', { recursive: true });
+if (!fs.existsSync('cache/capes/data')) fs.mkdirSync('cache/capes/data', { recursive: true });
 if (!fs.existsSync('cache/capes/banner')) fs.mkdirSync('cache/capes/banner', { recursive: true });
 if (!fs.existsSync('cache/users')) fs.mkdirSync('cache/users', { recursive: true });
 if (!fs.existsSync('cache/sessions')) fs.mkdirSync('cache/sessions', { recursive: true });
@@ -100,7 +100,7 @@ app.use(async function (req, res, next) {
   }
 });
 // locals
-app.locals.DEVMODE = DEVMODE;
+app.locals.DEVMODE = isDevMode();
 app.locals.getLocaleString = getLocaleString;
 app.locals.getUserNameIndex = getUserNameIndex;
 app.locals.LMCButton = 'rounded dark:bg-[#047857] bg-[#059669] text-white font-semibold px-2 py-1 hover:underline';
@@ -154,7 +154,7 @@ app.all('*', (req, res) => {
 
 app.listen(process.env.PORT || 80, () => {
   console.log('LivzMC is online!');
-  if (DEVMODE) {
+  if (isDevMode()) {
     console.warn('!!! Launched in developer mode !!!');
   }
 });
