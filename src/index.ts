@@ -79,11 +79,11 @@ app.use(async function (req, res, next) {
             linkedAccounts.linked as linked_linked,
             linkedAccounts.active as linked_active
           from
-            livzmc.linkedAccounts
+            linkedAccounts
           join
-            livzmc.profiles on profiles.uuid = linkedAccounts.uuid
+            profiles on profiles.uuid = linkedAccounts.uuid
           join
-            livzmc.skins on skins.url = profiles.currentSkin 
+            skins on skins.url = profiles.currentSkin 
           where accountId = ?
         `,
         [account.accountId]

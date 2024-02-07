@@ -54,16 +54,14 @@
               %>
               <div class="mx-auto bg-white rounded shadow-md overflow-hidden dark:bg-gray-700 ">
                 <% if (SKINUSER && !random) { %>
-                  <div class="max-w-[200px] text-ellipsis overflow-clip">
+                  <div class="max-w-[104px] text-ellipsis overflow-clip">
                     <a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/skins/<%= skin.skinId %>"><%= SKINUSER.username %> <%# getEmoji(SKINUSER, '22', '22') %></a>
                     <hr class="dark:border-gray-900 w-full">
                   </div>
                 <% } %>
                 <div class="p-2">
                   <a href="/skins/<%= skin.skinId %>">
-                    <!-- 
-                    <img src="http://localhost:8080/body.png?skin=<%= skin.skinId %>&slim=<%= skin.model == 1 %>" alt="Skin render for <%= skin.skinId %>" draggable="false" width="160" height="160" class="md:rounded-none rounded-lg mx-auto md:py-0 py-1">
-                    -->
+                    <img draggable="false" width="88" height="188" class="md:rounded-none rounded-lg mx-auto md:py-0 py-1" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAC8CAYAAAD8QGmgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABXSURBVHhe7cExAQAAAMKg9U9tB28gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE41A0sAAfNFXjMAAAAASUVORK5CYII=" alt="<%= skin.skinId %>" skin="<%= skin.skinId %>">
                   </a>
                 </div>
               </div>
@@ -85,5 +83,33 @@
       <% } %>
     </div>
   </div>
+  <div class="mt-5"></div>
+  <script src="https://textures.livzmc.net/js/three.min.js"></script>
+  <script src="https://textures.livzmc.net/js/3d/2.3.9.bundle.js"></script>
+  <script>
+    const skinViewer = new skinview3d.SkinViewer({
+      width: 88,
+      height: 188,
+      cameraX: -34,
+      renderPaused: true,
+    });
+    
+    skinViewer.camera.rotation.y = -0.5;
+
+    async function renderImage(id, image, element) {
+      await Promise.all([
+        skinViewer.loadSkin(image),
+      ]);
+      skinViewer.background = 3621201;
+      skinViewer.render();
+      element.setAttribute('src', skinViewer.canvas.toDataURL());
+      skinViewer.dispose();
+    };
+
+    document.querySelectorAll('[skin]').forEach(function (e) {
+      const skinId = e.getAttribute('skin');
+      renderImage(skinId, `https://textures.livzmc.net/skins/${skinId}.png`, e);
+    });
+  </script>
 </body>
 </html>

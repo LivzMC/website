@@ -89,8 +89,8 @@ app.get('/:username.:number', async function (req, res) {
         badges.image,
         badges.title,
         badgeUsers.hidden
-        from livzmc.badges
-        join livzmc.badgeUsers on badges.badgeId = badgeUsers.badgeId
+        from badges
+        join badgeUsers on badges.badgeId = badgeUsers.badgeId
         where badgeUsers.uuid = ?
       `,
       [user.uuid]

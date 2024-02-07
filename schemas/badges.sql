@@ -1,4 +1,4 @@
-create table if not exists `livzmc`.`badges` (
+create table if not exists `badges` (
   `id` int not null AUTO_INCREMENT,
   `createdAt` bigint default null,
   `badgeId` varchar(35) not null,

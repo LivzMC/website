@@ -17,10 +17,7 @@ export default function renderPage(req: Request, res: Response, path: string, op
   // render page
   res.render(path, options, (err, html) => {
     if (err) {
-      if (!req.app.locals.DEVMODE) {
-        console.log(err);
-        return res.status(500).send('There was an unknown error that occured');
-      }
+      const error = !req.app.locals.DEVMODE ? 'There was an unknown error that occured' : err.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/, '<br>').replace(/\r/, '<br>');
 
       return res.status(500).send(`
         <style>
@@ -39,12 +36,7 @@ export default function renderPage(req: Request, res: Response, path: string, op
         <h1>There was an error that occured!</h1>
         <h2>Website launched in developer mode!</h2>
         <code>
-        ${err.message
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/\n/, '<br>')
-          .replace(/\r/, '<br>')
-        }
+          ${error}
         </code>
       `);
     }

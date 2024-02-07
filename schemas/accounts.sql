@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `livzmc`.`accounts` (
+CREATE TABLE IF NOT EXISTS `accounts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `accountId` char(30) NOT NULL,
   `uniqueId` char(30) NOT NULL,
@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `livzmc`.`accounts` (
   `permission` int NOT NULL DEFAULT '0',
   `2FA` char(255) DEFAULT NULL,
   `donator` tinyint(1) NOT NULL DEFAULT '0',
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniqueId` (`uniqueId`),
   KEY `accountId_uniqueId` (`accountId`,`uniqueId`)
