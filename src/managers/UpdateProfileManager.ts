@@ -56,18 +56,18 @@ export async function createProfile(uuid: string): Promise<void> {
 
   if (skinData) {
     const now = performance.now();
-    let skin: Skin = (await querySync('select * from livzmc.skins where hash = ?', [skinData.hash]))[0];
+    let skin: Skin = (await querySync('select * from skins where hash = ?', [skinData.hash]))[0];
     if (!skin) {
       // skin does not exist, so create a new row
-      await querySync('insert into livzmc.skins (createdAt, url, skinId, userCount, hash) values (?, ?, ?, ?, ?)', [Date.now().toString(), skinData.url, skinData.hash.substring(20), '1', skinData.hash]);
-      skin = (await querySync('select * from livzmc.skins where hash = ?', [skinData.hash]))[0];
+      await querySync('insert into skins (createdAt, url, skinId, userCount, hash) values (?, ?, ?, ?, ?)', [Date.now().toString(), skinData.url, skinData.hash.substring(20), '1', skinData.hash]);
+      skin = (await querySync('select * from skins where hash = ?', [skinData.hash]))[0];
     }
 
-    const skinUser: SkinUsers = (await querySync('select * from livzmc.profileSkins where skinId = ? and uuid = ?', [skin.skinId, profile.uuid]))[0];
+    const skinUser: SkinUsers = (await querySync('select * from profileSkins where skinId = ? and uuid = ?', [skin.skinId, profile.uuid]))[0];
     if (!skinUser) {
-      await querySync('insert into livzmc.profileSkins (skinId, uuid, cachedOn, model) values (?, ?, ?, ?)', [skin.skinId, profile.uuid, Date.now().toString(), profile.skin.slim ? '1' : '0']);
+      await querySync('insert into profileSkins (skinId, uuid, cachedOn, model) values (?, ?, ?, ?)', [skin.skinId, profile.uuid, Date.now().toString(), profile.skin.slim ? '1' : '0']);
     } else {
-      await querySync('update livzmc.profileSkins set enabled = 1 where skinId = ? and uuid = ?', [skin.skinId, profile.uuid]);
+      await querySync('update profileSkins set enabled = 1 where skinId = ? and uuid = ?', [skin.skinId, profile.uuid]);
     }
 
     const end = performance.now();
@@ -87,10 +87,10 @@ export async function createProfile(uuid: string): Promise<void> {
 
     if (capeData) {
       const now = performance.now();
-      let cape: Cape = (await querySync('select * from livzmc.capes where hash = ?', [capeData.hash]))[0];
+      let cape: Cape = (await querySync('select * from capes where hash = ?', [capeData.hash]))[0];
       if (!cape) {
         // cape does not exist, create a new row
-        await querySync(`insert into livzmc.capes (
+        await querySync(`insert into capes (
           createdAt,
           url,
           capeId,
@@ -123,14 +123,14 @@ export async function createProfile(uuid: string): Promise<void> {
             capeData.hash,
           ]
         );
-        cape = (await querySync('select * from livzmc.capes where hash = ?', [capeData.hash]))[0];
+        cape = (await querySync('select * from capes where hash = ?', [capeData.hash]))[0];
       }
 
-      const capeUser: CapeUser = (await querySync('select * from livzmc.profileCapes where capeId = ? and uuid = ?', [cape.capeId, profile.uuid]))[0];
+      const capeUser: CapeUser = (await querySync('select * from profileCapes where capeId = ? and uuid = ?', [cape.capeId, profile.uuid]))[0];
       if (!capeUser) {
-        await querySync('insert into livzmc.profileCapes (capeId, uuid, createdAt) values (?, ?, ?)', [cape.capeId, profile.uuid, Date.now().toString()]);
+        await querySync('insert into profileCapes (capeId, uuid, cachedOn) values (?, ?, ?)', [cape.capeId, profile.uuid, Date.now().toString()]);
       } else {
-        await querySync('update livzmc.profileCapes set enabled = 1 where capeId = ? and uuid = ?', [cape.capeId, profile.uuid]);
+        await querySync('update profileCapes set enabled = 1 where capeId = ? and uuid = ?', [cape.capeId, profile.uuid]);
       }
 
       const end = performance.now();
@@ -141,7 +141,7 @@ export async function createProfile(uuid: string): Promise<void> {
   // profile
   await querySync(
     `
-      insert into livzmc.profiles (
+      insert into profiles (
         uuid,
         username,
         createdAt,
@@ -164,7 +164,7 @@ export async function createProfile(uuid: string): Promise<void> {
     ]
   );
 
-  await querySync('insert into livzmc.profileNames (uuid, username) values (?, ?)', [profile.uuid, profile.username]);
+  await querySync('insert into profileNames (uuid, username) values (?, ?)', [profile.uuid, profile.username]);
   //
 
   const time_end = performance.now();
@@ -193,7 +193,7 @@ export async function updateProfile(user: User): Promise<void> {
       // cape disabled
       await querySync(
         `
-          update livzmc.profileCapes pc, livzmc.profiles p
+          update profileCapes pc, profiles p
           set pc.enabled = 0, p.currentCape = 'none'
           where pc.uuid = ? and p.uuid = ?
         `,
@@ -204,10 +204,10 @@ export async function updateProfile(user: User): Promise<void> {
 
   if (parsedProfile.username !== user.username) {
     // name has changed
-    await querySync('update livzmc.profiles set username = ? where uuid = ?', [parsedProfile.username, user.uuid]);
+    await querySync('update profiles set username = ? where uuid = ?', [parsedProfile.username, user.uuid]);
     await querySync(
       `
-        insert into livzmc.profileNames (
+        insert into profileNames (
           uuid,
           username,
           changedToAt,
@@ -228,7 +228,7 @@ export async function updateProfile(user: User): Promise<void> {
     );
   }
 
-  await querySync('update livzmc.profiles set lastSearched = ? where uuid = ?', [Date.now().toString(), user.uuid]);
+  await querySync('update profiles set lastSearched = ? where uuid = ?', [Date.now().toString(), user.uuid]);
   RECENTLY_UPDATED_USERS.set(user.uuid, true, 15);
   return;
 }
@@ -357,38 +357,38 @@ async function getCapeData(url: string, type: 'mc' | 'of' | 'lb' | 'mcm'): Promi
 async function updateSkin(user: User, parsedProfile: ParsedProfile): Promise<void> {
   const skinData: SkinData | null = await getSkinData(parsedProfile.skin.url);
   if (!skinData) return;
-  await querySync('update livzmc.profileSkins set enabled = 0 where uuid = ?', [user.uuid]); // disable all existing skins
+  await querySync('update profileSkins set enabled = 0 where uuid = ?', [user.uuid]); // disable all existing skins
 
-  let skin: Skin = (await querySync('select * from livzmc.skins where hash = ?', [skinData.hash]))[0];
+  let skin: Skin = (await querySync('select * from skins where hash = ?', [skinData.hash]))[0];
   if (!skin) {
     // skin does not exist, so create a new row
-    await querySync('insert into livzmc.skins (createdAt, url, skinId, userCount, hash) values (?, ?, ?, ?, ?)', [Date.now().toString(), skinData.url, skinData.hash.substring(20), '1', skinData.hash]);
-    skin = (await querySync('select * from livzmc.skins where hash = ?', [skinData.hash]))[0];
+    await querySync('insert into skins (createdAt, url, skinId, userCount, hash) values (?, ?, ?, ?, ?)', [Date.now().toString(), skinData.url, skinData.hash.substring(20), '1', skinData.hash]);
+    skin = (await querySync('select * from skins where hash = ?', [skinData.hash]))[0];
     if (!skin) return; // this shouldn't ever happen, but just in case
   }
 
-  const skinUser: SkinUsers = (await querySync('select * from livzmc.profileSkins where skinId = ? and uuid = ?', [skin.skinId, user.uuid]))[0];
+  const skinUser: SkinUsers = (await querySync('select * from profileSkins where skinId = ? and uuid = ?', [skin.skinId, user.uuid]))[0];
   if (!skinUser) {
-    await querySync('insert into livzmc.profileSkins (skinId, uuid, cachedOn, model) values (?, ?, ?, ?)', [skin.skinId, user.uuid, Date.now().toString(), parsedProfile.skin.slim ? '1' : '0']);
+    await querySync('insert into profileSkins (skinId, uuid, cachedOn, model) values (?, ?, ?, ?)', [skin.skinId, user.uuid, Date.now().toString(), parsedProfile.skin.slim ? '1' : '0']);
   } else {
-    await querySync('update livzmc.profileSkins set enabled = 1 where skinId = ? and uuid = ?', [skin.skinId, user.uuid]);
+    await querySync('update profileSkins set enabled = 1 where skinId = ? and uuid = ?', [skin.skinId, user.uuid]);
   }
 
-  await querySync('update livzmc.profiles set currentSkin = ? where uuid = ?', [parsedProfile.skin.url, parsedProfile.uuid]);
+  await querySync('update profiles set currentSkin = ? where uuid = ?', [parsedProfile.skin.url, parsedProfile.uuid]);
 }
 
 async function updateCape(user: User, parsedProfile: ParsedProfile): Promise<void> {
   if (!parsedProfile.cape) return;
   const capeData: CapeData | null = await getCapeData(parsedProfile.cape.url, 'mc');
   if (!capeData) return;
-  await querySync('update livzmc.profileCapes set enabled = 0 where uuid = ?', [user.uuid]); // disable all existing capes
+  await querySync('update profileCapes set enabled = 0 where uuid = ?', [user.uuid]); // disable all existing capes
 
-  let cape: Cape = (await querySync('select * from livzmc.capes where hash = ?', [capeData.hash]))[0];
+  let cape: Cape = (await querySync('select * from capes where hash = ?', [capeData.hash]))[0];
   if (!cape) {
     // cape does not exist, create a new row
     await querySync(
       `
-        insert into livzmc.capes (
+        insert into capes (
           createdAt,
           url,
           capeId,
@@ -422,18 +422,18 @@ async function updateCape(user: User, parsedProfile: ParsedProfile): Promise<voi
         capeData.hash,
       ]
     );
-    cape = (await querySync('select * from livzmc.capes where hash = ?', [capeData.hash]))[0];
+    cape = (await querySync('select * from capes where hash = ?', [capeData.hash]))[0];
     if (!cape) return; // this shouldn't ever happen, but just in case
   }
 
-  const capeUser: CapeUser = (await querySync('select * from livzmc.profileCapes where capeId = ? and uuid = ?', [cape.capeId, user.uuid]))[0];
+  const capeUser: CapeUser = (await querySync('select * from profileCapes where capeId = ? and uuid = ?', [cape.capeId, user.uuid]))[0];
   if (!capeUser) {
-    await querySync('insert into livzmc.profileCapes (capeId, uuid, createdAt) values (?, ?, ?)', [cape.capeId, parsedProfile.uuid, Date.now().toString()]);
+    await querySync('insert into profileCapes (capeId, uuid, cachedOn) values (?, ?, ?)', [cape.capeId, parsedProfile.uuid, Date.now().toString()]);
   } else {
-    await querySync('update livzmc.profileCapes set enabled = 1 where capeId = ? and uuid = ?', [cape.capeId, user.uuid]);
+    await querySync('update profileCapes set enabled = 1 where capeId = ? and uuid = ?', [cape.capeId, user.uuid]);
   }
 
-  await querySync('update livzmc.profiles set currentCape = ? where uuid = ?', [parsedProfile.cape.url, parsedProfile.uuid]);
+  await querySync('update profiles set currentCape = ? where uuid = ?', [parsedProfile.cape.url, parsedProfile.uuid]);
 }
 
 // private types

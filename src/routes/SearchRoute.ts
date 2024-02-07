@@ -16,7 +16,7 @@ app.get('/', async function (req, res) {
 
     const start = performance.now();
     if (isUUID(searchedName)) {
-      const findUUIDProfile = (await querySync('select username from livzmc.profiles where uuid = ?', [searchedName]))[0];
+      const findUUIDProfile = (await querySync('select username from profiles where uuid = ?', [searchedName]))[0];
       if (findUUIDProfile) searchedName = findUUIDProfile.username;
     }
 
@@ -70,7 +70,7 @@ app.get('/', async function (req, res) {
       */
       const id = await usernameToUUID(req.query.u.toString());
       if (id !== null) {
-        const exists: User = (await querySync('select username, uuid from livzmc.profiles where uuid = ?', [id]))[0];
+        const exists: User = (await querySync('select username, uuid from profiles where uuid = ?', [id]))[0];
         if (!exists) {
           await createProfile(id);
           const currentUser = (await querySync(
