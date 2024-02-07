@@ -1,10 +1,11 @@
-CREATE TABLE IF NOT EXISTS `livzmc`.`labycapes` (
+CREATE TABLE IF NOT EXISTS `labycapes` (
   `id` int NOT NULL AUTO_INCREMENT,
   `createdAt` bigint DEFAULT NULL,
-  `capeId` char(255) NOT NULL,
+  `capeId` char(36) NOT NULL,
   `enabled` tinyint(1) NOT NULL DEFAULT '1',
   `removed` tinyint(1) NOT NULL DEFAULT '0',
-  `hash` char(255) NOT NULL,
+  `hash` char(32) NOT NULL,
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `hash` (`hash`)
 );

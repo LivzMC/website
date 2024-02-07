@@ -13,7 +13,7 @@ if (!fs.existsSync('cache/capes/mc')) fs.mkdirSync('cache/capes/mc', { recursive
 const userLengthCache = new NodeCache();
 
 async function generateCapesCache(): Promise<void> {
-  const capes = await querySync('select * from livzmc.capes');
+  const capes = await querySync('select * from capes');
   await fsp.writeFile('cache/capes.json', JSON.stringify(capes));
 }
 
@@ -27,7 +27,7 @@ async function generateCapeUsersCache(capeId: string, filePath: string): Promise
     profileCapes.hidden,
     profiles.username,
     profiles.uuid
-    from livzmc.profileCapes
+    from profileCapes
     join profiles on profiles.uuid = profileCapes.uuid
     where capeId = ?
     order by cachedOn desc
@@ -61,7 +61,7 @@ app.get('/', async function (req, res) {
 
 app.get('/:capeId', async function (req, res) {
   try {
-    const cape: Cape = (await querySync('select * from livzmc.capes where capeId = ?', [req.params.capeId]))[0];
+    const cape: Cape = (await querySync('select * from capes where capeId = ?', [req.params.capeId]))[0];
     if (!cape || !cape.enabled) return res.status(404).send('Could not find cape');
 
     const filePath = `cache/capes/${cape.capeId}-users.json`;
@@ -72,7 +72,7 @@ app.get('/:capeId', async function (req, res) {
     }
 
     const users: CapeUser[] = JSON.parse((await fsp.readFile(filePath)).toString());
-    const userLength: number = userLengthCache.has(cape.capeId) ? userLengthCache.get(cape.capeId) : (await querySync('select count(capeId) from livzmc.profileCapes where capeId = ? and hidden = 0', [cape.capeId]))[0]['count(capeId)'];
+    const userLength: number = userLengthCache.has(cape.capeId) ? userLengthCache.get(cape.capeId) : (await querySync('select count(capeId) from profileCapes where capeId = ? and hidden = 0', [cape.capeId]))[0]['count(capeId)'];
 
     renderPage(req, res, './capes/view/minecraft', {
       cape,

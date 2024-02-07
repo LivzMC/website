@@ -19,8 +19,8 @@ app.get('/', async function (req, res) {
       badges.hidden,
       badges.createdAt,
       count(badgeUsers.uuid) as user_count
-      from livzmc.badges
-      left join livzmc.badgeUsers on badges.badgeId = badgeUsers.badgeId
+      from badges
+      left join badgeUsers on badges.badgeId = badgeUsers.badgeId
       where badges.hidden = 0
       group by badges.badgeId
       `
@@ -37,7 +37,7 @@ app.get('/', async function (req, res) {
 
 app.get('/:badgeId', async function (req, res) {
   try {
-    const badge: Badge = (await querySync('select * from livzmc.badges where badgeId = ?', [req.params.badgeId]))[0];
+    const badge: Badge = (await querySync('select * from badges where badgeId = ?', [req.params.badgeId]))[0];
     if (!badge) return res.sendStatus(404);
 
     const users: User[] & { badgeUser_hidden: boolean; } =
@@ -45,8 +45,8 @@ app.get('/:badgeId', async function (req, res) {
         `
           select badgeUsers.hidden as badgeUser_hidden,
           profiles.*
-          from livzmc.badgeUsers
-          join livzmc.profiles on profiles.uuid = badgeUsers.uuid
+          from badgeUsers
+          join profiles on profiles.uuid = badgeUsers.uuid
           where badgeId = ?
         `, [badge.badgeId]
       )).filter((user: { badgeUser_hidden: boolean; }) => !user.badgeUser_hidden);
@@ -66,7 +66,7 @@ app.put('/:badgeTitle', async function (req, res) {
     const account: Account = res.locals.account;
     if (!account || account.permission !== 11) return res.sendStatus(401);
 
-    const checkName: Badge = (await querySync('select badgeId from livzmc.badges where title = ?', [req.params.badgeTitle]))[0];
+    const checkName: Badge = (await querySync('select badgeId from badges where title = ?', [req.params.badgeTitle]))[0];
     if (checkName) return res.sendStatus(403);
 
     const badgeId = generateRandomId(req.params.badgeTitle);
@@ -81,7 +81,7 @@ app.put('/:badgeTitle', async function (req, res) {
 
     await querySync(
       `
-        insert into livzmc.badges (
+        insert into badges (
           createdAt,
           badgeId,
           title,
@@ -119,11 +119,11 @@ app.delete('/:badgeId', async function (req, res) {
     const account: Account = res.locals.account;
     if (!account || account.permission !== 11) return res.sendStatus(401);
 
-    const badge: Badge = (await querySync('select * from livzmc.badges where badgeId = ?', [req.params.badgeId]))[0];
+    const badge: Badge = (await querySync('select * from badges where badgeId = ?', [req.params.badgeId]))[0];
     if (!badge) return res.sendStatus(403);
 
     // todo: make proper type for badgeUsers
-    const checkUsers: Badge[] = await querySync('select uuid from livzmc.badgeUsers where badgeId = ?', [badge.badgeId]);
+    const checkUsers: Badge[] = await querySync('select uuid from badgeUsers where badgeId = ?', [badge.badgeId]);
     if (checkUsers.length > 0) {
       // todo:
       // users have had this badge before, need to handle this
@@ -131,7 +131,7 @@ app.delete('/:badgeId', async function (req, res) {
       // not sure
     } else {
       // no user has had this badge so, it's safe to delete entirely from the database
-      await querySync('delete from livzmc.badges where badgeId = ?', [badge.badgeId]);
+      await querySync('delete from badges where badgeId = ?', [badge.badgeId]);
     }
 
     res.sendStatus(200);

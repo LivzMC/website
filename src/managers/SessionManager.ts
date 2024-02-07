@@ -46,7 +46,7 @@ export default class SessionManager {
       return null;
     }
 
-    const newAccount: Account = (await querySync('select * from livzmc.accounts where accountId = ?', [account.accountId]))[0];
+    const newAccount: Account = (await querySync('select * from accounts where accountId = ?', [account.accountId]))[0];
     if (!newAccount) {
       this.deleteCachedSession(sessionId);
       return null;

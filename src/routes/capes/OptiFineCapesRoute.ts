@@ -21,7 +21,7 @@ type SearchOptions = {
 (async function () {
   if (!fs.existsSync('cache/banners.json') && isFileCacheExpired('cache/banners.json', (60 * 60) * 6)) { // cache for 6 hours
     try {
-      const r: Banner[] = await querySync('select * from livzmc.banners order by createdAt desc');
+      const r: Banner[] = await querySync('select * from banners order by createdAt desc');
       fs.writeFileSync('cache/banners.json', JSON.stringify(r));
     } catch (e) {
       console.error(e);
@@ -33,7 +33,7 @@ async function generateUsersCache(bannerId: string, path: string): Promise<void>
   const profiles = await querySync(
     `
     select *
-    from livzmc.profileOFCapes
+    from profileOFCapes
     join profiles on profiles.uuid = profileOFCapes.uuid
     where capeId = ?
     order by cachedOn desc
@@ -76,13 +76,13 @@ app.get('/', async function (req, res) {
 
 app.get('/:bannerId', async function (req, res) {
   try {
-    const banner: Banner = (await querySync('select * from livzmc.banners where bannerId = ?', [req.params.bannerId]))[0];
+    const banner: Banner = (await querySync('select * from banners where bannerId = ?', [req.params.bannerId]))[0];
     if (!banner || banner.removed) return res.status(404).send('Banner not found');
     const path = `cache/capes/banner/${banner.bannerId}-users.json`;
     const isCached = fs.existsSync(path); // cache for 5 minutes
 
     if (!isCached) await generateUsersCache(banner.bannerId, path);
-    const length = BannerUserLengthCache.has(banner.bannerId) ? BannerUserLengthCache.get(banner.bannerId) : (await querySync('SELECT count(capeId) from livzmc.profileOFCapes WHERE capeId = ? and hidden = 0', [banner.bannerId]))[0]['count(capeId)'];
+    const length = BannerUserLengthCache.has(banner.bannerId) ? BannerUserLengthCache.get(banner.bannerId) : (await querySync('SELECT count(capeId) from profileOFCapes WHERE capeId = ? and hidden = 0', [banner.bannerId]))[0]['count(capeId)'];
 
     const data = await fsp.readFile(path);
     const profiles = JSON.parse(data.toString());

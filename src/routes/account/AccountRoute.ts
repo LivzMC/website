@@ -61,7 +61,7 @@ app.get('/verifyEmail/:emailToken', async function (req, res) {
     const accountToVerifyId = (await fsp.readFile(path)).toString();
     if (!accountToVerifyId || accountToVerifyId !== account.accountId) return res.sendStatus(404);
 
-    await querySync('update livzmc.accounts set emailVerified = 1 where accountId = ?', [account.accountId]);
+    await querySync('update accounts set emailVerified = 1 where accountId = ?', [account.accountId]);
     await fsp.rm(path);
 
     await SessionManager.refreshSession(req.cookies.sessionId);
@@ -166,7 +166,7 @@ app.post('/register', async function (req, res) {
     }
 
     const uniqueId = generateRandomId(req.body.user.toLowerCase());
-    const checkEmail = await querySync('select accountId from livzmc.accounts where uniqueId = ? and removed = 0', [uniqueId]);
+    const checkEmail = await querySync('select accountId from accounts where uniqueId = ? and removed = 0', [uniqueId]);
     if (checkEmail.length > 0) {
       // todo: find a better error message for this
       //       it's not really smart to tell a user if an email exists due to security
@@ -179,7 +179,7 @@ app.post('/register', async function (req, res) {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     await querySync(
       `
-        insert into livzmc.accounts
+        insert into accounts
         (
           accountId,
           uniqueId,
@@ -205,7 +205,7 @@ app.post('/register', async function (req, res) {
     );
 
     const randomToken = crypto.randomUUID().replace(/-/g, '');
-    const account = (await querySync('select * from livzmc.accounts where accountId = ?', [id]))[0];
+    const account = (await querySync('select * from accounts where accountId = ?', [id]))[0];
     new SessionManager(randomToken, account);
     res.cookie('sessionId', randomToken);
     res.redirect('/account');

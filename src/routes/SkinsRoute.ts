@@ -54,8 +54,8 @@ async function generateSkinUserCache(skinId: string, filePath: string): Promise<
   for (let i = 0; i < 100; i++) {
     try {
       const skins: Skin[] = await querySync(`
-        select * from livzmc.skins as t1 join (
-          select id from livzmc.skins order by rand() limit 32
+        select * from skins as t1 join (
+          select id from skins order by rand() limit 32
         )
         as t2 on t1.id = t2.id
         where enabled = 1
@@ -91,12 +91,12 @@ app.get('/new', async function (req, res) {
       }
     }
 
-    const skinsDb = await querySync(`select * from livzmc.skins where enabled = 1 order by createdAt desc limit ${(page - 1) * nPerPage}, ${nPerPage}`);
+    const skinsDb = await querySync(`select * from skins where enabled = 1 order by createdAt desc limit ${(page - 1) * nPerPage}, ${nPerPage}`);
     const skins: Skin[] & SkinsPageTypes[] = await Promise.all(
       skinsDb.map(async function (skin: Skin & SkinsPageTypes) {
-        skin.recentUser = (await querySync('select uuid from livzmc.profileSkins where skinId = ? and hidden = 0', [skin.skinId]))[0];
+        skin.recentUser = (await querySync('select uuid from profileSkins where skinId = ? and hidden = 0', [skin.skinId]))[0];
         if (skin.recentUser) {
-          skin.recentUser = (await querySync('select username, uuid from livzmc.profiles where uuid = ?', [skin.recentUser.uuid]))[0];
+          skin.recentUser = (await querySync('select username, uuid from profiles where uuid = ?', [skin.recentUser.uuid]))[0];
         }
         return skin;
       })
@@ -140,7 +140,7 @@ app.get('/random', async function (req, res) {
 
 app.get('/:skinId', async function (req, res) {
   try {
-    const skin: Skin = (await querySync('select * from livzmc.skins where skinId = ?', [req.params.skinId]))[0];
+    const skin: Skin = (await querySync('select * from skins where skinId = ?', [req.params.skinId]))[0];
     if (!skin) return res.status(404).send('Not found'); // todo: update this
     const filePath = `cache/skins/${skin.skinId}-users.json`;
     const cached = fs.existsSync(filePath);
