@@ -85,6 +85,8 @@
                       modal: {
                         title: 'Delete Account',
                         body: [
+                          '\<p class="font-semibold">This is irreversible! Any donations made on this account will forever be lost!\</p>',
+                          '\<p>This will replace the email with a hashed version, and will delete the password. If the account has been linked through an oauth scope, it will also remove it\'s data.\</p>',
                           '\<input type="password" name="password" placeholder="Confirm Password" autocomplete="off" class="w-full bg-gray-200 dark:bg-gray-800 py-1 px-1 rounded" />',
                           '\<button type="submit" class="bg-red-500 text-white p-2 rounded hover:underline">Delete\</button>',
                         ].join(''),
