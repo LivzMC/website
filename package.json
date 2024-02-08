@@ -50,5 +50,10 @@
     "nodemailer": "^6.9.9",
     "sharp": "^0.33.2",
     "wildcard-match": "^5.1.2"
+  },
+  "overrides": {
+    "jimp": {
+      "xml2js": "^0.6.0"
+    }
   }
 }
