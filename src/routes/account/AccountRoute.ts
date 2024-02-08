@@ -14,6 +14,59 @@ import EmailManager from '../../managers/EmailManager';
 const app = express.Router();
 
 const emailRegex = /^[a-zA-Z0-9]+([._-](?![._-])[a-zA-Z0-9]+)*\+?@[a-zA-Z0-9]+([._-](?![._-])[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/g;
+const clientSecret = process.env.DISCORD_SECRET?.toString() || 'NULL';
+const clientId = process.env.DISCORD_ID?.toString() || 'NULL';
+
+type DiscordData = {
+  id: string,
+  username: string,
+  avatar: string | null,
+  discriminator: string | null,
+  public_flags: number,
+  premium_type: number,
+  flags: number,
+  banner: string | null,
+  accent_color: string | null,
+  global_name: string | null,
+  avatar_decoration_data: string | null,
+  banner_color: string | null,
+  mfa_enabled: boolean,
+  locale: string,
+  email: string,
+  verified: boolean,
+  has_bounced_email: boolean,
+};
+
+async function getDiscordData(code: string, redirectUri: string): Promise<DiscordData | null> {
+  const token_response = await fetch('https://discord.com/api/oauth2/token', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      scope: 'identity email',
+    }),
+  });
+  if (token_response.status !== 200) return null;
+  const token = (await token_response.json()).access_token;
+
+  const user_response = await fetch('https://discord.com/api/users/@me', {
+    method: 'get',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (user_response.status !== 200) return null;
+  const user = await user_response.json();
+  if (!user || user.message || !user.email) return null;
+
+  return user;
+}
 
 app.get('/', async function (req, res) {
   try {
@@ -38,10 +91,108 @@ app.get('/login', (req, res) => {
   });
 });
 
+app.get('/login/discord', async function (req, res) {
+  try {
+    if (clientId == 'NULL' || clientSecret == 'NULL') return res.status(500).send('Invalid clientId or clientSecret');
+    const redirectUri = `${req.hostname == 'localhost' ? 'http' : 'https'}://${req.hostname}/account/login/discord`;
+    const { code } = req.query;
+    if (!code) return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`);
+
+    const user = await getDiscordData(code as string, redirectUri);
+    if (!user) return res.status(401).send('Unable to authorize discord user');
+
+    const uniqueId = generateRandomId(user.email.toLowerCase());
+    const account = (await querySync('select * from accounts where uniqueId = ? and removed = 0', [uniqueId]))[0];
+    if (!account) {
+      // could not find account
+      return renderPage(req, res, 'account/login', {
+        error: 'Could not find account',
+      });
+    }
+
+    const randomToken = crypto.randomUUID().replace(/-/g, '');
+
+    new SessionManager(randomToken, account);
+    res.cookie('sessionId', randomToken);
+    res.redirect('/account');
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
 app.get('/register', (req, res) => {
   renderPage(req, res, 'account/register', {
     error: null,
   });
+});
+
+app.get('/register/discord', async function (req, res) {
+  try {
+    if (clientId == 'NULL' || clientSecret == 'NULL') return res.status(500).send('Invalid clientId or clientSecret');
+    const redirectUri = `${req.hostname == 'localhost' ? 'http' : 'https'}://${req.hostname}/account/register/discord`;
+    const { code } = req.query;
+    if (!code) return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`);
+
+    const user = await getDiscordData(code as string, redirectUri);
+    if (!user) return res.status(401).send('Unable to authorize discord user');
+    if (!user.verified || user.has_bounced_email) {
+      return renderPage(req, res, 'account/register', {
+        error: 'Email is not verified',
+      });
+    }
+
+    const uniqueId = generateRandomId(user.email.toLowerCase());
+    const checkEmail = (await querySync('select * from accounts where uniqueId = ? and removed = 0', [uniqueId]))[0];
+    if (checkEmail) {
+      return renderPage(req, res, 'account/register', {
+        error: 'Account already exists',
+      });
+    }
+
+    const id = generateRandomId(Date.now().toString());
+    await querySync(
+      `
+        insert into accounts
+        (
+          accountId,
+          uniqueId,
+          email,
+          password,
+          createdAt,
+          discord,
+          emailVerified
+        ) values
+        (
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?
+        )
+      `,
+      [
+        id,
+        uniqueId,
+        encrypt(user.email.toLowerCase()),
+        '',
+        Date.now().toString(),
+        JSON.stringify({ id: user.id, username: user.username, discriminator: user.discriminator }),
+        '1',
+      ]
+    );
+
+    const randomToken = crypto.randomUUID().replace(/-/g, '');
+    const account = (await querySync('select * from accounts where accountId = ?', [id]))[0];
+    new SessionManager(randomToken, account);
+    res.cookie('sessionId', randomToken);
+    res.redirect('/account');
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
 });
 
 app.get('/logout', (req, res) => {
@@ -242,11 +393,13 @@ app.post('/register', async function (req, res) {
 
 app.post('/delete', async function (req, res) {
   try {
-    const account = res.locals.account;
+    const account: Account = res.locals.account;
     if (!account) return res.redirect('/account/login');
     const { password } = req.body;
-    if (!password || password.length < 8) return res.status(400).send('Invalid password');
-    if (!(await bcrypt.compare(password, account.password))) return res.status(403).send('Password does not match');
+    if (!account.discord) {
+      if (!password || password.length < 8) return res.status(400).send('Invalid password');
+      if (!(await bcrypt.compare(password, account.password))) return res.status(403).send('Password does not match');
+    }
     if (account.permission !== 0) return res.status(403).send('Account has too much power to be deleted');
     const deletedCount = (await querySync('select accountId from accounts where removed = 1')).length + 1;
     // This is used so that if there are any issues with deletion I can still verify account ownership and possibly revert account deletions
