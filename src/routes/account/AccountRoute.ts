@@ -6,7 +6,7 @@ import fsp from 'fs/promises';
 import renderPage from '../../utils/RenderPage';
 import { Account } from '../../managers/database/types/AccountTypes';
 import { querySync } from '../../managers/database/MySQLConnection';
-import { decrypt, encrypt, generateRandomId } from '../../utils/Utils';
+import { decrypt, encodeMD5, encrypt, generateRandomId } from '../../utils/Utils';
 import SessionManager from '../../managers/SessionManager';
 import ErrorManager from '../../managers/ErrorManager';
 import EmailManager from '../../managers/EmailManager';
@@ -72,6 +72,10 @@ app.get('/verifyEmail/:emailToken', async function (req, res) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();
   }
+});
+
+app.get('/deleted', (req, res) => {
+  renderPage(req, res, 'account/deleted', {});
 });
 
 // todo: add request limit
@@ -159,7 +163,7 @@ app.post('/register', async function (req, res) {
       });
     }
 
-    if (req.body.password.length < 7) {
+    if (req.body.password.length < 8) {
       return renderPage(req, res, 'account/register', {
         error: 'Password is too short. Minimum amount of charcters is 8',
       });
@@ -221,8 +225,8 @@ app.post('/register', async function (req, res) {
           <a href="${linkUrl}" target="__">${linkUrl}</a>
         </p>
         <small style="color: #444;">
-          If you did not sign up with LivzMC.net or do not wish to be with us any longer, you can request to delete your data here:
-          <a href="https://livzmc.net/account/delete">DATA DELETION</a>
+          If you did not sign up with LivzMC.net or do not wish to be with us any longer, you can request a password reset, then delete the account on the account panel:
+          <a href="https://livzmc.net/account/forgot-password">PASSWORD RESET</a>
         </small>
         `
     );
@@ -230,6 +234,32 @@ app.post('/register', async function (req, res) {
     const emailResponse = await email.send();
     if (!emailResponse || emailResponse.rejected.length > 0) return;
     await fsp.writeFile(`cache/email_verification/${randomEmailVerifyToken}.txt`, id);
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
+app.post('/delete', async function (req, res) {
+  try {
+    const account = res.locals.account;
+    if (!account) return res.redirect('/account/login');
+    const { password } = req.body;
+    if (!password || password.length < 8) return res.status(400).send('Invalid password');
+    if (!(await bcrypt.compare(password, account.password))) return res.status(403).send('Password does not match');
+    if (account.permission !== 0) return res.status(403).send('Account has too much power to be deleted');
+    const deletedCount = (await querySync('select accountId from accounts where removed = 1')).length + 1;
+    // This is used so that if there are any issues with deletion I can still verify account ownership and possibly revert account deletions
+    const hashedEmail = encrypt(encodeMD5(decrypt(account.email) + '@deleted'));
+    await querySync('update accounts set password = "", email = ?, 2FA = null, discord = null, removed = 1, uniqueId = ? where accountId = ?', [
+      hashedEmail,
+      `deleted-${account.uniqueId}-${deletedCount}`,
+      account.accountId,
+    ]);
+
+    SessionManager.deleteCachedSession(req.cookies.sessionId);
+    res.clearCookie('sessionId');
+    res.redirect('/account/deleted');
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();

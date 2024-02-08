@@ -138,6 +138,10 @@ export function decrypt(text: string, key: string | null = (process.env.KEY || n
   return CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
 }
 
+export function encodeMD5(text: string): string {
+  return crypto.createHash('MD5').update(text).digest('hex').toString();
+}
+
 export function isUUID(text: string): boolean {
   return text.match(/([0-9a-f]{8})(?:-|)([0-9a-f]{4})(?:-|)(4[0-9a-f]{3})(?:-|)([89ab][0-9a-f]{3})(?:-|)([0-9a-f]{12})/g) !== null;
 }

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../partials/meta', {
+      title: "Deleted Account",
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../partials/header', {
+    });
+  %>
+  <div class="container px-4 mx-auto">
+    <h1 class="text-4xl font-bold">Deleted Account</h1>
+    <div class="mt-[5px]"></div>
+    <hr>
+    <div class="mt-[5px]"></div>
+    <p>
+      <span class="font-bold">A note:</span><br>
+      After an account is deleted, the data can't be recovered or requested. It is deleted.
+      If you had made a mistake, you can create a new account and link the Minecraft profiles again.
+    </p>
+    <p class="font-semibold">
+      If you had made donations on the account that was deleted you will need to donate again, it will not be transferred.
+    </p>
+    <div class="mt-[10px]"></div>
+    <small class="text-xs">Anyone can view this page</small>
+  </div>
+</body>
+</html>
