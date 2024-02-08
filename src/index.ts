@@ -151,7 +151,7 @@ app.get('/:vanity', async function (req, res) {
 app.get(`${process.env.TEXTURE_SERVER?.toString() || '/textures'}/*`, async function (req, res) {
   const FILEPATH = process.env.FILEPATH;
   if (!FILEPATH) return res.sendStatus(500);
-  const path = (req.params as any)['0'];
+  const path = (req.params as { '0': object; })['0'];
   if (!fs.existsSync(`${FILEPATH}/${path}`)) return res.sendStatus(404);
   res.sendFile(`${FILEPATH}/${path}`);
 });
