@@ -94,8 +94,8 @@
   <script src="/js/formatDate.js"></script>
   <%-
     await include('../../partials/skinviewer', {
-      skin: `https://textures.livzmc.net/skin/alex.png`,
-      cape: `https://textures.livzmc.net/cape/OF/${banner.bannerId}.png?uuid=${profiles[0] ? profiles[0].uuid : ''}`,
+      skin: `${textureServer}/skins/alex.png`,
+      cape: `${textureServer}/cape/OF/${banner.bannerId}.png?uuid=${profiles[0] ? profiles[0].uuid : ''}`,
       slim: true,
       cameraZ: -300,
     });

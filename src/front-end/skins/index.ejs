@@ -84,8 +84,8 @@
     </div>
   </div>
   <div class="mt-5"></div>
-  <script src="https://textures.livzmc.net/js/three.min.js"></script>
-  <script src="https://textures.livzmc.net/js/3d/2.3.9.bundle.js"></script>
+  <script src="<%= textureServer %>/js/three.min.js"></script>
+  <script src="<%= textureServer %>/js/3d/2.3.9.bundle.js"></script>
   <script>
     const skinViewer = new skinview3d.SkinViewer({
       width: 88,
@@ -108,7 +108,7 @@
 
     document.querySelectorAll('[skin]').forEach(function (e) {
       const skinId = e.getAttribute('skin');
-      renderImage(skinId, `https://textures.livzmc.net/skins/${skinId}.png`, e);
+      renderImage(skinId, `${TEXTURE_SERVER}/skins/${skinId}.png`, e);
     });
   </script>
 </body>

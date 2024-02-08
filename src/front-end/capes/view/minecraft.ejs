@@ -118,8 +118,8 @@
   <script src="/js/formatDate.js"></script>
   <%-
     await include('../../partials/skinviewer', {
-      skin: `https://textures.livzmc.net/skin/alex.png`,
-      cape: `https://textures.livzmc.net/capes/${cape.capeId}.png`,
+      skin: `${textureServer}/skins/alex.png`,
+      cape: `${textureServer}/capes/${cape.capeId}.png`,
       slim: true,
       cameraZ: -300,
     });

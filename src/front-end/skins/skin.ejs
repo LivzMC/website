@@ -89,7 +89,7 @@
   <script src="/js/formatDate.js"></script>
   <%-
     await include('../partials/skinviewer', {
-      skin: `https://textures.livzmc.net/skin/${skin.skinId}.png`,
+      skin: `${textureServer}/skins/${skin.skinId}.png`,
       cape: null,
       slim: users[users.length - 1].model === 1,
     });

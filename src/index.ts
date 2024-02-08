@@ -1,7 +1,6 @@
 import express from 'express';
 import fs from 'fs';
-import dotenv from 'dotenv';
-dotenv.config(); // init .env
+import dotenv from 'dotenv'; dotenv.config(); // init .env
 import ejs from 'ejs';
 import cookieParser from 'cookie-parser';
 import { connectToDatabase, querySync } from './managers/database/MySQLConnection';
@@ -104,6 +103,7 @@ app.locals.DEVMODE = isDevMode();
 app.locals.getLocaleString = getLocaleString;
 app.locals.getUserNameIndex = getUserNameIndex;
 app.locals.LMCButton = 'rounded dark:bg-[#047857] bg-[#059669] text-white font-semibold px-2 py-1 hover:underline';
+app.locals.textureServer = process.env.TEXTURE_SERVER?.toString() || '/textures';
 // create routes
 app.use('/', HomeRoute);
 app.use('/skins', SkinsRoute);
@@ -146,6 +146,14 @@ app.get('/:vanity', async function (req, res) {
     console.error(e);
     res.sendStatus(500);
   }
+});
+
+app.get(`${process.env.TEXTURE_SERVER?.toString() || '/textures'}/*`, async function (req, res) {
+  const FILEPATH = process.env.FILEPATH;
+  if (!FILEPATH) return res.sendStatus(500);
+  const path = (req.params as any)['0'];
+  if (!fs.existsSync(`${FILEPATH}/${path}`)) return res.sendStatus(404);
+  res.sendFile(`${FILEPATH}/${path}`);
 });
 
 app.all('*', (req, res) => {

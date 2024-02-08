@@ -22,7 +22,7 @@ function updateSkin(e) {
   if (document.getElementById('skin').getAttribute('skin') === number && document.getElementById('skin').getAttribute('model') === model) return;
   document.getElementById('skin').setAttribute('skin', number);
   document.getElementById('skin').setAttribute('model', model);
-  skinViewer.loadSkin(`https://textures.livzmc.net/skin/${number}.png`, model);
+  skinViewer.loadSkin(`${TEXTURE_SERVER}/skin/${number}.png`, model);
 }
 
 function updateCapes(e) {
@@ -40,15 +40,15 @@ function updateCapes(e) {
   }
   if (number.startsWith('LB/')) {
     document.getElementById('skinElytraButton').classList.add('hidden');
-    RemapLBCape(`https://textures.livzmc.net/cape/${number}.png?uuid=${uuid}`).then((image) => {
+    RemapLBCape(`${TEXTURE_SERVER}/cape/${number}.png?uuid=${uuid}`).then((image) => {
       skinViewer.loadCape(image);
     });
   } else {
     document.getElementById('skinElytraButton').classList.remove('hidden');
     if (number.startsWith('OF/')) {
-      skinViewer.loadCape(`https://textures.livzmc.net/optifine_capes/${number.split('OF/')[1]}/${uuid}.png`);
+      skinViewer.loadCape(`${TEXTURE_SERVER}/optifine_capes/${number.split('OF/')[1]}/${uuid}.png`);
     } else {
-      skinViewer.loadCape(`https://textures.livzmc.net/cape/${number}.${gif ? 'gif' : 'png'}?uuid=${uuid}`);
+      skinViewer.loadCape(`${TEXTURE_SERVER}/cape/${number}.${gif ? 'gif' : 'png'}?uuid=${uuid}`);
     }
   }
 }
@@ -57,7 +57,7 @@ function updateEars(e) {
   const number = e.target.getAttribute('ears');
   if (document.getElementById('skin').getAttribute('ears') === number) return;
   document.getElementById('skin').setAttribute('ears', number);
-  skinViewer.loadEar(`https://textures.livzmc.net/cape/${number}.png`);
+  skinViewer.loadEar(`${TEXTURE_SERVER}/cape/${number}.png`);
 }
 
 const loadImage = design => {

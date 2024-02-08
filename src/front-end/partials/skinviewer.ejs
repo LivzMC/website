@@ -5,8 +5,8 @@
   if (typeof paused == 'undefined') paused = false;
   if (typeof profile == 'undefined') profile = null;
 %>
-<script src="https://textures.livzmc.net/js/three.min.js"></script>
-<script src="https://textures.livzmc.net/js/3d/2.3.9.bundle.js"></script>
+<script src="<%= textureServer %>/js/three.min.js"></script>
+<script src="<%= textureServer %>/js/3d/2.3.9.bundle.js"></script>
 <script>
   const uuid = "<%= profile?.uuid %>";
   const skinViewer = new skinview3d.SkinViewer({
@@ -51,7 +51,7 @@
       const cape = doc.getAttribute('data-cape');
       if (!cape) return;
       const url = cape !== "<%= cape %>" ?
-        `https://textures.livzmc.net/cape/${cape}.png?uuid=${uuid}` :
+        `<%= textureServer %>/cape/${cape}.png?uuid=${uuid}` :
         "<%= cape %>";
       skinViewer.loadCape(url, {
         backEquipment: !hasElyta ? "elytra" : "cape",
