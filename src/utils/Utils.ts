@@ -10,12 +10,21 @@ const DEFAULT_LANGUAGE = JSON.parse(fs.readFileSync('LivzMC/lang/en-us/core.json
 const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
 const FILEPATH: string = process.env.FILEPATH?.toString() || 'cache/files';
 
+initFilePath();
+
 export function isDevMode(): boolean {
   return DEVMODE;
 }
 
 export function getFilePath(): string {
   return FILEPATH;
+}
+
+function initFilePath(): void {
+  if (FILEPATH === 'cache/files') console.warn('[WARN] File path is located inside the cache directory. The cache directory is supposed to be temporary.');
+  if (!fs.existsSync(FILEPATH)) fs.mkdirSync(FILEPATH, { recursive: true });
+  if (!fs.existsSync(FILEPATH + '/skins')) fs.mkdirSync(FILEPATH + '/skins', { recursive: true });
+  if (!fs.existsSync(FILEPATH + '/capes')) fs.mkdirSync(FILEPATH + '/capes', { recursive: true });
 }
 
 export async function generateBannerPatterns(pattern: string, language: string): Promise<string> {
