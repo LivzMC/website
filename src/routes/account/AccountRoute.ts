@@ -229,6 +229,33 @@ app.get('/deleted', (req, res) => {
   renderPage(req, res, 'account/deleted', {});
 });
 
+app.get('/forgot-password', (req, res) => {
+  renderPage(req, res, 'account/forgot-password', {
+    stage: 0,
+    error: null,
+    message: null,
+  });
+});
+
+app.get('/forgot-password/:resetToken', async function (req, res) {
+  try {
+    const path = `cache/email_verification/${req.params.resetToken}.txt`;
+    if (!fs.existsSync(path)) return res.sendStatus(404);
+    const uniqueId = (await fsp.readFile(path)).toString();
+    await fsp.rm(path);
+
+    renderPage(req, res, 'account/forgot-password', {
+      stage: 1,
+      error: null,
+      message: null,
+      uniqueId,
+    });
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
 // todo: add request limit
 app.post('/login', async function (req, res) {
   try {
@@ -413,6 +440,106 @@ app.post('/delete', async function (req, res) {
     SessionManager.deleteCachedSession(req.cookies.sessionId);
     res.clearCookie('sessionId');
     res.redirect('/account/deleted');
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
+// todo: add ratelimit
+app.post('/forgot-password', async function (req, res) {
+  try {
+    const { stage } = req.query;
+    if (!stage) return renderPage(req, res, 'account/forgot-password', {
+      stage: 0,
+      error: 'Missing stage',
+      message: null,
+    });
+
+    switch (stage) {
+      case '0': {
+        const { email } = req.body;
+        if (!email) return renderPage(req, res, 'account/forgot-password', {
+          stage: 0,
+          error: 'Missing email',
+          message: null,
+        });
+
+        const uniqueId = generateRandomId(email.toLowerCase());
+        const account: Account | null = (await querySync('select * from accounts where uniqueId = ?', [uniqueId]))[0];
+        const successMessage = 'Sent a password reset. If there was an account with this email, check it\'s inbox.';
+        if (!account) return renderPage(req, res, 'account/forgot-password', {
+          stage: 0,
+          error: null,
+          message: successMessage,
+        });
+
+        const randomToken = crypto.randomUUID().replace(/-/g, '');
+        const linkUrl = `${req.hostname == 'localhost' ? 'http' : 'https'}://${req.hostname}/account/forgot-password/${randomToken}`;
+        const sendEmail = new EmailManager(email);
+        sendEmail.setTitle('LivzMC - Password Reset');
+        sendEmail.setBody(
+          `
+            <h1>Hey ${email.split('@')[0].toLowerCase()}</h1>
+            <p>
+              To continue the process of resetting your password, click the link and enter the new password.
+              <a href="${linkUrl}" target="__">${linkUrl}</a>
+            </p>
+            <small style="color: #444;">
+              If you did not sign up with LivzMC.net or do not wish to be with us any longer, you can request a password reset, then delete the account on the account panel:
+              <a href="https://livzmc.net/account/forgot-password">PASSWORD RESET</a>
+            </small>
+          `
+        );
+
+        const emailResponse = await sendEmail.send();
+        if (!emailResponse || emailResponse.rejected.length > 0) return;
+        await fsp.writeFile(`cache/email_verification/${randomToken}.txt`, account.uniqueId);
+
+        renderPage(req, res, 'account/forgot-password', {
+          stage: 0,
+          error: null,
+          message: successMessage,
+        });
+        break;
+      }
+      case '1': {
+        const { password, conf_password } = req.body;
+        if ((!password || !conf_password) || (password !== conf_password) || !req.body.id) return renderPage(req, res, 'account/forgot-password', {
+          stage: 1,
+          error: 'Passwords do not match',
+          message: null,
+          uniqueId: req.body.id,
+        });
+
+        if (password.length < 8) {
+          return renderPage(req, res, 'account/forgot-password', {
+            stage: 1,
+            error: 'Password is too short. Minimum amount of charcters is 8',
+            message: null,
+            uniqueId: req.body.id,
+          });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await querySync('update accounts set password = ? where uniqueId = ?', [hashedPassword, req.body.id]);
+        SessionManager.deleteCachedSession(req.cookies.sessionId);
+        res.clearCookie('sessionId');
+
+        renderPage(req, res, 'account/forgot-password', {
+          stage: 2,
+          error: null,
+          message: 'Password changed',
+        });
+        break;
+      }
+      default:
+        renderPage(req, res, 'account/forgot-password', {
+          stage: 0,
+          error: 'Invalid stage',
+        });
+        break;
+    }
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();
