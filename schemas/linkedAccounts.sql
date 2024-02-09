@@ -1,4 +1,4 @@
-create table if not exists `linkedaccounts` (
+create table if not exists `linkedAccounts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `accountId` char(30) NOT NULL,
   `createdAt` bigint DEFAULT NULL,

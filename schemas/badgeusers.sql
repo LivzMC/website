@@ -1,4 +1,4 @@
-create table if not exists `badgeusers` (
+create table if not exists `badgeUsers` (
   `id` int NOT NULL AUTO_INCREMENT,
   `createdAt` bigint DEFAULT NULL,
   `badgeId` char(36) NOT NULL,

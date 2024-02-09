@@ -1,4 +1,4 @@
-create table if not exists `profilenames` (
+create table if not exists `profileNames` (
   `id` int NOT NULL AUTO_INCREMENT,
   `uuid` char(32) NOT NULL,
   `username` char(32) DEFAULT NULL,

@@ -1,4 +1,4 @@
-create table if not exists `profilelbcapes` (
+create table if not exists `profileLBCapes` (
   `id` int NOT NULL AUTO_INCREMENT,
   `capeId` char(36) NOT NULL,
   `uuid` char(32) NOT NULL,

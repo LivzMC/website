@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `labycapes` (
+CREATE TABLE IF NOT EXISTS `labyCapes` (
   `id` int NOT NULL AUTO_INCREMENT,
   `createdAt` bigint DEFAULT NULL,
   `capeId` char(36) NOT NULL,

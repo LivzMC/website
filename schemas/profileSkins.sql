@@ -1,4 +1,4 @@
-create table if not exists `profileskins` (
+create table if not exists `profileSkins` (
   `id` int NOT NULL AUTO_INCREMENT,
   `skinId` char(36) NOT NULL,
   `uuid` char(32) NOT NULL,
