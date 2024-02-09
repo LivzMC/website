@@ -12,6 +12,9 @@ import { User } from './database/types/UserTypes';
 const USERNAME_UUID = new NodeCache();
 const RECENTLY_UPDATED_USERS = new NodeCache();
 const IS_UPDATING_PROFILE: Map<string, boolean> = new Map();
+const RATELIMITTED_SEARCHES: Set<string> = new Set(); // todo: add a queue to go through the profiles that were searched but were denied due to ratelimit
+let IS_RATELIMITTED: boolean = false;
+let LAST_SEARCH = 0;
 
 // public helper funcitons
 
@@ -24,10 +27,26 @@ export async function usernameToUUID(username: string): Promise<string | null> {
   if (USERNAME_UUID.has(username)) return USERNAME_UUID.get(username) as string | null;
 
   try {
+    if (IS_RATELIMITTED) {
+      // the ratelimit lasts about a minute, so do 70 seconds
+      const now = Date.now();
+      const then = new Date(LAST_SEARCH).setSeconds(new Date(LAST_SEARCH).getSeconds() + 70);
+      if (now < then) {
+        RATELIMITTED_SEARCHES.add(username);
+        return null;
+      }
+    }
+
     const f = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+    LAST_SEARCH = Date.now();
     if (f.status === 200) {
       const res: { name: string, id: string; } = await f.json();
       ret = res.id;
+      IS_RATELIMITTED = false;
+    } else if (f.status === 429) {
+      IS_RATELIMITTED = true;
+      console.warn('[WARN] Ratelimitted from api.mojang.com');
+      RATELIMITTED_SEARCHES.add(username);
     }
   } catch (e) {
     console.error(e);
