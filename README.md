@@ -11,4 +11,4 @@ Now, LivzMC is more than that. It hosts [OptiFine's](https://optifine.net/donate
 
 The idea of opening LivzMC's source code is so that people can learn from it's code and for people to easily contribute.
 
-To start, read this -> [CONTRIBUTING](CONTRIBUTING)
+To start, read this -> [CONTRIBUTING](CONTRIBUTING.md)
