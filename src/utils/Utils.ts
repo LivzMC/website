@@ -162,3 +162,21 @@ export async function fetchImage(url: string): Promise<Buffer | null> {
   const blob = await response.blob();
   return Buffer.from(await blob.arrayBuffer());
 }
+
+export async function clearCache(): Promise<void> {
+  //clear default paths
+  if (fs.existsSync('cache/email_verification')) {
+    await fsp.rm('cache/email_verification', { recursive: true });
+    await fsp.mkdir('cache/email_verification', { recursive: true });
+  }
+
+  if (fs.existsSync('cache/sessions')) {
+    const sessions = await fsp.readdir('cache/sessions');
+    for (let i = 0; i < sessions.length; i++) {
+      const sessionName = sessions[i];
+      if (isFileCacheExpired(`cache/sessions/${sessionName}`, (60 * 60) * 24)) {
+        await fsp.rm(`cache/sessions/${sessionName}`);
+      }
+    }
+  }
+}

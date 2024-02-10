@@ -5,6 +5,7 @@ import ejs from 'ejs';
 import cookieParser from 'cookie-parser';
 import { connectToDatabase, querySync } from './managers/database/MySQLConnection';
 import {
+  clearCache,
   getLocaleString,
   getUserNameIndex,
   isDevMode,
@@ -34,6 +35,7 @@ if (!fs.existsSync('cache/sessions')) fs.mkdirSync('cache/sessions', { recursive
 if (!fs.existsSync('cache/email_verification')) fs.mkdirSync('cache/email_verification', { recursive: true });
 
 connectToDatabase(); // connect to database
+clearCache();
 
 // create app
 const app = express();
