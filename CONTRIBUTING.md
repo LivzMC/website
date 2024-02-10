@@ -1,6 +1,6 @@
 # Contributing
 
-<!-- TODO: add a description maybe -->
+If you are confused on where to start, you can always join our [Discord](https://discord.gg/XE9CNP6E) and ask.
 
 ## Requirements
 
@@ -11,6 +11,25 @@ What contributing to this project requires:
 - MySQL server
 
 ### Getting started
+
+If you need to install the required dependencies, here can probably help:
+*note: If you are using a Linux distro not mentioned, you can open a pull request with instructions*
+
+- NodeJS, and npm
+  - Ubuntu:
+    - `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`
+    - `source ~/.bashrc`
+    - `nvm install latest`
+    - `npm --version`
+  - Windows
+    - go to `https://nodejs.org/en/download/current`
+    - `npm --version`
+- Git
+  - Windows
+    - go to `https://git-scm.com/downloads`
+- MySQL Server
+
+  Now this is a bit more advanced to setup. I would just recommend creating a database cluster through [Digitalocean](https://digitalocean.com), or a cheaper option is creating a droplet and hosting LivzMC on it with a MySQL server running on it [tutorial](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04)
 
 What you will need to do to get started is the following:
 
