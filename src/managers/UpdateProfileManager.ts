@@ -28,9 +28,9 @@ export async function usernameToUUID(username: string): Promise<string | null> {
 
   try {
     if (IS_RATELIMITTED) {
-      // the ratelimit lasts about a minute, so do 70 seconds
+      // prevent sending a request for ~5 seconds per ratelimit
       const now = Date.now();
-      const then = new Date(LAST_SEARCH).setSeconds(new Date(LAST_SEARCH).getSeconds() + 70);
+      const then = new Date(LAST_SEARCH).setSeconds(new Date(LAST_SEARCH).getSeconds() + 5);
       if (now < then) {
         RATELIMITTED_SEARCHES.add(username);
         return null;
