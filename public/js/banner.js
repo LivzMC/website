@@ -14,23 +14,23 @@ const colours = [
 ];
 
 const COLOUR_ARRAY = [
-  { id: 'a', coord: [0, 0] },       /* BLACK */
-  { id: 'i', coord: [400, 0] },     /* DARK_GRAY */
-  { id: 'h', coord: [500, 0] },     /* LIGHT_GRAY */
-  { id: 'p', coord: [600, 320] },   /* WHITE */
-  { id: 'j', coord: [300, 320] },   /* PINK */
-  { id: 'n', coord: [100, 320] },   /* LIGHT_PURPLE */
-  { id: 'f', coord: [400, 320] },   /* PURPLE */
-  { id: 'e', coord: [100, 0] },     /* BLUE */
-  { id: 'g', coord: [300, 0] },     /* CYAN */
-  { id: 'm', coord: [700, 0] },     /* LIGHT_BLUE */
-  { id: 'c', coord: [600, 0] },     /* GREEN */
-  { id: 'k', coord: [0, 320] },     /* LIGHT_GREEN */
-  { id: 'l', coord: [700, 320] },   /* YELLOW */
-  { id: 'o', coord: [200, 320] },   /* ORANGE */
-  { id: 'd', coord: [200, 0] },     /* BROWN */
-  { id: 'b', coord: [500, 320] },   /* RED */
-  { id: ';', coord: [1000, 1000] }  /* TRANSPARENT */
+  { id: 'a', colour: 'BLACK', coord: [0, 0] },               /* BLACK */
+  { id: 'i', colour: 'DARK_GRAY', coord: [400, 0] },         /* DARK_GRAY */
+  { id: 'h', colour: 'LIGHT_GRAY', coord: [500, 0] },        /* LIGHT_GRAY */
+  { id: 'p', colour: 'WHITE', coord: [600, 320] },           /* WHITE */
+  { id: 'j', colour: 'PINK', coord: [300, 320] },            /* PINK */
+  { id: 'n', colour: 'LIGHT_PURPLE', coord: [100, 320] },    /* LIGHT_PURPLE */
+  { id: 'f', colour: 'PURPLE', coord: [400, 320] },          /* PURPLE */
+  { id: 'e', colour: 'BLUE', coord: [100, 0] },              /* BLUE */
+  { id: 'g', colour: 'CYAN', coord: [300, 0] },              /* CYAN */
+  { id: 'm', colour: 'LIGHT_BLUE', coord: [700, 0] },        /* LIGHT_BLUE */
+  { id: 'c', colour: 'GREEN', coord: [600, 0] },             /* GREEN */
+  { id: 'k', colour: 'LIGHT_GREEN', coord: [0, 320] },       /* LIGHT_GREEN */
+  { id: 'l', colour: 'YELLOW', coord: [700, 320] },          /* YELLOW */
+  { id: 'o', colour: 'ORANGE', coord: [200, 320] },          /* ORANGE */
+  { id: 'd', colour: 'BROWN', coord: [200, 0] },             /* BROWN */
+  { id: 'b', colour: 'RED', coord: [500, 320] },             /* RED */
+  { id: ';', colour: 'TRANSPARENT', coord: [1000, 1000] }    /* TRANSPARENT */
 ];
 
 const LAYERS = [
@@ -89,6 +89,12 @@ const bannerCache = new Map();
 
 init();
 
+async function generateHTML(e, htmlID) {
+  const clrPtn = e.target.getAttribute('clr') + e.target.getAttribute('ptn');
+  const layer = await drawBannerImage(`;a${clrPtn}`);
+  return `${document.getElementById('layers-list').innerHTML}<div draggable="true" id="${htmlID}-container" data-id="${clrPtn}" class="border border-gray-100 dark:border-gray-900 px-4 text-center" style="opacity: 1;"><p draggable="false" class="text-gray-500 dark:text-gray-200">${getLayerColor(e.target.getAttribute('clr'))}</p><div class="grid grid-cols-3"><div class="flex items-center justify-center"><div data-changeColor="changeColorText" class="modal-open" onclick="changeColorInit(this)" class="hover:underline">Change Colour</div></div><div class="flex items-center justify-center"><div id="${htmlID}" draggable="false" class="w-min mt-1 text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300 py-1"><div class="tbc" draggable="false" style="pointer-events: none;"><img draggable="false" class="bg-gray-400 dark:bg-gray-600" style="height: 80px;" data-id_2="format=;a${clrPtn}" src="${layer}" /></div></div></div><div class="flex items-center justify-center"><span class="hover:underline cursor-pointer text-2xl text-red-500" onclick="deleteLayer(this)">x</span></div></div></div>`;
+}
+
 function init(mainColour) {
   const layer = getURL('format');
   const toomany = (layer.length - 2) >> 1 > 8;
@@ -140,6 +146,10 @@ function init(mainColour) {
     image.src = IMAGE;
   });
 
+  document.querySelectorAll('[data-id_2]').forEach(async (img) => {
+    img.setAttribute('src', await drawBannerImage(img.getAttribute('data-id_2').split('=')[1]));
+  });
+
   const URL = `${layer}${getURL('valign') ? `&valign=${getURL('valign')}` : ''}${getURL('colTop') ? `&colTop=${getURL('colTop')}` : ''}${getURL('colBottom') ? `&colBottom=${getURL('colBottom')}` : ''}`;
   const ifElytra = document.getElementById('skinElytraButton').getAttribute('data-elytra');
   drawImage(URL, ifElytra);
@@ -170,6 +180,11 @@ function getLayer(op, src, x, y, width, height) {
   return op;
 }
 
+function getLayerColor(col) {
+  const colour = COLOUR_ARRAY[COLOUR_ARRAY.findIndex((a) => { if (a.id === col) return a; })]?.colour;
+  return colour ? colour[0] + colour.slice(1).toLowerCase() : 'unknown';
+}
+
 function mouseHover(e) {
   if (!skinViewer) return;
   if (e.target.nodeName === "CANVAS") {
@@ -188,6 +203,100 @@ function mouseHoverLeave(e) {
     const ifElytra = document.getElementById('skinElytraButton').getAttribute('data-elytra');
     drawImage(URL, ifElytra);
   }
+}
+
+function mouseDown(e) {
+  if (e.target.nodeName === "CANVAS") {
+    const b = getURL('format');
+    const URL = `${b + e.target.getAttribute('clr') + e.target.getAttribute('ptn')}${getURL('valign') ? `&valign=${getURL('valign')}` : ''}${getURL('colTop') ? `&colTop=${getURL('colTop')}` : ''}${getURL('colBottom') ? `&colBottom=${getURL('colBottom')}` : ''}`;
+    const ifElytra = document.getElementById('skinElytraButton').getAttribute('data-elytra');
+    window.history.pushState('', '', `?=${URL}`);
+    drawImage(URL, ifElytra);
+    document.getElementById('validURL_text').innerText = `https://livzmc.net/banner/?=${b + e.target.getAttribute('clr') + e.target.getAttribute('ptn')}`;
+    let toomany = false;
+    if (((b + e.target.getAttribute('clr') + e.target.getAttribute('ptn')).length - 2) >> 1 > 8) {
+      document.getElementById('errors').innerHTML = "${TOO_MANY_LAYER_ERROR}";
+      toomany = true;
+    }
+
+    if ((b + e.target.getAttribute('clr') + e.target.getAttribute('ptn')).includes('u')) {
+      if (toomany) {
+        document.getElementById('errors').innerHTML = "${TOO_MANY_LAYER_ERROR}" + "<br>" + "${MOJANG_PATTERN_ERROR}";
+      } else {
+        document.getElementById('errors').innerHTML = "${MOJANG_PATTERN_ERROR}";
+      }
+    }
+
+    const htmlID = `${e.target.getAttribute('clr') + e.target.getAttribute('ptn')}-${(((b + e.target.getAttribute('clr') + e.target.getAttribute('ptn')).length) >> 1) - 1}`;
+
+    generateHTML(e, htmlID).then((html) => {
+      //initDrag();
+      document.getElementById('layers-list').innerHTML = html;
+      const openmodal = document.querySelectorAll('.modal-open');
+
+      for (let i = 0; i < openmodal.length; i++) {
+        openmodal[i].addEventListener('click', function (event) {
+          event.preventDefault();
+          toggleModal();
+        });
+      }
+    });
+  }
+}
+
+async function mouseDownColor(e) {
+  if (e.target.nodeName === "CANVAS") {
+    if (selectedLayer) {
+      const query = [...selectedLayer.querySelector('.tbc').childNodes].filter(a => a && a.data === undefined);
+      const id_2 = query[0].getAttribute('data-id_2');
+      if (!id_2) return;
+
+      if (query && query[0] && id_2.includes(';')) {
+        const id = `${e.target.getAttribute('clr')}${id_2.split('format=')[1][3]}`;
+        selectedLayer.setAttribute('id', `${id}-${selectedLayer.getAttribute('id').split('-')[1]}-container`);
+        selectedLayer.setAttribute('data-id', id);
+        selectedLayer.querySelector('div').setAttribute('id', `${id}-${selectedLayer.getAttribute('id').split('-')[1]}`);
+        const image = await drawBannerImage(`;a${id}`);
+        query[0].setAttribute('src', image);
+        query[0].setAttribute('data-id_2', 'format=;a' + id);
+      } else {
+        const id = `${e.target.getAttribute('clr')}a`;
+        selectedLayer.setAttribute('id', `${e.target.getAttribute('clr')}a-${selectedLayer.getAttribute('id').split('-')[1]}-container`);
+        selectedLayer.setAttribute('data-id', id);
+        selectedLayer.querySelector('div').setAttribute('id', `${e.target.getAttribute('clr')}a-${selectedLayer.getAttribute('id').split('-')[1]}`);
+        const image = await drawBannerImage(id);
+        query[0].setAttribute('src', image);
+        query[0].setAttribute('data-id_2', 'format=' + id);
+      }
+
+      selectedLayer.querySelector('p').innerText = `${id_2.includes(';') ? '' : 'Base Layer | '}${getLayerColor(e.target.getAttribute('clr'))}`;
+      selectedLayer.querySelector('[data-changeColor="changeColorText"]').innerText = "Change Colour";
+      selectedLayer = null;
+
+      const b = [];
+      document.querySelectorAll('[data-id]').forEach((e) => {
+        b.push(e.getAttribute('id').split('-')[0]);
+      });
+      b = b.join('');
+
+      const URL = `${b}${getURL('valign') ? `&valign=${getURL('valign')}` : ''}${getURL('colTop') ? `&colTop=${getURL('colTop')}` : ''}${getURL('colBottom') ? `&colBottom=${getURL('colBottom')}` : ''}`;
+      const ifElytra = document.getElementById('skinElytraButton').getAttribute('data-elytra');
+      window.history.pushState('', '', `?=${URL}`);
+      await drawImage(URL, ifElytra);
+      document.getElementById('validURL_text').innerText = `https://livzmc.net/banner/?=${b}`;
+    } else {
+      document.querySelectorAll('canvas.tb-ptn').forEach((canvas) => {
+        canvas.setAttribute('clr', e.target.getAttribute('clr'));
+      });
+
+      document.querySelectorAll('canvas.tb-color').forEach((canvas) => {
+        canvas.classList.remove('active');
+      });
+
+      document.querySelector(`canvas.tb-color[clr=${e.target.getAttribute('clr')}]`).classList.add('active');
+      init(e.target.getAttribute('clr'));
+    };
+  };
 }
 
 async function drawImage(url, ifElytra) {
