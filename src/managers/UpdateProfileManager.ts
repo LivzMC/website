@@ -37,13 +37,20 @@ export async function usernameToUUID(username: string): Promise<string | null> {
       }
     }
 
-    const f = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+    // Mojang ratelimit is so unforgiving. It can randomly ratelimit me after not sending a single request in hours
+    // It usually ratelimits after 3-5 requests per few minutes...
+    const mojang_response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
+      },
+    });
+
     LAST_SEARCH = Date.now();
-    if (f.status === 200) {
-      const res: { name: string, id: string; } = await f.json();
+    if (mojang_response.status === 200) {
+      const res: { name: string, id: string; } = await mojang_response.json();
       ret = res.id;
       IS_RATELIMITTED = false;
-    } else if (f.status === 429) {
+    } else if (mojang_response.status === 429) {
       IS_RATELIMITTED = true;
       console.warn('[WARN] Ratelimitted from api.mojang.com');
       RATELIMITTED_SEARCHES.add(username);
