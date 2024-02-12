@@ -44,8 +44,9 @@ async function hasOptiFineEventModel(profile: User): Promise<boolean> {
  */
 app.get('/:username.:number', async function (req, res) {
   try {
-    const user = await findUser(req.params.username, parseInt(req.params.number));
+    let user = await findUser(req.params.username, parseInt(req.params.number));
     if (!user) return res.sendStatus(404);
+    user = await updateProfile(user);
 
     const start = performance.now();
     const namesDB: (UserNameHistory & { giveOrTake: string, formattedChanged: string; })[] = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
@@ -71,6 +72,7 @@ app.get('/:username.:number', async function (req, res) {
         return b.changedToAt - a.changedToAt;
       });
     }
+
     const skinsDB: SkinUsers[] = await querySync('select skinId, cachedOn, model, enabled, hidden from profileSkins where uuid = ?', [user.uuid]);
     let skins = skinsDB;
     skins = skins.filter(skin => !skin.hidden);
@@ -79,6 +81,7 @@ app.get('/:username.:number', async function (req, res) {
       return b.cachedOn - a.cachedOn;
     });
     if (skins.length > 27) skins.length = 27;
+
     const capes = (await querySync('select capeId, cachedOn, enabled, hidden from profileCapes where uuid = ?', [user.uuid]));
     const ofCapes = await querySync('select capeId, cachedOn, hidden, banners.removed, banners.isBanner, banners.cleanUrl from profileOFCapes join banners on profileOFCapes.capeId = banners.bannerId where uuid = ?', [user.uuid]);
     const lbCapes = await querySync('select capeId, cachedOn, hidden from profileLBCapes where uuid = ?', [user.uuid]);
@@ -119,7 +122,6 @@ app.get('/:username.:number', async function (req, res) {
       timeToLoad,
     });
 
-    await updateProfile(user);
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();

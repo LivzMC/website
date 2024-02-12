@@ -198,11 +198,11 @@ export async function createProfile(uuid: string): Promise<void> {
   IS_UPDATING_PROFILE.delete(uuid);
 }
 
-export async function updateProfile(user: User): Promise<void> {
-  if (RECENTLY_UPDATED_USERS.has(user.uuid)) return;
-  if (user.banned || user.optOut) return;
+export async function updateProfile(user: User): Promise<User> {
+  if (RECENTLY_UPDATED_USERS.has(user.uuid)) return user;
+  if (user.banned || user.optOut) return user;
   const parsedProfile = await parseProfileFromMojangAPI(user.uuid);
-  if (!parsedProfile) return;
+  if (!parsedProfile) return user;
 
   if (user.currentSkin !== parsedProfile.skin.url) {
     // skin has changed
@@ -256,7 +256,7 @@ export async function updateProfile(user: User): Promise<void> {
 
   await querySync('update profiles set lastSearched = ? where uuid = ?', [Date.now().toString(), user.uuid]);
   RECENTLY_UPDATED_USERS.set(user.uuid, true, 15);
-  return;
+  return (await querySync('select * from profiles where uuid = ?', [user.uuid]))[0];
 }
 
 // private helper functions

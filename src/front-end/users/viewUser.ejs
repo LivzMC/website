@@ -312,7 +312,7 @@
   <%-
     await include('../partials/skinviewer', {
       skin: `${textureServer}/skins/${currentSkin.skinId}.png`,
-      slim: currentSkin.model ? 'slim' : 'classic',
+      slim: currentSkin.model === 1,
       cape: currentCape ? `${textureServer}/capes/${currentCape.capeId}.png` : null,
     });
   %>
