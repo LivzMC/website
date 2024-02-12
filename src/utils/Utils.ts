@@ -18,6 +18,31 @@ export function getFilePath(): string {
   return FILEPATH;
 }
 
+function getColourName(colourId: string): string {
+  const COLOUR_ARRAY = [
+    { id: 'a', colour: 'BLACK', coord: [0, 0] },
+    { id: 'i', colour: 'DARK_GRAY', coord: [400, 0] },
+    { id: 'h', colour: 'LIGHT_GRAY', coord: [500, 0] },
+    { id: 'p', colour: 'WHITE', coord: [600, 320] },
+    { id: 'j', colour: 'PINK', coord: [300, 320] },
+    { id: 'n', colour: 'LIGHT_PURPLE', coord: [100, 320] },
+    { id: 'f', colour: 'PURPLE', coord: [400, 320] },
+    { id: 'e', colour: 'BLUE', coord: [100, 0] },
+    { id: 'g', colour: 'CYAN', coord: [300, 0] },
+    { id: 'm', colour: 'LIGHT_BLUE', coord: [700, 0] },
+    { id: 'c', colour: 'GREEN', coord: [600, 0] },
+    { id: 'k', colour: 'LIGHT_GREEN', coord: [0, 320] },
+    { id: 'l', colour: 'YELLOW', coord: [700, 320] },
+    { id: 'o', colour: 'ORANGE', coord: [200, 320] },
+    { id: 'd', colour: 'BROWN', coord: [200, 0] },
+    { id: 'b', colour: 'RED', coord: [500, 320] },
+    { id: ';', colour: 'TRANSPARENT', coord: [1000, 1000] }
+  ];
+
+  const colour = COLOUR_ARRAY.filter(a => a.id === colourId.toLowerCase())[0]?.colour;
+  return colour ? colour[0] + colour.slice(1).toLowerCase() : 'unknown';
+}
+
 export async function generateBannerPatterns(pattern: string, language: string): Promise<string> {
   const matchedPatterns = pattern.match(/(..)/g);
   if (!matchedPatterns || matchedPatterns.length == 0) return '';
@@ -30,31 +55,6 @@ export async function generateBannerPatterns(pattern: string, language: string):
     const isBaseLayer = i == 0;
 
     const colourLocale = await getLocaleString(language, 'banner', 'change.colour');
-
-    function getColourName(colourId: string): string {
-      const COLOUR_ARRAY = [
-        { id: 'a', colour: 'BLACK', coord: [0, 0] },
-        { id: 'i', colour: 'DARK_GRAY', coord: [400, 0] },
-        { id: 'h', colour: 'LIGHT_GRAY', coord: [500, 0] },
-        { id: 'p', colour: 'WHITE', coord: [600, 320] },
-        { id: 'j', colour: 'PINK', coord: [300, 320] },
-        { id: 'n', colour: 'LIGHT_PURPLE', coord: [100, 320] },
-        { id: 'f', colour: 'PURPLE', coord: [400, 320] },
-        { id: 'e', colour: 'BLUE', coord: [100, 0] },
-        { id: 'g', colour: 'CYAN', coord: [300, 0] },
-        { id: 'm', colour: 'LIGHT_BLUE', coord: [700, 0] },
-        { id: 'c', colour: 'GREEN', coord: [600, 0] },
-        { id: 'k', colour: 'LIGHT_GREEN', coord: [0, 320] },
-        { id: 'l', colour: 'YELLOW', coord: [700, 320] },
-        { id: 'o', colour: 'ORANGE', coord: [200, 320] },
-        { id: 'd', colour: 'BROWN', coord: [200, 0] },
-        { id: 'b', colour: 'RED', coord: [500, 320] },
-        { id: ';', colour: 'TRANSPARENT', coord: [1000, 1000] }
-      ];
-
-      const colour = COLOUR_ARRAY.filter(a => a.id === colourId.toLowerCase())[0]?.colour;
-      return colour ? colour[0] + colour.slice(1).toLowerCase() : 'unknown';
-    }
 
     const format = `
     <div draggable="${!isBaseLayer}" data-id="${colour}${pattern}" id="${colour}${pattern}-${i}-container" class="border border-gray-100 dark:border-gray-900 px-4 text-center" draggable="false">
