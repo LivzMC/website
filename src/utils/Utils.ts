@@ -20,6 +20,13 @@ export function getFilePath(): string {
   return FILEPATH;
 }
 
+function initFilePath(): void {
+  if (FILEPATH === 'cache/files') console.warn('[WARN] File path is located inside the cache directory. The cache directory is supposed to be temporary.');
+  if (!fs.existsSync(FILEPATH)) fs.mkdirSync(FILEPATH, { recursive: true });
+  if (!fs.existsSync(FILEPATH + '/skins')) fs.mkdirSync(FILEPATH + '/skins', { recursive: true });
+  if (!fs.existsSync(FILEPATH + '/capes')) fs.mkdirSync(FILEPATH + '/capes', { recursive: true });
+}
+
 /**
  * Converts the provided text into MD5
  */
