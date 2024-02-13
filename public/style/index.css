@@ -572,6 +572,9 @@ video {
 .-ml-1 {
   margin-left: -0.25rem;
 }
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
 .ml-1 {
   margin-left: 0.25rem;
 }
@@ -837,9 +840,6 @@ video {
 }
 .overflow-x-hidden {
   overflow-x: hidden;
-}
-.overflow-y-hidden {
-  overflow-y: hidden;
 }
 .overflow-y-scroll {
   overflow-y: scroll;

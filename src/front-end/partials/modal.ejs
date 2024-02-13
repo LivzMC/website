@@ -33,27 +33,32 @@
   </div>
 </div>
 <script>
-  const openmodal = document.querySelectorAll('.modal-<%= modal.id %>-open');
-  for (let i = 0; i < openmodal.length; i++) {
-    openmodal[i].addEventListener('click', function (event) {
+  const openmodal_<%= modal.id %> = document.querySelectorAll('.modal-<%= modal.id %>-open');
+  for (let i = 0; i < openmodal_<%= modal.id %>.length; i++) {
+    openmodal_<%= modal.id %>[i].addEventListener('click', function (event) {
       event.preventDefault();
       toggleModal_<%= modal.id %>();
     });
-
-    const overlay = document.querySelector('.modal-<%= modal.id %>-overlay');
-    overlay.addEventListener('click', toggleModal_<%= modal.id %>);
-    
-    const closemodal = document.querySelectorAll('.modal-<%= modal.id %>-close');
-    for (let i = 0; i < closemodal.length; i++) {
-      closemodal[i].addEventListener('click', toggleModal_<%= modal.id %>);
-    }
-
-    function toggleModal_<%= modal.id %>() {
-      const body = document.querySelector('body');
-      const modal = document.querySelector('.modal-<%= modal.id %>');
-      modal.classList.toggle('opacity-0');
-      modal.classList.toggle('pointer-events-none');
-      body.classList.toggle('modal-<%= modal.id %>-active');
-    }
   }
+
+  const overlay_<%= modal.id %> = document.querySelector('.modal-<%= modal.id %>-overlay');
+  overlay_<%= modal.id %>.addEventListener('click', toggleModal_<%= modal.id %>);
+
+  const closemodal_<%= modal.id %> = document.querySelectorAll('.modal-<%= modal.id %>-close');
+  for (let i = 0; i < closemodal_<%= modal.id %>.length; i++) {
+    closemodal_<%= modal.id %>[i].addEventListener('click', toggleModal_<%= modal.id %>);
+  }
+
+  function toggleModal_<%= modal.id %>() {
+    const body = document.querySelector('body');
+    const modal = document.querySelector('.modal-<%= modal.id %>');
+    modal.classList.toggle('opacity-0');
+    modal.classList.toggle('pointer-events-none');
+    body.classList.toggle('modal-<%= modal.id %>-active');
+  }
+
+  document.addEventListener('keydown', (event) => {
+    const isEscape = event.key === 'Escape' || event.key === 'Esc' || event.key === 27;
+    if (isEscape && document.body.classList.contains('modal-<%= modal.id %>-active')) toggleModal_<%= modal.id %>();
+  });
 </script>
