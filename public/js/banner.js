@@ -13,24 +13,26 @@ const colours = [
   '#664c33', '#993333'
 ];
 
+const CHANGE_COLOUR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path fill="#ffffff" d="M17.5 12a1.5 1.5 0 0 1-1.5-1.5A1.5 1.5 0 0 1 17.5 9a1.5 1.5 0 0 1 1.5 1.5a1.5 1.5 0 0 1-1.5 1.5m-3-4A1.5 1.5 0 0 1 13 6.5A1.5 1.5 0 0 1 14.5 5A1.5 1.5 0 0 1 16 6.5A1.5 1.5 0 0 1 14.5 8m-5 0A1.5 1.5 0 0 1 8 6.5A1.5 1.5 0 0 1 9.5 5A1.5 1.5 0 0 1 11 6.5A1.5 1.5 0 0 1 9.5 8m-3 4A1.5 1.5 0 0 1 5 10.5A1.5 1.5 0 0 1 6.5 9A1.5 1.5 0 0 1 8 10.5A1.5 1.5 0 0 1 6.5 12M12 3a9 9 0 0 0-9 9a9 9 0 0 0 9 9a1.5 1.5 0 0 0 1.5-1.5c0-.39-.15-.74-.39-1c-.23-.27-.38-.62-.38-1a1.5 1.5 0 0 1 1.5-1.5H16a5 5 0 0 0 5-5c0-4.42-4.03-8-9-8"></path></svg>';
+
 const COLOUR_ARRAY = [
-  { id: 'a', colour: 'BLACK', coord: [0, 0] },               /* BLACK */
-  { id: 'i', colour: 'DARK_GRAY', coord: [400, 0] },         /* DARK_GRAY */
-  { id: 'h', colour: 'LIGHT_GRAY', coord: [500, 0] },        /* LIGHT_GRAY */
-  { id: 'p', colour: 'WHITE', coord: [600, 320] },           /* WHITE */
-  { id: 'j', colour: 'PINK', coord: [300, 320] },            /* PINK */
-  { id: 'n', colour: 'LIGHT_PURPLE', coord: [100, 320] },    /* LIGHT_PURPLE */
-  { id: 'f', colour: 'PURPLE', coord: [400, 320] },          /* PURPLE */
-  { id: 'e', colour: 'BLUE', coord: [100, 0] },              /* BLUE */
-  { id: 'g', colour: 'CYAN', coord: [300, 0] },              /* CYAN */
-  { id: 'm', colour: 'LIGHT_BLUE', coord: [700, 0] },        /* LIGHT_BLUE */
-  { id: 'c', colour: 'GREEN', coord: [600, 0] },             /* GREEN */
-  { id: 'k', colour: 'LIGHT_GREEN', coord: [0, 320] },       /* LIGHT_GREEN */
-  { id: 'l', colour: 'YELLOW', coord: [700, 320] },          /* YELLOW */
-  { id: 'o', colour: 'ORANGE', coord: [200, 320] },          /* ORANGE */
-  { id: 'd', colour: 'BROWN', coord: [200, 0] },             /* BROWN */
-  { id: 'b', colour: 'RED', coord: [500, 320] },             /* RED */
-  { id: ';', colour: 'TRANSPARENT', coord: [1000, 1000] }    /* TRANSPARENT */
+  { id: 'a', colour: 'colour.black', coord: [0, 0] },               /* BLACK */
+  { id: 'i', colour: 'colour.dark_gray', coord: [400, 0] },         /* DARK_GRAY */
+  { id: 'h', colour: 'colour.light_gray', coord: [500, 0] },        /* LIGHT_GRAY */
+  { id: 'p', colour: 'colour.white', coord: [600, 320] },           /* WHITE */
+  { id: 'j', colour: 'colour.pink', coord: [300, 320] },            /* PINK */
+  { id: 'n', colour: 'colour.light_purple', coord: [100, 320] },    /* LIGHT_PURPLE */
+  { id: 'f', colour: 'colour.purple', coord: [400, 320] },          /* PURPLE */
+  { id: 'e', colour: 'colour.blue', coord: [100, 0] },              /* BLUE */
+  { id: 'g', colour: 'colour.cyan', coord: [300, 0] },              /* CYAN */
+  { id: 'm', colour: 'colour.light_blue', coord: [700, 0] },        /* LIGHT_BLUE */
+  { id: 'c', colour: 'colour.green', coord: [600, 0] },             /* GREEN */
+  { id: 'k', colour: 'colour.light_green', coord: [0, 320] },       /* LIGHT_GREEN */
+  { id: 'l', colour: 'colour.yellow', coord: [700, 320] },          /* YELLOW */
+  { id: 'o', colour: 'colour.orange', coord: [200, 320] },          /* ORANGE */
+  { id: 'd', colour: 'colour.brown', coord: [200, 0] },             /* BROWN */
+  { id: 'b', colour: 'colour.red', coord: [500, 320] },             /* RED */
+  { id: ';', colour: 'colour.transparent', coord: [1000, 1000] }    /* TRANSPARENT */
 ];
 
 const LAYERS = [
@@ -74,6 +76,7 @@ const LAYERS = [
   { id: 'u', coord: [0, 160] },
 ];
 
+const elements = [];
 let colTop = defaultColourTop;
 let colBottom = defaultColourBottom;
 let selectedLayer = null;
@@ -86,11 +89,12 @@ if (typeof jscolor !== 'undefined') {
 }
 
 init();
+update_history();
 
 async function generateHTML(e, htmlID) {
   const clrPtn = e.target.getAttribute('clr') + e.target.getAttribute('ptn');
   const layer = await drawBannerImage(`;a${clrPtn}`);
-  return `${document.getElementById('layers-list').innerHTML}<div draggable="true" id="${htmlID}-container" data-id="${clrPtn}" class="border border-gray-100 dark:border-gray-900 px-4 text-center" style="opacity: 1;"><p draggable="false" class="text-gray-500 dark:text-gray-200">${getLayerColor(e.target.getAttribute('clr'))}</p><div class="grid grid-cols-3"><div class="flex items-center justify-center"><div data-changeColor="changeColorText" class="modal-open" onclick="changeColorInit(this)" class="hover:underline">Change Colour</div></div><div class="flex items-center justify-center"><div id="${htmlID}" draggable="false" class="w-min mt-1 text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300 py-1"><div class="tbc" draggable="false" style="pointer-events: none;"><img draggable="false" class="bg-gray-400 dark:bg-gray-600" style="height: 80px;" data-id_2="format=;a${clrPtn}" src="${layer}" /></div></div></div><div class="flex items-center justify-center"><span class="hover:underline cursor-pointer text-2xl text-red-500" onclick="deleteLayer(this)">x</span></div></div></div>`;
+  return `${document.getElementById('layers-list').innerHTML}<div draggable="true" id="${htmlID}-container" data-id="${clrPtn}" class="border border-gray-100 dark:border-gray-900 px-4 text-center" style="opacity: 1;"><p draggable="false" class="text-gray-500 dark:text-gray-200">${await getLayerColor(e.target.getAttribute('clr'))}</p><div class="grid grid-cols-3"><div class="flex items-center justify-center"><div data-changeColor="changeColorText" class="modal-change_colour_modal-open" onclick="changeColorInit(this)" class="hover:underline">${CHANGE_COLOUR_SVG}</div></div><div class="flex items-center justify-center"><div id="${htmlID}" draggable="false" class="w-min mt-1 text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300 py-1"><div class="tbc" draggable="false" style="pointer-events: none;"><img draggable="false" class="bg-gray-400 dark:bg-gray-600" style="height: 80px;" data-id_2="format=;a${clrPtn}" src="${layer}" /></div></div></div><div class="flex items-center justify-center"><span class="hover:underline cursor-pointer text-2xl text-red-500" onclick="deleteLayer(this)">x</span></div></div></div>`;
 }
 
 function init(mainColour) {
@@ -180,9 +184,14 @@ function getLayer(op, src, x, y, width, height, clear = false) {
   return op;
 }
 
-function getLayerColor(col) {
+async function getLayerColor(col) {
   const colour = COLOUR_ARRAY[COLOUR_ARRAY.findIndex((a) => { if (a.id === col) return a; })]?.colour;
-  return colour ? colour[0] + colour.slice(1).toLowerCase() : 'unknown';
+  try {
+    const translated = await (await fetch('/banner/locale?colour=' + colour)).text();
+    return translated || colour;
+  } catch (e) {
+    return colour;
+  }
 }
 
 function mouseHover(e) {
@@ -231,12 +240,12 @@ function mouseDown(e) {
 
     generateHTML(e, htmlID).then((html) => {
       document.getElementById('layers-list').innerHTML = html;
-      const openmodal = document.querySelectorAll('.modal-open');
+      const openmodal = document.querySelectorAll('.modal-change_colour_modal-open');
 
       for (let i = 0; i < openmodal.length; i++) {
         openmodal[i].addEventListener('click', function (event) {
           event.preventDefault();
-          toggleModal();
+          toggleModal_change_colour_modal();
         });
       }
 
@@ -472,6 +481,14 @@ function changeModel(model) {
   });
 }
 
+function changeSkin(e) {
+  e.preventDefault();
+  const b = getURL('format');
+  const URL = `${b}${getURL('valign') ? `&valign=${getURL('valign')}` : ''}${getURL('colTop') ? `&colTop=${getURL('colTop')}` : ''}${getURL('colBottom') ? `&colBottom=${getURL('colBottom')}` : ''}&skin=${e.target.value}`;
+  window.history.pushState('', '', `?=${URL}`);
+  skinViewer.loadSkin(`https://api.livzmc.net/mojang/${e.target.value}/skin`);
+}
+
 function hideSkin() {
   if (skinHidden) {
     skinViewer.playerObject.skin.visible = true;
@@ -587,16 +604,8 @@ function deleteLayer(layer) {
 // change colour
 
 function changeColorInit(layer) {
-  let parentElement = null;
-
-  if (layer && layer.innerText === "Changing Color") {
-    selectedLayer = null;
-    layer.innerText = "Change Colour";
-  } else {
-    parentElement = layer.parentElement.parentElement.parentElement;
-    selectedLayer = parentElement ? parentElement : null;
-    if (layer) layer.innerText = "Changing Color";
-  }
+  const parentElement = layer.parentElement.parentElement.parentElement;
+  selectedLayer = parentElement || null;
 }
 
 function colorTopUpdate(e) {
@@ -649,11 +658,12 @@ async function mouseDownColor(e) {
         query[0].setAttribute('data-id_2', 'format=' + id);
       }
 
-      selectedLayer.querySelector('p').innerText = `${id_2.includes(';') ? '' : 'Base Layer | '}${getLayerColor(e.target.getAttribute('clr'))}`;
-      selectedLayer.querySelector('[data-changeColor="changeColorText"]').innerText = "Change Colour";
+      selectedLayer.querySelector('p').innerText = `${id_2.includes(';') ? '' : 'Base Layer | '}${await getLayerColor(e.target.getAttribute('clr'))}`;
+      selectedLayer.querySelector('[data-changeColor="changeColorText"]').innerHTML = CHANGE_COLOUR_SVG;
       selectedLayer = null;
+      toggleModal_change_colour_modal();
 
-      const b = [];
+      let b = [];
       document.querySelectorAll('[data-id]').forEach((e) => {
         b.push(e.getAttribute('id').split('-')[0]);
       });
@@ -700,3 +710,134 @@ function searchCapeDesign(e) {
     if (r) window.location.assign(`/banner/?=${r}&skin=${e.target.value}`);
   });
 }
+
+// random banner
+async function random_banner(event) {
+  event.preventDefault();
+  try {
+    const b = await (await fetch('https://api.livzmc.net/v2/optifine/random_banner', { method: 'GET' })).text();
+    if (!b || b.toLowerCase() === "null") return window.location.reload();
+
+    const URL = `${b}${getURL('valign') ? `&valign=${getURL('valign')}` : ''}${getURL('colTop') ? `&colTop=${getURL('colTop')}` : ''}${getURL('colBottom') ? `&colBottom=${getURL('colBottom')}` : ''}${getURL('skin') ? `&skin=${getURL('skin')}` : ''}`;
+    window.history.pushState('', '', `?=${URL}`);
+    const ifElytra = document.getElementById('skinElytraButton').getAttribute('data-elytra');
+    const a = [];
+    await drawImage(URL, ifElytra);
+    document.getElementById('validURL_text').innerText = `https://livzmc.net/banner/?=${b}`;
+
+    for (let i = 0; i < b.match(/(..)/g).length; i++) {
+      const patt = b.match(/(..)/g);
+      // base layer
+      if (i === 0) {
+        const bannerImage = await drawBannerImage(patt[i][0] + patt[i][1]);
+        a.push(
+          `
+            <div draggable="false" data-id="${patt[i][0]}${patt[i][1]}" id="${patt[i][0]}${patt[i][1]}-${i}-container" class="border border-gray-100 dark:border-gray-900 px-4 text-center" draggable="false">
+              <p draggable="false" class="text-gray-500 dark:text-gray-200">Base Layer | ${await getLayerColor(patt[i][0])}</p>
+              <div class="grid grid-cols-3">
+                <div class="flex items-center justify-center">
+                  <div data-changeColor="changeColorText" class="modal-open" onclick="changeColorInit(this)">${CHANGE_COLOUR_SVG}</div>
+                </div>
+                <div class="flex items-center justify-center">
+                  <div id="${patt[i][0]}${patt[i][1]}-${i}" draggable="false" class="w-min mt-1 text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300 py-1">
+                    <div class="tbc" draggable="false" style="pointer-events: none;">
+                      <img draggable="false" class="bg-gray-400 dark:bg-gray-600" style="height: 80px;" src="${bannerImage}" data-id_2="format=${patt[i][0]}${patt[i][1]}" />
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-center"></div>
+              </div>
+            </div>
+          `
+        );
+      }
+
+      // other layers
+      if (i > 0) {
+        const bannerLayerImage = await drawBannerImage(';a' + patt[i][0] + patt[i][1]);
+        a.push(
+          `
+            <div draggable="true" data-id="${patt[i][0]}${patt[i][1]}" id="${patt[i][0]}${patt[i][1]}-${i}-container" class="border border-gray-100 dark:border-gray-900 px-4 text-center" draggable="false">
+              <p draggable="false" class="text-gray-500 dark:text-gray-200">${await getLayerColor(patt[i][0])}</p>
+              <div class="grid grid-cols-3">
+                <div class="flex items-center justify-center">
+                  <div data-changeColor="changeColorText" class="modal-change_colour_modal-open" onclick="changeColorInit(this)">${CHANGE_COLOUR_SVG}</div>
+                </div>
+                <div class="flex items-center justify-center"><div id="${patt[i][0]}${patt[i][1]}-${i}" draggable="false" class="w-min mt-1 text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300 py-1">
+                  <div class="tbc" draggable="false" style="pointer-events: none;">
+                    <img draggable="false" class="bg-gray-400 dark:bg-gray-600" style="height: 80px;" src="${bannerLayerImage}" data-id_2="format=;a${patt[i][0]}${patt[i][1]}" />
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-center">
+                <span class="hover:underline cursor-pointer text-2xl text-red-500" onclick="deleteLayer(this)">x</span>
+              </div>
+            </div>
+          </div>
+          `
+        );
+      }
+    }
+
+    if (a.length > 0) {
+      document.getElementById('layers-list').innerHTML = a.join('');
+      const openmodal = document.querySelectorAll('.modal-change_colour_modal-open');
+
+      for (let i = 0; i < openmodal.length; i++) {
+        openmodal[i].addEventListener('click', function (event) {
+          event.preventDefault();
+          toggleModal_change_colour_modal();
+        });
+      }
+
+      initDrag();
+    }
+
+    let history = localStorage.getItem('past_banners');
+    if (history) {
+      history = history.split(',');
+      history = history.slice(-13);
+      history = history.join(',');
+    }
+
+    localStorage.setItem('past_banners', `${history ? history + ',' : ''}${b}`);
+    update_history();
+  } catch (ignored) { }
+}
+
+async function update_history() {
+  let past_banners = localStorage.getItem('past_banners');
+  if (past_banners) {
+    past_banners = past_banners.split(',');
+    if (document.getElementById('history_warning')) document.getElementById('history_warning').classList.add('hidden');
+    const history = document.getElementById('history');
+    if (history.childNodes.length > 14) history.removeChild(history.childNodes[13]);
+
+    for (let i = 0; i < past_banners.length; i++) {
+      const banner = past_banners[i];
+      if (!elements.includes(banner)) {
+        const b = await drawBannerImage(banner);
+        const node = document.createElement('img');
+        elements.push(banner);
+        node.setAttribute('value', banner);
+        node.setAttribute('src', b);
+        node.setAttribute('width', '48');
+        node.setAttribute('draggable', 'false');
+        node.setAttribute('alt', 'Saved banner pattern ' + banner);
+        node.addEventListener('click', click_history);
+        node.addEventListener('mouseover', hover_history);
+        history.prepend(node);
+      }
+    }
+  }
+}
+
+function click_history(e) {
+  const URL = `${e.target.getAttribute('value')}${getURL('valign') ? `&valign=${getURL('valign')}` : ''}${getURL('colTop') ? `&colTop=${getURL('colTop')}` : ''}${getURL('colBottom') ? `&colBottom=${getURL('colBottom')}` : ''}${getURL('skin') ? `&skin=${getURL('skin')}` : ''}`;
+  window.location.href = '?=' + URL;
+}
+
+function hover_history(e) {
+  drawImage(e.target.getAttribute('value'), false);
+}
+// random banner end

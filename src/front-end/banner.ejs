@@ -17,6 +17,7 @@
     "o",
     "p",
   ];
+
   const patterns = [
     "b",
     "c",
@@ -93,7 +94,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-1">
       <%# holds layers list and advertisement %>
       <div id="parent-layers">
-        <div id="layers" class="overflow-y-hidden h-96 overflow-x-hidden">
+        <div id="layers" class="overflow-y-auto h-96 overflow-x-hidden">
           <div style="height: min-content;" class="bg-gray-100 dark:bg-gray-800 shadow overflow-hidden rounded-lg">
             <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-200">
               <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center"><%= await getLocaleString(language, 'banner', 'layers') %></h3>
@@ -238,9 +239,64 @@
       </div>
     </div>
   </div>
+  <div class="text-center">
+    <h2 class="text-lg font-semibold"><%= await getLocaleString(language, 'banner', 'history') %></h2>
+    <div class="py-2 flex justify-center items-center">
+      <div class="flex flex-wrap gap-2 dark:bg-gray-700 py-3 px-3 rounded shadow h-max w-[816px]" id="history">
+        <p id="history_warning">Click the random banner to see your history!</p>
+      </div>
+    </div>
+  </div>
+  <!-- Modals -->
+  <%- await include('partials/modal', {
+      modal: {
+        title: await getLocaleString(language, 'banner', 'select.colour'),
+        body: [
+          '\<div id="toolbar-colors" onmousedown="mouseDownColor(event)" class="flex flex-wrap gap-2 py-3 px-3 rounded">',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="a">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="b">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="c">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="d">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="e">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="f">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="g">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="h">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="i">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="j">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="k">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="l">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="m">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="n">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="o">\</canvas>\</div>',
+          '\<div class="tbc">\<canvas width="40" height="80" class="tb-color modal-close" clr="p">\</canvas>\</div>',
+          '\</div>',
+        ].join(''),
+        id: 'change_colour_modal',
+      }
+    })
+  %>
+
+  <%- await include('partials/modal', {
+      modal: {
+        title: await getLocaleString(language, 'banner', 'pmc.title'),
+        body: [
+          '\<input onchange="import_pmc(event)" id="pmc_banner" type="text" name="banner" placeholder="PlanetMinecraft Banner" class="w-full bg-gray-200 dark:bg-gray-800 py-1 px-1 rounded">',
+          '\<p class="hidden text-red-500 font-semibold" id="pmc_import_error">\</p>',
+          `\<p>${await getLocaleString(language, "banner", "pmc.body.1")}\</p>`,
+          `\<p class="font-bold text-sm">${await getLocaleString(language, "banner", "pmc.body.2")}\</p>`,
+        ].join(''),
+        id: '0',
+      }
+    })
+  %>
+  <!--  -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js" integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    const THEME = "<%= theme %>";
+    const DEFAULT_UUID = "07a4bbac8d564cee8e063e44ccc31fc3<%# getActiveUser ? getActiveUser.uuid : '07a4bbac8d564cee8e063e44ccc31fc3' %>";
+  </script>
   <%-
     await include('partials/skinviewer', {
       skin: 'https://textures.livzmc.net/skins/alex.png',
@@ -251,11 +307,7 @@
   %>
   <script src="<%= textureServer %>/js/color.js"></script>
   <script src="<%= textureServer %>/js/crypto-js.js"></script>
-  <script src="<%= textureServer %>/js/banner_modal.js"></script>
-  <script>
-    const THEME = "<%= theme %>";
-    const DEFAULT_UUID = "07a4bbac8d564cee8e063e44ccc31fc3<%# getActiveUser ? getActiveUser.uuid : '07a4bbac8d564cee8e063e44ccc31fc3' %>";
-  </script>
   <script src="/js/banner.js"></script>
+  <script src="/js/import-pmc.js"></script>
 </body>
 </html>
