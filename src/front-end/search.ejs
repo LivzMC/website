@@ -33,29 +33,35 @@
     await include('partials/header', {
     });
   %>
-  <div class="container px-4 mx-auto">
-    <div id="header">
-      <div class="pt-[5px]"></div>
-      <h1 class="text-3xl font-semibold">Search Results for: <span style="font-family: monospace;"><%= searchedName %></span></h1>
-      <div class="pt-[5px]"></div>
-      <h3><%= currentUsers.length + pastUsers.length %> result(s) gathered in <%= timeMs %>ms</h3>
-      <div class="pt-[5px]"></div>
-    </div>
-    <hr>
-    <div class="flex justify-center items-center text-center">
-      <div class="py-[5px] lg:py-0">
-        <div class="my-4">
-          <% for (let i = 0; i < currentUsers.length; i++) { %>
-            <% const user = currentUsers[i]; %>
-            <%- await generateHTML(user); %>
-          <% } %>
-          <% for (let i = 0; i < pastUsers.length; i++) { %>
-            <% const user = pastUsers[i]; %>
-            <%- await generateHTML(user); %>
-          <% } %>
+  <main>
+    <div class="container px-4 mx-auto">
+      <div id="header">
+        <div class="pt-[5px]"></div>
+        <h1 class="text-3xl font-semibold">Search Results for: <span style="font-family: monospace;"><%= searchedName %></span></h1>
+        <div class="pt-[5px]"></div>
+        <h3><%= currentUsers.length + pastUsers.length %> result(s) gathered in <%= timeMs %>ms</h3>
+        <div class="pt-[5px]"></div>
+      </div>
+      <hr>
+      <div class="flex justify-center items-center text-center">
+        <div class="py-[5px] lg:py-0">
+          <div class="my-4">
+            <% for (let i = 0; i < currentUsers.length; i++) { %>
+              <% const user = currentUsers[i]; %>
+              <%- await generateHTML(user); %>
+            <% } %>
+            <% for (let i = 0; i < pastUsers.length; i++) { %>
+              <% const user = pastUsers[i]; %>
+              <%- await generateHTML(user); %>
+            <% } %>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </main>
+  <%-
+    await include('partials/footer', {
+    });
+  %>
 </body>
 </html>

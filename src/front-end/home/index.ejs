@@ -14,65 +14,71 @@
     await include('../partials/header.ejs', {
     });
   %>
-  <% if (false) { // ads %>
-    <div class="container mx-auto">
-      <div class="dark:bg-gray-600 bg-gray-200 p-2 m-2 rounded" style="height: 400px;">
-        <div class="text-center">
-          <p class="uppercase">Advertisement</p>
-        </div>
-        <div>
-          <div id="ad-home-0">
-            <ins class="adsbygoogle" style="display: block;" data-ad-client="ca-pub-2978659071440635" data-ad-slot="7956761890" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <main>
+    <% if (false) { // ads %>
+      <div class="container mx-auto">
+        <div class="dark:bg-gray-600 bg-gray-200 p-2 m-2 rounded" style="height: 400px;">
+          <div class="text-center">
+            <p class="uppercase">Advertisement</p>
+          </div>
+          <div>
+            <div id="ad-home-0">
+              <ins class="adsbygoogle" style="display: block;" data-ad-client="ca-pub-2978659071440635" data-ad-slot="7956761890" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  <% } %>
-  <!-- <div class="py-6 md:py-12"> -->
-    <div class="mt-3">
-    <%
-      const divs = await getLocaleString(language, 'home', 'div');
-      const faqs = await getLocaleString(language, 'home', 'faq');
-    %>
-    <div class="container mx-auto">
-      <div class="lg:flex lg:flex-cols-1">
-        <div class="text-center mx-auto" style="width: 350px;"></div>
-        <div class="text-center">
-          <% for (let i = 0; i < divs.length; i++) { %>
-            <% const HTML = divs[i]; %>
-            <% if (!HTML.belowFAQ) { %>
-              <div><%- HTML.html %></div>
-            <% } %>
-          <% } %>
-          <!-- faqs -->
-          <div class="mt-3">
-            <article>
-              <% for (let i = 0; i < faqs.length; i++) { %>
-                <% const faq = faqs[i]; %>
-                <details class="py-2 px-2" style="list-style-type: square;">
-                  <summary class="flex justify-center items-center">
-                    <h2 class="hover:underline hover:cursor-pointer font-semibold py-1"><%= faq.q %></h2>
-                  </summary>
-                  <p class="font-semibold italic"><%- faq.a %></p>
-                </details>
-              <% } %>
-            </article>
-          </div>
-          <!-- below faq -->
-          <div class="mt-3">
+    <% } %>
+    <!-- <div class="py-6 md:py-12"> -->
+      <div class="mt-3">
+      <%
+        const divs = await getLocaleString(language, 'home', 'div');
+        const faqs = await getLocaleString(language, 'home', 'faq');
+      %>
+      <div class="container mx-auto">
+        <div class="lg:flex lg:flex-cols-1">
+          <div class="text-center mx-auto" style="width: 350px;"></div>
+          <div class="text-center">
             <% for (let i = 0; i < divs.length; i++) { %>
               <% const HTML = divs[i]; %>
-              <% if (HTML.belowFAQ) { %>
+              <% if (!HTML.belowFAQ) { %>
                 <div><%- HTML.html %></div>
               <% } %>
             <% } %>
+            <!-- faqs -->
+            <div class="mt-3">
+              <article>
+                <% for (let i = 0; i < faqs.length; i++) { %>
+                  <% const faq = faqs[i]; %>
+                  <details class="py-2 px-2" style="list-style-type: square;">
+                    <summary class="flex justify-center items-center">
+                      <h2 class="hover:underline hover:cursor-pointer font-semibold py-1"><%= faq.q %></h2>
+                    </summary>
+                    <p class="font-semibold italic"><%- faq.a %></p>
+                  </details>
+                <% } %>
+              </article>
+            </div>
+            <!-- below faq -->
+            <div class="mt-3">
+              <% for (let i = 0; i < divs.length; i++) { %>
+                <% const HTML = divs[i]; %>
+                <% if (HTML.belowFAQ) { %>
+                  <div><%- HTML.html %></div>
+                <% } %>
+              <% } %>
+            </div>
           </div>
-        </div>
-        <div class="flex justify-center items-center text-center ml-[10px]">
-          <iframe src="https://discord.com/widget?id=917538624352972831&theme=<%= theme == 'dark' ? "dark" : "light" %>" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+          <div class="flex justify-center items-center text-center ml-[10px]">
+            <iframe src="https://discord.com/widget?id=917538624352972831&theme=<%= theme == 'dark' ? "dark" : "light" %>" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </main>
+  <%-
+    await include('../partials/footer', {
+    });
+  %>
 </body>
 </html>

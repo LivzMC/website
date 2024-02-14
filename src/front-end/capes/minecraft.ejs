@@ -60,91 +60,97 @@
     await include('../partials/header', {
     });
   %>
-  <div class="container px-4 mx-auto">
-    <% if (true) { // ads %>
-      <div class="mt-[10px]"></div>
-      <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded" style="height: 500px;">
-        <div class="text-center">
-          <p class="uppercase">Advertisement</p>
-        </div>
-        <div>
-          <!-- ad-cape-0 -->
-          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="4000432526" data-ad-format="auto" data-full-width-responsive="true"></ins>
-          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>
-      </div>
-    <% } %>
-    <div class="inline xl:flex xl:flex-cols-1 gap-2">
-      <div class="mx-auto grid grid-cols-3 gap-2">
-        <%
-          const Capes = capes.filter(cape => !cape.removed && !cape.category).sort((a, b) => b.users - a.users);
-          const rCapes = capes.filter(cape => cape.removed && !cape.category).sort((a, b) => b.users - a.users);
-          const categoried_capes = capes.filter(cape => !cape.removed && cape.category).sort((a, b) => b.users - a.users);
-          const categories = {};
-          categoried_capes.forEach(function (cape) {
-            if (!categories[cape.category]) categories[cape.category] = [];
-            categories[cape.category].push(cape);
-          });
-        %>
-        <% for (let i = 0; i < Capes.length; i++) { %>
-          <% const cape = Capes[i]; %>
-          <%- await capeLayout(cape); %>
-        <% } %>
-      </div>
-    </div>
-    <div class="py-2"></div>
-    <% if (false) { // ads %>
-      <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded" style="height: 300px;">
-        <div class="text-center">
-          <p class="uppercase">Advertisement</p>
-        </div>
-        <div>
-          <div class="flex justify-center items-center text-center">
-            <!-- ad-cape-1 -->
-            <ins class="adsbygoogle" style="display:inline-block;width:357px;height:188px" data-ad-client="ca-pub-2978659071440635" data-ad-slot="5121942508" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <main>
+    <div class="container px-4 mx-auto">
+      <% if (true) { // ads %>
+        <div class="mt-[10px]"></div>
+        <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded" style="height: 500px;">
+          <div class="text-center">
+            <p class="uppercase">Advertisement</p>
+          </div>
+          <div>
+            <!-- ad-cape-0 -->
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="4000432526" data-ad-format="auto" data-full-width-responsive="true"></ins>
             <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
           </div>
         </div>
-      </div>
-    <% } %>
-    <div class="text-center">
-      <h2 class="text-lg font-semibold"><%= await getLocaleString(language, 'capes', 'removed.or.unused') %>:</h2>
-      <div class="mx-auto grid grid-cols-3 gap-1">
-        <% for (let i = 0; i < rCapes.length; i++) { %>
-          <% const cape = rCapes[i]; %>
-          <%- await capeLayout(cape); %>
-        <% } %>
-      </div>
-    </div>
-    <div class="py-2"></div>
-    <% if (false) { // ads %>
-      <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded" style="height: 300px;">
-        <div class="text-center">
-          <p class="uppercase">Advertisement</p>
-        </div>
-        <div>
-          <div class="flex justify-center items-center text-center">
-            <!-- ad-cape-1 -->
-            <ins class="adsbygoogle" style="display:inline-block;width:357px;height:188px" data-ad-client="ca-pub-2978659071440635" data-ad-slot="5121942508" data-ad-format="auto" data-full-width-responsive="true"></ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-          </div>
-        </div>
-      </div>
-    <% } %>
-    <div class="text-center">
-      <% for (const key in categories) { %>
-        <% if (Object.hasOwnProperty.call(categories, key)) { %>
-          <% const cat = categories[key]; %>
-          <h2 class="text-lg font-semibold"><%= key.replace(/\_/g, ' '); %></h2>
-          <div class="mx-auto grid grid-cols-3 gap-1">
-            <% for (let i = 0; i < cat.length; i++) { %>
-              <% const cape = cat[i]; %>
-              <%- await capeLayout(cape); %>
-            <% } %>
-          </div>
-        <% } %>
       <% } %>
+      <div class="inline xl:flex xl:flex-cols-1 gap-2">
+        <div class="mx-auto grid grid-cols-3 gap-2">
+          <%
+            const Capes = capes.filter(cape => !cape.removed && !cape.category).sort((a, b) => b.users - a.users);
+            const rCapes = capes.filter(cape => cape.removed && !cape.category).sort((a, b) => b.users - a.users);
+            const categoried_capes = capes.filter(cape => !cape.removed && cape.category).sort((a, b) => b.users - a.users);
+            const categories = {};
+            categoried_capes.forEach(function (cape) {
+              if (!categories[cape.category]) categories[cape.category] = [];
+              categories[cape.category].push(cape);
+            });
+          %>
+          <% for (let i = 0; i < Capes.length; i++) { %>
+            <% const cape = Capes[i]; %>
+            <%- await capeLayout(cape); %>
+          <% } %>
+        </div>
+      </div>
+      <div class="py-2"></div>
+      <% if (false) { // ads %>
+        <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded" style="height: 300px;">
+          <div class="text-center">
+            <p class="uppercase">Advertisement</p>
+          </div>
+          <div>
+            <div class="flex justify-center items-center text-center">
+              <!-- ad-cape-1 -->
+              <ins class="adsbygoogle" style="display:inline-block;width:357px;height:188px" data-ad-client="ca-pub-2978659071440635" data-ad-slot="5121942508" data-ad-format="auto" data-full-width-responsive="true"></ins>
+              <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      <div class="text-center">
+        <h2 class="text-lg font-semibold"><%= await getLocaleString(language, 'capes', 'removed.or.unused') %>:</h2>
+        <div class="mx-auto grid grid-cols-3 gap-1">
+          <% for (let i = 0; i < rCapes.length; i++) { %>
+            <% const cape = rCapes[i]; %>
+            <%- await capeLayout(cape); %>
+          <% } %>
+        </div>
+      </div>
+      <div class="py-2"></div>
+      <% if (false) { // ads %>
+        <div class="dark:bg-gray-600 bg-gray-200 p-2 rounded" style="height: 300px;">
+          <div class="text-center">
+            <p class="uppercase">Advertisement</p>
+          </div>
+          <div>
+            <div class="flex justify-center items-center text-center">
+              <!-- ad-cape-1 -->
+              <ins class="adsbygoogle" style="display:inline-block;width:357px;height:188px" data-ad-client="ca-pub-2978659071440635" data-ad-slot="5121942508" data-ad-format="auto" data-full-width-responsive="true"></ins>
+              <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      <div class="text-center">
+        <% for (const key in categories) { %>
+          <% if (Object.hasOwnProperty.call(categories, key)) { %>
+            <% const cat = categories[key]; %>
+            <h2 class="text-lg font-semibold"><%= key.replace(/\_/g, ' '); %></h2>
+            <div class="mx-auto grid grid-cols-3 gap-1">
+              <% for (let i = 0; i < cat.length; i++) { %>
+                <% const cape = cat[i]; %>
+                <%- await capeLayout(cape); %>
+              <% } %>
+            </div>
+          <% } %>
+        <% } %>
+      </div>
     </div>
-  </div>
+  </main>
+  <%-
+    await include('../partials/footer', {
+    });
+  %>
 </body>
 </html>

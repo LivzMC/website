@@ -12,91 +12,96 @@
     await include('../partials/header', {
     });
   %>
-  <div class="container px-4 mx-auto">
-    <div class="mt-[10px]"></div>
-    <h1 class="text-4xl font-bold"><%= await getLocaleString(language, 'core', 'badges') %></h1>
-    <div class="mt-[5px]"></div>
-    <hr>
-    <div class="flex flex-wrap justify-center items-center">
-      <% for (let i = 0; i < badges.length; i++) { %>
-        <% const badge = badges[i]; %>
-        <div class="px-2 py-2 w-[250px]">
-          <div class="max-w-mx mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl dark:bg-gray-700">
-            <div class="px-2 py-2">
-              <img class="w-auto h-32 rounded-lg mx-auto" src="<%= badge.image %>" alt="">
-              <a href="/badges/<%= badge.badgeId %>" class="block mt-1 text-lg leading-tight font-semibold text-black hover:underline dark:text-gray-300"><%= badge.title %></a>
-              <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm">
-                Created on: <time data-int="true" data-type="date" data-time="<%= badge.createdAt %>"></time>
-                •
-                <span class="inline-flex align-middle">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="#fff" d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"></path></svg>
-                  <%= badge.user_count %>
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
-      <% } %>
-    </div>
-    <% if (account && account.permission === 11) { %>
-      <div class="mt-[5px]"></div>
-      <h2 class="text-4xl font-bold">Admin</h2>
+  <main>
+    <div class="container px-4 mx-auto">
+      <div class="mt-[10px]"></div>
+      <h1 class="text-4xl font-bold"><%= await getLocaleString(language, 'core', 'badges') %></h1>
       <div class="mt-[5px]"></div>
       <hr>
-      <p id="error" class="text-red-500 text-center"></p>
-      <div class="mt-[5px]"></div>
-      <div class="text-center">
-        <form onsubmit="createBadge(event)">
-          <label for="badgeName">Badge Title:</label>
-          <div class="mt-[5px]"></div>
-          <input class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" type="text" name="badgeName" placeholder="Name" id="badgeName" autocomplete="off">
-          <div class="mt-[5px]"></div>
-          <label for="badgeImage">Badge Image URL:</label>
-          <div class="mt-[5px]"></div>
-          <input class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" type="text" name="badgeImage" placeholder="Image" id="badgeImage" autocomplete="off">
-          <div class="mt-[5px]"></div>
-          <label for="description">Badge Description:</label>
-          <div class="mt-[5px]"></div>
-          <textarea class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" name="badgeDescription" id="description" cols="30" rows="5"></textarea>
-          <div class="mt-[10px]"></div>
-          <button type="submit" class="<%= LMCButton %>">Create Badge</button>
-        </form>
+      <div class="flex flex-wrap justify-center items-center">
+        <% for (let i = 0; i < badges.length; i++) { %>
+          <% const badge = badges[i]; %>
+          <div class="px-2 py-2 w-[250px]">
+            <div class="max-w-mx mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl dark:bg-gray-700">
+              <div class="px-2 py-2">
+                <img class="w-auto h-32 rounded-lg mx-auto" src="<%= badge.image %>" alt="">
+                <a href="/badges/<%= badge.badgeId %>" class="block mt-1 text-lg leading-tight font-semibold text-black hover:underline dark:text-gray-300"><%= badge.title %></a>
+                <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm">
+                  Created on: <time data-int="true" data-type="date" data-time="<%= badge.createdAt %>"></time>
+                  •
+                  <span class="inline-flex align-middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="#fff" d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"></path></svg>
+                    <%= badge.user_count %>
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        <% } %>
       </div>
-      <script>
-        /**
-         * @param {SubmitEvent} event
-         */
-        function createBadge(event) {
-          event.preventDefault();
-          document.getElementById('error').innerText = '';
-          const formData = new FormData(event.target);
-          const badgeName = formData.get('badgeName');
-          const badgeImage = formData.get('badgeImage');
-          const badgeDescription = formData.get('badgeDescription');
-
-          if (!badgeName || !badgeImage || !badgeDescription) {
-            document.getElementById('error').innerText = 'Missing required fields';
-            return;
-          }
-
-          fetch(`/badges/${badgeName}`, {
-            method: 'put',
-            body: new URLSearchParams(formData),
-          }).then((r) => {
-            if (r.status !== 200) {
-              document.getElementById('error').innerText = 'There was an error creating this\nRead console.';
-              console.log(r);
-              console.log('403 means already exists or not logged in');
-              console.log('401 means not authorized');
-            } else {
-              window.location.reload();
+      <% if (account && account.permission === 11) { %>
+        <div class="mt-[5px]"></div>
+        <h2 class="text-4xl font-bold">Admin</h2>
+        <div class="mt-[5px]"></div>
+        <hr>
+        <p id="error" class="text-red-500 text-center"></p>
+        <div class="mt-[5px]"></div>
+        <div class="text-center">
+          <form onsubmit="createBadge(event)">
+            <label for="badgeName">Badge Title:</label>
+            <div class="mt-[5px]"></div>
+            <input class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" type="text" name="badgeName" placeholder="Name" id="badgeName" autocomplete="off">
+            <div class="mt-[5px]"></div>
+            <label for="badgeImage">Badge Image URL:</label>
+            <div class="mt-[5px]"></div>
+            <input class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" type="text" name="badgeImage" placeholder="Image" id="badgeImage" autocomplete="off">
+            <div class="mt-[5px]"></div>
+            <label for="description">Badge Description:</label>
+            <div class="mt-[5px]"></div>
+            <textarea class="bg-gray-200 dark:bg-gray-900 rounded px-2 py-2" name="badgeDescription" id="description" cols="30" rows="5"></textarea>
+            <div class="mt-[10px]"></div>
+            <button type="submit" class="<%= LMCButton %>">Create Badge</button>
+          </form>
+        </div>
+        <script>
+          /**
+           * @param {SubmitEvent} event
+           */
+          function createBadge(event) {
+            event.preventDefault();
+            document.getElementById('error').innerText = '';
+            const formData = new FormData(event.target);
+            const badgeName = formData.get('badgeName');
+            const badgeImage = formData.get('badgeImage');
+            const badgeDescription = formData.get('badgeDescription');
+  
+            if (!badgeName || !badgeImage || !badgeDescription) {
+              document.getElementById('error').innerText = 'Missing required fields';
+              return;
             }
-          });
-        }
-      </script>
-      <div class="mt-[10px]"></div>
-    <% } %>
-  </div>
+  
+            fetch(`/badges/${badgeName}`, {
+              method: 'put',
+              body: new URLSearchParams(formData),
+            }).then((r) => {
+              if (r.status !== 200) {
+                document.getElementById('error').innerText = 'There was an error creating this\nRead console.';
+                console.log(r);
+                console.log('403 means already exists or not logged in');
+                console.log('401 means not authorized');
+              } else {
+                window.location.reload();
+              }
+            });
+          }
+        </script>
+      <% } %>
+    </div>
+  </main>
+  <%-
+    await include('../partials/footer', {
+    });
+  %>
   <script src="/js/formatDate.js"></script>
 </body>
 </html>
