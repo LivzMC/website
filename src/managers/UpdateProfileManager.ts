@@ -249,7 +249,7 @@ export async function updateProfile(user: User): Promise<User> {
         parsedProfile.uuid,
         parsedProfile.username,
         Date.now().toString(),
-        user.lastSearched.toString() || '0',
+        user.lastSearched?.toString() || '0',
       ]
     );
   }

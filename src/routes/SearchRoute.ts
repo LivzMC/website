@@ -4,9 +4,17 @@ import ErrorManager from '../managers/ErrorManager';
 import { querySync } from '../managers/database/MySQLConnection';
 import { User } from '../managers/database/types/UserTypes';
 import { getUserNameIndex, isUUID } from '../utils/Utils';
-import { createProfile, usernameToUUID } from '../managers/UpdateProfileManager';
+import { createProfile, updateProfile, usernameToUUID } from '../managers/UpdateProfileManager';
 
 const app = express.Router();
+
+function parseQuery(string: string): string {
+  string = string.replace(/_/g, '\\_');
+  string = string.replace(/%/g, '');
+  string = string.replace(/\*/g, '');
+
+  return string;
+}
 
 app.get('/', async function (req, res) {
   try {
@@ -95,8 +103,28 @@ app.get('/', async function (req, res) {
           currentUser.index = await getUserNameIndex(currentUser.username, currentUser.uuid);
           currentUsers.push(currentUser);
         } else {
-          // todo
-          //await updateProfile(id);
+          await updateProfile(exists);
+          const currentUser = (await querySync(
+            `
+            select distinct 
+                profileNames.removed as profileNames_removed,
+                profileNames.uuid,
+                profiles.*,
+                profileSkins.skinId as profileSkins_skinId
+            from
+                profileNames
+                    inner join
+                profiles ON profileNames.uuid = profiles.uuid
+                    inner join
+                profileSkins on profileNames.uuid = profileSkins.uuid
+            where
+                profileNames.uuid = ?
+                and profileSkins.enabled = 1
+            `, [id]
+          ))[0];
+
+          currentUser.index = await getUserNameIndex(currentUser.username, currentUser.uuid);
+          currentUsers.push(currentUser);
         }
       }
     }
@@ -112,6 +140,42 @@ app.get('/', async function (req, res) {
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();
+  }
+});
+
+app.get('/query', async function (req, res) {
+  try {
+    if (!req.query.u) return res.status(400).json({ ok: false });
+    const username = parseQuery(req.query.u.toString());
+
+    const profiles = await querySync(
+      `
+        select 
+          profiles.username,
+          profiles.uuid,
+          profiles.enabledColor,
+          profiles.enabledColor,
+          profiles.enabledColor,
+          profileSkins.skinId
+        from
+          profiles
+        join
+          profileSkins on profiles.uuid = profileSkins.uuid
+        where
+          username like ?
+          and profileSkins.enabled = 1
+          and profileSkins.hidden = 0
+        limit 8
+      `,
+      [
+        `${username}%`,
+      ]
+    );
+
+    res.json(profiles);
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).json();
   }
 });
 
