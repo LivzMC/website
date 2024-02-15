@@ -14,8 +14,8 @@ export default class ErrorManager {
     this.req = req;
     this.res = res;
     this.error = this.formatError(error);
-    this.log = this.logError();
     this.saveFile = saveFile;
+    this.log = this.logError();
   }
 
   public json(): Response | null {
