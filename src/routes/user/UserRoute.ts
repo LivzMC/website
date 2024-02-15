@@ -39,6 +39,21 @@ async function hasOptiFineEventModel(profile: User): Promise<boolean> {
   return false;
 }
 
+app.get('/:username.:number/skins', async function (req, res) {
+  try {
+    const profile = await findUser(req.params.username, parseInt(req.params.number));
+    if (!profile) return res.sendStatus(404);
+    const skins = await querySync('select * from livzmc.profileSkins where uuid = ? and hidden = 0', [profile.uuid]);
+    renderPage(req, res, 'users/skinHistory', {
+      profile,
+      skins,
+    });
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
 /**
  * @todo add profile views, badges and vanity clicks
  */

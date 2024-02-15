@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../partials/meta', {
+      title: `${profile.username} | Skins`,
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../partials/header', {
+    });
+  %>
+  <main>
+    <div class="container px-4 mx-auto">
+      <div id="header">
+        <h1 class="text-4xl font-semibold"><%= profile.username %></h1>
+        <div class="py-1"></div>
+        <hr>
+        <div class="py-4"></div>
+      </div>
+      <div id="content">
+        <div class="flex justify-center items-center text-center">
+          <div class="w-[50rem]">
+            <div class="flex flex-row flex-wrap gap-1">
+              <% for (let i = 0; i < skins.length; i++) { %>
+                <%
+                  const skin = skins[i];
+                  const SKINUSER = profile;
+                %>
+                <div class="mx-auto bg-white rounded shadow-md overflow-hidden dark:bg-gray-700 ">
+                  <div class="p-2">
+                    <a href="/skins/<%= skin.skinId %>">
+                      <img draggable="false" width="88" height="188" class="md:rounded-none rounded-lg mx-auto md:py-0 py-1" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAC8CAYAAAD8QGmgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABXSURBVHhe7cExAQAAAMKg9U9tB28gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE41A0sAAfNFXjMAAAAASUVORK5CYII=" alt="<%= skin.skinId %>" skin="<%= skin.skinId %>">
+                    </a>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <%-
+    await include('../partials/footer');
+  %>
+  <script src="<%= textureServer %>/js/three.min.js"></script>
+  <script src="<%= textureServer %>/js/3d/2.3.9.bundle.js"></script>
+  <script>
+    const skinViewer = new skinview3d.SkinViewer({
+      width: 88,
+      height: 188,
+      cameraX: -34,
+      renderPaused: true,
+    });
+    
+    skinViewer.camera.rotation.y = -0.5;
+
+    async function renderImage(id, image, element) {
+      await Promise.all([
+        skinViewer.loadSkin(image),
+      ]);
+      skinViewer.background = 3621201;
+      skinViewer.render();
+      element.setAttribute('src', skinViewer.canvas.toDataURL());
+      skinViewer.dispose();
+    };
+
+    document.querySelectorAll('[skin]').forEach(function (e) {
+      const skinId = e.getAttribute('skin');
+      renderImage(skinId, `${TEXTURE_SERVER}/skins/${skinId}.png`, e);
+    });
+  </script>
+</body>
+</html>
