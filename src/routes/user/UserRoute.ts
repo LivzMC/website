@@ -5,7 +5,7 @@ import renderPage from '../../utils/RenderPage';
 import ErrorManager from '../../managers/ErrorManager';
 import { querySync } from '../../managers/database/MySQLConnection';
 import { User, UserNameHistory } from '../../managers/database/types/UserTypes';
-import { secondsToTime } from '../../utils/Utils';
+import { getUserNameIndex, secondsToTime } from '../../utils/Utils';
 import { SkinUsers } from '../../managers/database/types/SkinTypes';
 import { CapeUser } from '../../managers/database/types/CapeTypes';
 import { updateProfile } from '../../managers/UpdateProfileManager';
@@ -122,6 +122,16 @@ app.get('/:username.:number', async function (req, res) {
       timeToLoad,
     });
 
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
+app.get('/:username', async function (req, res) {
+  try {
+    const profile: User = (await querySync('select * from profiles where uuid = ? or username = ?', [req.params.username.replace(/-/g, ''), req.params.username]))[0];
+    res.redirect(`/user/${profile.username}.${await getUserNameIndex(profile.username, profile.uuid) + 1}`);
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();
