@@ -62,7 +62,7 @@
       await Promise.all([
         skinViewer.loadSkin(image),
       ]);
-      skinViewer.background = 3621201;
+      skinViewer.background = <%= theme == 'dark' ? 3621201 : 16777215 %>;
       skinViewer.render();
       element.setAttribute('src', skinViewer.canvas.toDataURL());
       skinViewer.dispose();
