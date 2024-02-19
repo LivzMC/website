@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html class="<%= theme %>" lang="en">
+<head>
+  <%-
+    await include('../../partials/meta', {
+      title: "Edit Profile | " + profile.username,
+    });
+  %>
+</head>
+<body class="dark:bg-gray-800 dark:text-gray-300">
+  <%-
+    await include('../../partials/header', {
+    });
+  %>
+  <main>
+    <div class="container px-4 mx-auto">
+      <div class="flex flex-wrap justify-center items-center flex-1 gap-1">
+        <div id="bio" class="w-max mt-4 rounded shadow-sm bg-gray-200 dark:bg-gray-900 border border-gray-200 dark:border-gray-900">
+          <div class="border-b-2 border-b-gray-300 dark:border-b-gray-700">
+            <h1 class="p-1 text-lg font-semibold">Bio</h1>
+          </div>
+          <div class="rounded-b-sm bg-white dark:bg-gray-800 p-2">
+            <% if (!account.donator && account.permission < 8) { %>
+              <div class="rounded bg-gray-900 p-1">
+                <a href="/donate" class="font-semibold hover:underline">This requires donator access.</a>
+              </div>
+              <div class="mt-[5px]"></div>
+            <% } %>
+            <form action="/user/edit" method="post">
+              <input type="text" name="type" value="bio" hidden required>
+              <input type="text" name="bio" class="bg-gray-100 dark:bg-gray-900 p-1 rounded w-[100%]" placeholder="<%= profile.bio || 'Text...' %>" maxlength="200" autocomplete="off">
+              <div class="mt-[5px]"></div>
+              <div class="flex">
+                <button type="submit" class="<%= LMCButton %>">Save</button>
+                <div class="ml-2">
+                  <small class="text-sm">Must follow <a href="/user/edit/rules" class="text-blue-400 hover:underline">rules</a></small>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="vanity" class="w-max mt-4 rounded shadow-sm bg-gray-200 dark:bg-gray-900 border border-gray-200 dark:border-gray-900">
+          <div class="border-b-2 border-b-gray-300 dark:border-b-gray-700">
+            <h1 class="p-1 text-lg font-semibold">Vanity URL</h1>
+          </div>
+          <div class="rounded-b-sm bg-white dark:bg-gray-800 p-2">
+            <form action="/user/edit" method="post">
+              <input type="text" name="type" value="vanity" hidden required>
+              <input type="text" name="url" class="bg-gray-100 dark:bg-gray-900 p-1 rounded w-[100%]" placeholder="<%= profile.vanityUrl || '' %>" maxlength="16" autocomplete="off">
+              <div class="mt-[5px]"></div>
+              <div class="flex">
+                <button type="submit" class="<%= LMCButton %>">Save</button>
+                <div class="ml-2">
+                  <small class="text-sm">Must follow <a href="/user/edit/rules" class="text-blue-400 hover:underline">rules</a></small>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="border" class="w-max mt-4 rounded shadow-sm bg-gray-200 dark:bg-gray-900 border border-gray-200 dark:border-gray-900">
+          <div class="border-b-2 border-b-gray-300 dark:border-b-gray-700">
+            <h1 class="p-1 text-lg font-semibold">Pride Border</h1>
+          </div>
+          <div class="rounded-b-sm bg-white dark:bg-gray-800 p-2">
+            <form action="/user/edit" method="post">
+              <input type="text" name="type" value="border" hidden required>
+              <select name="border" class="bg-gray-100 dark:bg-gray-900 rounded px-1 py-1">
+                <%
+                  const borders = [];
+                  for (const k in supported_pride) {
+                    if (Object.hasOwnProperty.call(supported_pride, k)) {
+                      const pride = supported_pride[k];
+                      if (!profile.prideBorder || profile.prideBorder !== k) {
+                        borders.push(`\<option value="${k}">${supported_pride[k]}\</option>`);
+                      }
+                    }
+                  }
+                %>
+                <% if (profile.prideBorder) { %>
+                  <option value="<%= profile.prideBorder %>"><%= supported_pride[profile.prideBorder] %></option>
+                <% } else { %>
+                  <option value="none">None</option>
+                <% } %>
+                <%- borders.join('\n') %>
+                <option value="none">None</option>
+              </select>
+              <div class="mt-[5px]"></div>
+              <div class="flex">
+                <button type="submit" class="<%= LMCButton %>">Save</button>
+                <div class="ml-2">
+                  <small class="text-sm">Must follow <a href="/user/edit/rules" class="text-blue-400 hover:underline">rules</a></small>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <%-
+    await include('../../partials/footer');
+  %>
+</body>
+</html>

@@ -9,6 +9,7 @@ import { getUserNameIndex, secondsToTime } from '../../utils/Utils';
 import { SkinUsers } from '../../managers/database/types/SkinTypes';
 import { CapeUser } from '../../managers/database/types/CapeTypes';
 import { updateProfile } from '../../managers/UpdateProfileManager';
+import { LinkedProfile, Account } from '../../managers/database/types/AccountTypes';
 
 const app = express.Router();
 
@@ -38,6 +39,156 @@ async function hasOptiFineEventModel(profile: User): Promise<boolean> {
 
   return false;
 }
+
+const supported_pride: { [key: string]: string; } = {
+  gay: 'Pride',
+  trans: 'Trans',
+  bi: 'Bisexual',
+  pan: 'Pansexual',
+  asex: 'Asexual',
+  nonb: 'Non-Binary',
+  queer: 'Queer',
+  gaymen: 'Gay Male',
+  gf: 'Gender Fluid',
+  agender: 'Agender',
+  intersex: 'Intersex',
+  lesbian: 'Lesbian',
+  polyamorous: 'Polyamorous',
+  omni: 'Omnisexual',
+  poly: 'Polysexual',
+  aroace: 'AroAce',
+  genderqueer: 'Genderqueer',
+  aromantic: 'Aromantic',
+};
+
+interface EditUser extends User {
+  bio: string,
+  vanityUrl: string,
+  prideBorder: string,
+}
+
+async function findUserEdit(linkedProfiles: LinkedProfile[]): Promise<EditUser | null> {
+  const linkedProfile = linkedProfiles.filter(profile => profile.linked_active)[0];
+  if (!linkedProfile) return null;
+
+  const profile: User = (await querySync('select * from profiles where uuid = ?', [linkedProfile.uuid]))[0];
+  if (!profile) return null;
+
+  return {
+    bio: linkedProfile.linked_bio,
+    vanityUrl: linkedProfile.linked_vanityUrl,
+    prideBorder: linkedProfile.linked_prideBorder,
+    ...profile,
+  };
+}
+
+app.get('/', async function (req, res) {
+  try {
+    const account: Account = res.locals.account;
+    if (!account) return res.redirect('/account/login?redirect=/profile/edit');
+    const linkedAccounts: LinkedProfile[] = res.locals.linkedAccounts;
+    if (!linkedAccounts || linkedAccounts.length === 0) return res.redirect('/account');
+    const profile = await findUserEdit(linkedAccounts);
+    if (!profile) return res.status(500).send('could not find profile');
+
+    res.redirect(`/user/${profile.username}.${await getUserNameIndex(profile.username, profile.uuid) + 1}`);
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
+app.get('/edit', async function (req, res) {
+  try {
+    const account: Account = res.locals.account;
+    if (!account) return res.redirect('/account/login?redirect=/profile/edit');
+    const linkedAccounts: LinkedProfile[] = res.locals.linkedAccounts;
+    if (!linkedAccounts || linkedAccounts.length === 0) return res.redirect('/account');
+    const profile = await findUserEdit(linkedAccounts);
+    if (!profile) return res.status(500).send('could not find profile');
+    const index = await getUserNameIndex(profile.username, profile.uuid) + 1;
+
+    renderPage(req, res, 'users/edit/editUser', {
+      profile,
+      index,
+      supported_pride,
+    });
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
+app.post('/edit', async function (req, res) {
+  try {
+    const account: Account = res.locals.account;
+    if (!account) return res.redirect('/account/login?redirect=/profile/edit');
+    const linkedAccounts: LinkedProfile[] = res.locals.linkedAccounts;
+    if (!linkedAccounts || linkedAccounts.length === 0) return res.redirect('/account');
+    const profile = await findUserEdit(linkedAccounts);
+    if (!profile) return res.status(500).send('could not find profile');
+
+    if (!req.body || !req.body.type) return res.redirect('back');
+    const type = req.body.type;
+
+    switch (type.toLowerCase()) {
+      case 'bio': {
+        if (!account.donator && account.permission < 8) break;
+        const bio: string = req.body.bio;
+        if (!bio) {
+          // reset bio
+          await querySync('update linkedAccounts set bio = null where accountId = ? and uuid = ? and linked = 1', [account.accountId, profile.uuid]);
+        } else {
+          if (bio.length > 200) break;
+          // set bio
+          await querySync('update linkedAccounts set bio = ? where accountId = ? and uuid = ? and linked = 1', [bio.trim(), account.accountId, profile.uuid]);
+        }
+
+        break;
+      }
+      case 'vanity': {
+        const rawURL: string = req.body.url;
+        if (!rawURL) break;
+        let url = rawURL.replace(/[^a-zA-Z0-9_.]/g, '').trim();
+        if (!url.match(/\w/g)) break;
+        if (url.length === 0) {
+          // reset
+          await querySync('update linkedAccounts set vanityUrl = null, vanityClicks = 0 where uuid = ? and linked = 1 and accountId = ?', [profile.uuid, account.accountId]);
+        } else {
+          // set
+          if (url.length < 2 || url.length > 16) break;
+          const testPage = await fetch(`${req.hostname === 'localhost' ? 'http' : 'https'}://${req.hostname}/${url}`);
+          if (testPage.status !== 404) break;
+          const isTaken = (await querySync('select uuid from linkedAccounts where vanityUrl = ? and linked = 1', [url]))[0];
+          if (isTaken) break;
+          await querySync('update linkedAccounts set vanityUrl = ?, vanityClicks = 0 where uuid = ? and linked = 1 and accountId = ?', [url, profile.uuid, account.accountId]);
+        }
+
+        break;
+      }
+      case 'border': {
+        const border: string = req.body.border;
+        if (!border || !supported_pride[border]) {
+          await querySync('update linkedAccounts set prideBorder = null where uuid = ? and accountId = ? and linked = 1', [profile.uuid, account.accountId]);
+        } else {
+          await querySync('update linkedAccounts set prideBorder = ? where uuid = ? and accountId = ? and linked = 1', [border, profile.uuid, account.accountId]);
+        }
+
+        break;
+      }
+      case 'font': {
+        break;
+      }
+      default:
+        break;
+    }
+
+    res.redirect('back');
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
 
 app.get('/:username.:number/skins', async function (req, res) {
   try {

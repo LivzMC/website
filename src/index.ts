@@ -76,6 +76,9 @@ app.use(async function (req, res, next) {
             profiles.enabledEmoji,
             profiles.enabledFont,
             skins.skinId,
+            linkedAccounts.bio as linked_bio,
+            linkedAccounts.vanityUrl as linked_vanityUrl,
+            linkedAccounts.prideBorder as linked_prideBorder,
             linkedAccounts.createdAt as linked_createdAt,
             linkedAccounts.linked as linked_linked,
             linkedAccounts.active as linked_active
