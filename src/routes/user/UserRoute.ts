@@ -149,7 +149,7 @@ app.post('/edit', async function (req, res) {
       case 'vanity': {
         const rawURL: string = req.body.url;
         if (!rawURL) break;
-        let url = rawURL.replace(/[^a-zA-Z0-9_.]/g, '').trim();
+        const url = rawURL.replace(/[^a-zA-Z0-9_.]/g, '').trim();
         if (!url.match(/\w/g)) break;
         if (url.length === 0) {
           // reset
