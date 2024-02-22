@@ -93,19 +93,19 @@
       <div class="w-1/2 mx-auto sm:px-6 lg:px-8 mt-3">
         <div class="overflow-hidden shadow-md rounded-lg">
           <div class="px-6 py-4 bg-white border-b border-gray-200 font-bold text-center dark:bg-gray-900 dark:border-gray-700"><%= await getLocaleString(language, 'capes', 'users') %></div>
-          <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
-            <% for (let i = 0; i < users.length; i++) { %>
-              <% const user = users[i]; %>
-              <% if (user) { %>
-                <a class="text-indigo-600 dark:text-indigo-500 hover:underline" <%# setStyle(user, acc) %> href="/user/<%= user.username %>.<%= await getUserNameIndex(user.username, user.uuid) + 1 %>">
-                  <%= user.username %>
-                  <%# getEmoji(user, '20') %>
-                </a>
-              <% } %>
-            <% } %>
-            <% if (more) { %>
-              ...
-            <% } %>
+          <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700<%= profiles.length > 75 ? ' h-[15rem]' : '' %>" style="overflow-y: <%= profiles.length > 75 ? 'scroll' : 'auto' %>; text-align: justify !important; word-spacing: .15rem;">
+            <%
+              const formatted = [];
+              for (let i = 0; i < profiles.length; i++) {
+                const profile = profiles[i];
+                if (profile) {
+                  formatted.push(`\<a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/user/${profile.username}.${await getUserNameIndex(profile.username, profile.uuid) + 1}">${profile.username}\</a>`);
+                }
+              }
+              
+              if (more) formatted.push('...');
+            %>
+            <%- formatted.join('\n') %>
           </div>
           <div id="requestId" class="p-6 bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700 flex flex-wrap justify-center text-center">
             <a class="bg-blue-500 shadow-md text-sm text-white font-bold py-3 md:px-8 px-4 hover:bg-blue-400 rounded uppercase" href="/download/minecraft-capes/<%= cape.capeId %>.png"><%= await getLocaleString(language, 'capes', 'download.cape') %></a>

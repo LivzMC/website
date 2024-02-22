@@ -86,16 +86,13 @@ app.get('/:bannerId', async function (req, res) {
 
     const data = await fsp.readFile(path);
     const profiles = JSON.parse(data.toString());
-    let hasMore = false;
-    if (profiles.length > 500) {
-      hasMore = true;
-      profiles.length = 500;
-    }
+    const more = profiles.length > 500;
+    if (more) profiles.length = 500;
 
     renderPage(req, res, './capes/view/optifine', {
       banner,
       profiles,
-      hasMore,
+      more,
       length,
     });
 

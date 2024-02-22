@@ -70,14 +70,19 @@
       <div class="py-2 w-1/2 mx-auto sm:px-6 lg:px-8">
         <div class="overflow-hidden shadow-md rounded-lg">
           <div class="px-6 py-4 bg-white border-b border-gray-200 font-bold text-center dark:bg-gray-900 dark:border-gray-700"><%= await getLocaleString(language, 'capes', 'users') %></div>
-          <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700" style="overflow-y:auto; text-align: justify!important; word-spacing: .15rem;">
-            <% for (let i = 0; i < profiles.length; i++) { %>
-              <% const account = profiles[i]; %>
-              <a href="/user/<%= account.username %>.<%= await getUserNameIndex(account.username, account.uuid) + 1 %>" class="hover:underline" <%# setStyle(account, acc) %>><%= account.username %><span data-emoji="<%= account.uuid %>" id="<%= account.uuid %>-emojis-container" data-height="22" data-width="22"><%# getEmoji(account, '22') %></span></a>
-            <% } %>
-            <% if (hasMore) { %>
-              ...
-            <% } %>
+          <div class="p-6 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700<%= profiles.length > 75 ? ' h-[15rem]' : '' %>" style="overflow-y: <%= profiles.length > 75 ? 'scroll' : 'auto' %>; text-align: justify !important; word-spacing: .15rem;">
+            <%
+              const formatted = [];
+              for (let i = 0; i < profiles.length; i++) {
+                const profile = profiles[i];
+                if (profile) {
+                  formatted.push(`\<a href="/user/${profile.username}.${await getUserNameIndex(profile.username, profile.uuid) + 1}" class="hover:underline">${profile.username}\</a>`);
+                }
+              }
+
+              if (more) formatted.push('...');
+            %>
+            <%- formatted.join('\n'); %>
           </div>
           <div id="requestId" class="p-6 bg-white border-gray-200 text-center dark:bg-gray-900 dark:border-gray-700 justify-center items-center flex">
             <% if (banner.isBanner && banner.cleanUrl) { %>

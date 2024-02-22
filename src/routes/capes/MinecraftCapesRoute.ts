@@ -71,14 +71,14 @@ app.get('/:capeId', async function (req, res) {
       await generateCapeUsersCache(cape.capeId, filePath);
     }
 
-    const users: CapeUser[] = JSON.parse((await fsp.readFile(filePath)).toString());
+    const profiles: CapeUser[] = JSON.parse((await fsp.readFile(filePath)).toString());
     const userLength: number = userLengthCache.has(cape.capeId) ? userLengthCache.get(cape.capeId) : (await querySync('select count(capeId) from profileCapes where capeId = ? and hidden = 0', [cape.capeId]))[0]['count(capeId)'];
 
     renderPage(req, res, './capes/view/minecraft', {
       cape,
-      users,
+      profiles,
       userLength,
-      more: userLength > users.length,
+      more: userLength > profiles.length,
     });
 
     // check if the users are cached and if they are expired. Re-generate them after the page is loaded
