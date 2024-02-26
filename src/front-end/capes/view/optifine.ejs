@@ -6,6 +6,17 @@
       title: "OptiFine Cape | " + banner.bannerId,
     });
   %>
+  <style>
+    .scaleNearest {
+      image-rendering: optimizeSpeed;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -o-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
+      image-rendering: pixelated;
+    }
+  </style>
 </head>
 <body class="dark:bg-gray-800 dark:text-gray-300">
   <%-
@@ -55,16 +66,31 @@
             <button class="transition duration-200 text-white dark:bg-[#059669] bg-[#10b981] dark:text-white py-1 px-2 rounded-md dark:hover:bg-[#047857] hover:bg-[#059669]" id="skinElytraButton" data-cape="OF/<%= banner.bannerId %>" data-elytra="false" onclick="showElytra()">Elytra</button>
           </div>
         </div>
-        <% if (true) { // ads %>
-          <div>
+        <div>
+          <% if (true) { // ads %>
             <div class="mt-[5px]"></div>
             <!-- ad-cape_page-1 -->
             <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2978659071440635" data-ad-slot="6649828351" data-ad-format="auto" data-full-width-responsive="true"></ins>
             <script>
               (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
-          </div>
-        <% } %>
+          <% } %>
+          <%
+            const formattedSimilarBanners = [];
+            for (let i = 0; i < similarBanners.length; i++) {
+              const b = similarBanners[i];
+              formattedSimilarBanners.push(`\<a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/optifine-capes/${b.bannerId}">\<img class="scaleNearest w-[40px] h-[60px] rounded-md hover:cursor-pointer" src="https://livzmc.net/user/2d/cape/OF/${b.bannerId}.png" />\</a>`);
+            }
+          %>
+          <% if (similarBanners.length > 0) { %>
+            <h1 class="text-2xl font-semibold">Similar Banners</h1>
+            <hr>
+            <div class="mt-[5px]"></div>
+            <div class="flex flex-wrap gap-1">
+              <%- formattedSimilarBanners.join('\n') %>
+            </div>
+          <% } %>
+        </div>
       </div>
       <!-- users -->
       <div class="py-2 w-1/2 mx-auto sm:px-6 lg:px-8">
