@@ -9,6 +9,7 @@ import { getUserNameIndex, secondsToTime } from '../../utils/Utils';
 import { SkinUsers } from '../../managers/database/types/SkinTypes';
 import { CapeUser } from '../../managers/database/types/CapeTypes';
 import { updateProfile } from '../../managers/UpdateProfileManager';
+import { LinkedAccount } from '../../managers/database/types/AccountTypes';
 
 const app = express.Router();
 
@@ -18,10 +19,6 @@ async function findUser(username: string, number: number): Promise<User | null> 
   if (!usernames[number - 1]) return null;
 
   return (await querySync('select * from profiles where uuid = ?', [usernames[number - 1].uuid]))[0];
-}
-
-function uuidToDashed(uuid: string): string {
-  return `${uuid.substring(0, 8)}-${uuid.substring(8, 12)}-${uuid.substring(12, 16)}-${uuid.substring(16, 20)}-${uuid.substring(20)}`;
 }
 
 async function hasOptiFineEventModel(profile: User): Promise<boolean> {
@@ -37,6 +34,15 @@ async function hasOptiFineEventModel(profile: User): Promise<boolean> {
   }
 
   return false;
+}
+
+async function findLinkedUser(uuid: string): Promise<LinkedAccount | null> {
+  const linkedAccount: LinkedAccount = (await querySync('select * from linkedAccounts where linkedAccounts.uuid = ? and linked = 1', [uuid]))[0];
+  return linkedAccount || null;
+}
+
+function uuidToDashed(uuid: string): string {
+  return `${uuid.substring(0, 8)}-${uuid.substring(8, 12)}-${uuid.substring(12, 16)}-${uuid.substring(16, 20)}-${uuid.substring(20)}`;
 }
 
 app.get('/:username.:number/skins', async function (req, res) {
@@ -64,6 +70,7 @@ app.get('/:username.:number', async function (req, res) {
     user = await updateProfile(user);
 
     const start = performance.now();
+    const linkedProfile = await findLinkedUser(user.uuid);
     const namesDB: (UserNameHistory & { giveOrTake: string, formattedChanged: string; })[] = await querySync('select username, changedToAt, diff, hidden from profileNames where uuid = ?', [user.uuid]);
     let names = namesDB;
     const nameLength = names.length;
@@ -97,7 +104,7 @@ app.get('/:username.:number', async function (req, res) {
     });
     if (skins.length > 27) skins.length = 27;
 
-    const capes = (await querySync('select capeId, cachedOn, enabled, hidden from profileCapes where uuid = ?', [user.uuid]));
+    const capes: CapeUser[] = (await querySync('select capeId, cachedOn, enabled, hidden from profileCapes where uuid = ?', [user.uuid]));
     const ofCapes = await querySync('select capeId, cachedOn, hidden, banners.removed, banners.isBanner, banners.cleanUrl from profileOFCapes join banners on profileOFCapes.capeId = banners.bannerId where uuid = ?', [user.uuid]);
     const lbCapes = await querySync('select capeId, cachedOn, hidden from profileLBCapes where uuid = ?', [user.uuid]);
     const mcCapes = await querySync('select capeId, cachedOn, hidden from profileMCCapes where uuid = ?', [user.uuid]);
@@ -118,7 +125,7 @@ app.get('/:username.:number', async function (req, res) {
       ...user,
       names,
       skins,
-      capes: capes.filter((cape: CapeUser) => !cape.hidden),
+      capes: capes.filter(cape => !cape.hidden),
       ofCapes,
       lbCapes,
       mcCapes,
@@ -135,6 +142,8 @@ app.get('/:username.:number', async function (req, res) {
       dashedUUID: uuidToDashed(user.uuid),
       hasOptiFineEvent,
       timeToLoad,
+      userIndex: parseInt(req.params.number),
+      linkedProfile,
     });
 
   } catch (e) {

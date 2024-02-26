@@ -1,6 +1,6 @@
 <%
   let BORDER = "transition border-2 duration-200 border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-900 bg-gray-100 dark:bg-gray-900";
-  // if (linkedAcc && linkedAcc.prideBorder) BORDER = linkedAcc.prideBorder;
+  if (linkedProfile && linkedProfile.prideBorder) BORDER = linkedProfile.prideBorder;
 %>
 <!DOCTYPE html>
 <html class="<%= theme %>" lang="en">
@@ -21,6 +21,9 @@
       image-rendering: pixelated;
     }
   </style>
+  <% if (linkedProfile && linkedProfile.prideBorder) { %>
+    <link rel="stylesheet" href="/style/pride.css">
+  <% } %>
 </head>
 <body class="dark:bg-gray-800 dark:text-gray-300">
   <%-
@@ -76,12 +79,19 @@
                 <dl id="views">
                   <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'user', 'views') %></dt>
-                    <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
-                      <%# monthlyViews %>
-                    </dd>
+                    <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">0</dd>
                   </div>
                 </dl>
-                <dl id="vanity"></dl>
+                <% if (linkedProfile && linkedProfile.vanity) { %>
+                  <dl id="vanity">
+                    <div class="border border-gray-100 dark:border-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                      <dt class="text-sm font-medium text-gray-500 dark:text-gray-200"><%= await getLocaleString(language, 'user', 'vanity') %></dt>
+                      <dd class="mt-1 text-sm font-semibold text-gray-900 sm:mt-0 sm:col-span-2 dark:text-gray-300">
+                        <a href="/<%= linkedProfile.vanity %>"><%= linkedProfile.vanity %></a> <%= linkedProfile.vanityClicks %>
+                      </dd>
+                    </div>
+                  </dl>
+                <% } %>
                 <dl id="badges">
                   <% if (profile.badges.length > 0) { %>
                     <div class="border border-gray-100 dark:border-gray-900 text-center">
@@ -104,6 +114,15 @@
                     </div>
                   <% } %>
                 </dl>
+                <% if (!linkedProfile) { %>
+                  <dl id="claim-user">
+                    <div class="border border-gray-100 dark:border-gray-900 text-center">
+                      <dd class="font-semibold text-gray-900 dark:text-gray-300 p-4">
+                        <a class="text-indigo-600 dark:text-indigo-500 hover:underline" href="/user/<%= profile.username %>.<%= userIndex %>/claim">Claim Profile</a>
+                      </dd>
+                    </div>
+                  </dl>
+                <% } %>
               </div>
             </div>
           </div>
@@ -125,7 +144,7 @@
               <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg h-min">
                 <div class="px-4 py-1 sm:px-6 dark:bg-gray-900 bg-gray-100">
                   <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 text-center">
-                    <a href="/user/<%= profile.username %>.<%# userIndex %>/skins" class="text-indigo-600 dark:text-indigo-500 hover:underline">
+                    <a href="/user/<%= profile.username %>.<%= userIndex %>/skins" class="text-indigo-600 dark:text-indigo-500 hover:underline">
                       <%= await getLocaleString(language, 'user', 'skins') %>
                     </a>
                   </h3>
@@ -159,7 +178,7 @@
                   <dl class="flex flex-wrap gap-1 items-center text-center justify-center pt-[5px] pb-[5px]">
                     <% for (let i = 0; i < profile.capes.length; i++) { %>
                       <% const cape = profile.capes[i]; %>
-                      <% if (cape.hidden == 0) { %>
+                      <% if (!cape.hidden) { %>
                         <div class="relative inline-block" id="<%= cape.capeId %>-container">
                           <a href="/minecraft-capes/<%= cape.capeId %>">
                             <img class="capes scaleNearest h-[64px] w-[40px] rounded-md"<%- cape.enabled ? ' style="box-shadow: 0 0 8px #7B68AA; background-color: #7B68AA;"' : '' %> src="/api/render/2d/cape/<%= cape.capeId %>.png" cape="<%= cape.capeId %>" alt="<%= cape.capeId %>" data-time-title="<%= new Date(cape.cachedOn).getTime() %>" title=" (<%= cape.applied ?? '??' %>)">
