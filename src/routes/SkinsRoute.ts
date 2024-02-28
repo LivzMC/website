@@ -4,9 +4,11 @@ import fsp from 'fs/promises';
 import renderPage from '../utils/RenderPage';
 import NodeCache from 'node-cache';
 import ErrorManager from '../managers/ErrorManager';
+import Jimp from 'jimp';
 import { querySync } from '../managers/database/MySQLConnection';
 import { Skin, SkinUsers } from '../managers/database/types/SkinTypes';
 import { isFileCacheExpired } from '../utils/Utils';
+import { generateDHash } from '../utils/Hash';
 
 const app = express.Router();
 const MAX_LIMIT = 501;
@@ -70,11 +72,27 @@ async function generateSkinUserCache(skinId: string, filePath: string): Promise<
   fs.writeFileSync('cache/skins.json', JSON.stringify(skinsCache));
 })();
 
+(async function () {
+  const skins: Skin[] = await querySync('select * from skins where dhash is null and url is not null limit 10000');
+  for (let i = 0; i < skins.length; i++) {
+    try {
+      const skin = skins[i];
+      const image = await Jimp.read(skin.url);
+      const dhash = await generateDHash(image);
+
+      await querySync('update skins set dhash = ? where skinId = ?', [dhash, skin.skinId]);
+      console.log(`updated ${skin.skinId} with dhash '${dhash}', ${skins.length - i} remain`);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+});//();
+
 app.get('/', (req, res) => res.redirect('/skins/new'));
 
 app.get('/new', async function (req, res) {
   try {
-    const page = parseInt(req.query.page?.toString() || '1');
+    const page = Math.max(parseInt(req.query.page?.toString() || '1') || 1, 1);
     const nPerPage = 35;
     if (page > 100) return res.redirect('/skins/new?page=100');
 
@@ -138,6 +156,34 @@ app.get('/random', async function (req, res) {
   }
 });
 
+app.get('/similar', async function (req, res) {
+  try {
+    if (!req.query || !req.query.dh) return res.status(400).send('missing required queries');
+    const page = Math.max(parseInt(req.query.page?.toString() || '1') || 1, 1);
+    const nPerPage = 32;
+    const skins: Skin[] = await querySync(`select * from skins where dhash like ? order by createdAt desc limit ${(page - 1) * nPerPage}, ${nPerPage}`, [`${req.query.dh.toString()}%`]);
+    const count = (await querySync(`select skinId from skins where dhash like ? limit ${page * nPerPage}, ${nPerPage}`, [`${req.query.dh.toString()}%`])).length;
+    if (skins.length === 0) {
+      res.write('no skins');
+      return res.status(404).send();
+    }
+
+    renderPage(req, res, './skins/index', {
+      skins,
+      number: page,
+      skipped: ((page - 1) * nPerPage),
+      currentPage: '/skins',
+      random: false,
+      ads: false,
+      dh: req.query.dh,
+      hasNextPage: count > 0,
+    });
+  } catch (e) {
+    console.error(e);
+    new ErrorManager(req, res, e as Error).write();
+  }
+});
+
 app.get('/:skinId', async function (req, res) {
   try {
     const skin: Skin = (await querySync('select * from skins where skinId = ?', [req.params.skinId]))[0];
@@ -156,15 +202,32 @@ app.get('/:skinId', async function (req, res) {
       hasMoreUsers = true;
     }
 
+    let similarSkins: Skin[] = [];
+    if (skin.dhash) {
+      similarSkins = await querySync('select skinId, url, enabled from skins where dhash like ? limit 20', [`${skin.dhash.slice(0, 8)}%`]);
+      if (similarSkins.length > 0) {
+        similarSkins = similarSkins.filter(s => s.skinId !== skin.skinId);
+      }
+    }
+
     renderPage(req, res, './skins/skin', {
       skin,
       users,
       hasMoreUsers,
+      similarSkins,
     });
 
     // check if the users are cached and if they are expired. Re-generate them after the page is loaded
     if (cached && isFileCacheExpired(filePath, 60 * 10)) {
       await generateSkinUserCache(req.params.skinId, filePath);
+    }
+
+    if (!skin.dhash) {
+      // if (true) {
+      const image = await Jimp.read(skin.url);
+      const dhash = await generateDHash(image);
+
+      await querySync('update skins set dhash = ? where skinId = ?', [dhash, skin.skinId]);
     }
   } catch (e) {
     console.error(e);

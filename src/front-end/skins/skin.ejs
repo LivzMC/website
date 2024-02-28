@@ -87,6 +87,33 @@
         </div>
       </div>
     </div>
+    <div class="mt-[15px]"></div>
+    <div id="similar-skins" class="mx-auto">
+      <% if (similarSkins.length > 0) { %>
+        <div class="w-1/2 mx-auto sm:px-6 lg:px-8">
+          <h1 class="text-2xl font-semibold">
+            Similar Skins
+            <% if (similarSkins.length > 18) { %>
+              <span class="float-right"><a class="bg-indigo-500 p-1 rounded hover:underline" href="/skins/similar?dh=<%= skin.dhash.toString().slice(0, 8) %>">Show More</a></span>
+            <% } %>
+          </h1>
+          <div class="mt-[5px]"></div>
+          <hr>
+          <div class="mt-[5px]"></div>
+          <div class="flex flex-wrap justify-center items-center gap-1">
+            <% for (let i = 0; i < similarSkins.length && i < 18; i++) { %>
+              <% const skin = similarSkins[i]; %>
+              <a href="/skins/<%= skin.skinId %>">
+                <img draggable="false" width="88" height="188" class="md:rounded-none rounded-lg mx-auto md:py-0 py-1" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAC8CAYAAAD8QGmgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABXSURBVHhe7cExAQAAAMKg9U9tB28gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE41A0sAAfNFXjMAAAAASUVORK5CYII=" alt="<%= skin.skinId %>" skin="<%= skin.skinId %>">
+              </a>
+            <% } %>
+          </div>
+          <div class="mt-[5px]">
+            <small class="text-xs">Diff Hash: <%= skin.dhash %></small>
+          </div>
+        </div> 
+      <% } %>
+    </div>
   </main>
   <%-
     await include('../partials/footer', {
@@ -97,8 +124,33 @@
     await include('../partials/skinviewer', {
       skin: `${textureServer}/skins/${skin.skinId}.png`,
       cape: null,
-      slim: users[users.length - 1].model === 1,
+      slim: users[users.length - 1]?.model === 1,
     });
   %>
+  <script>
+    const skinViewerImage = new skinview3d.SkinViewer({
+      width: 88,
+      height: 188,
+      cameraX: -34,
+      renderPaused: true,
+    });
+    
+    skinViewerImage.camera.rotation.y = -0.5;
+
+    async function renderImage(id, image, element) {
+      await Promise.all([
+        skinViewerImage.loadSkin(image),
+      ]);
+      skinViewerImage.background = <%= theme == 'dark' ? 3621201 : 16777215 %>;
+      skinViewerImage.render();
+      element.setAttribute('src', skinViewerImage.canvas.toDataURL());
+      skinViewerImage.dispose();
+    };
+
+    document.querySelectorAll('[skin]').forEach(function (e) {
+      const skinId = e.getAttribute('skin');
+      renderImage(skinId, `${TEXTURE_SERVER}/skins/${skinId}.png`, e);
+    });
+  </script>
 </body>
 </html>

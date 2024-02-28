@@ -7,6 +7,7 @@ export type Skin = {
   model: boolean,
   userCount: number,
   hash: string,
+  dhash: string | null,
 };
 
 export type SkinUsers = {

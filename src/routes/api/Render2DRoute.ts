@@ -21,27 +21,35 @@ app.get('/skin/head/:skinId.png', async function (req, res) {
     if (!fs.existsSync(path)) return res.sendStatus(404);
     const buffer = await fsp.readFile(path);
     const sharpImage = sharp(buffer);
-    const outerLayerImage = await sharpImage
-      .clone()
-      .extract({ left: 40, top: 8, width: 8, height: 8 })
-      .resize(64, 64, { kernel: 'nearest' })
-      .toBuffer();
+    let outerLayerImage = null;
 
-    const image = await sharpImage
-      .extract({ left: 8, top: 8, width: 8, height: 8 })
-      .composite(
+    try {
+      outerLayerImage = await sharpImage
+        .clone()
+        .extract({ left: 40, top: 8, width: 8, height: 8 })
+        .resize(64, 64, { kernel: 'nearest' })
+        .toBuffer();
+    } catch (e) {
+      console.error(e);
+    }
+
+    const image = sharpImage.extract({ left: 8, top: 8, width: 8, height: 8 });
+
+    if (outerLayerImage) {
+      image.composite(
         [
           {
             input: outerLayerImage,
           },
         ]
-      )
-      .resize(64, 64, { kernel: 'nearest' })
-      .toBuffer();
+      );
+    }
+
+    const finalImage = await image.resize(64, 64, { kernel: 'nearest' }).toBuffer();
 
     res.set('cache-control', 'public, max-age=604800');
-    res.writeHead(200, { 'Content-Type': 'image/png', 'Content-Length': image.length });
-    res.end(image);
+    res.writeHead(200, { 'Content-Type': 'image/png', 'Content-Length': finalImage.length });
+    res.end(finalImage);
   } catch (e) {
     console.error(e);
     new ErrorManager(req, res, e as Error).write();

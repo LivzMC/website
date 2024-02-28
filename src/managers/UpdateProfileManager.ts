@@ -3,7 +3,7 @@ import fs from 'fs';
 import fsp from 'fs/promises';
 import Jimp from 'jimp';
 import { getFilePath, isDevMode } from '../utils/Utils';
-import { generateImageHash } from '../utils/Hash';
+import { generateDHash, generateImageHash } from '../utils/Hash';
 import { Skin, SkinUsers } from './database/types/SkinTypes';
 import { querySync } from './database/MySQLConnection';
 import { Cape, CapeUser } from './database/types/CapeTypes';
@@ -85,7 +85,7 @@ export async function createProfile(uuid: string): Promise<void> {
     let skin: Skin = (await querySync('select * from skins where hash = ?', [skinData.hash]))[0];
     if (!skin) {
       // skin does not exist, so create a new row
-      await querySync('insert into skins (createdAt, url, skinId, userCount, hash) values (?, ?, ?, ?, ?)', [Date.now().toString(), skinData.url, skinData.hash.substring(20), '1', skinData.hash]);
+      await querySync('insert into skins (createdAt, url, skinId, userCount, hash, dhash) values (?, ?, ?, ?, ?, ?)', [Date.now().toString(), skinData.url, skinData.hash.substring(20), '1', skinData.hash, skinData.dhash]);
       skin = (await querySync('select * from skins where hash = ?', [skinData.hash]))[0];
     }
 
@@ -316,6 +316,7 @@ async function generateSkinData(url: string): Promise<SkinData | null> {
   const width = image.bitmap.width;
   const height = image.bitmap.height;
   const hash = generateImageHash(image.bitmap.data, width, height);
+  const dhash = await generateDHash(image.clone());
   await fsp.writeFile(`${getFilePath()}/skins/${hash.substring(20)}.png`, await image.getBufferAsync('image/png'));
 
   return {
@@ -323,6 +324,7 @@ async function generateSkinData(url: string): Promise<SkinData | null> {
     height,
     hash,
     url,
+    dhash,
   };
 }
 
@@ -481,6 +483,7 @@ type SkinData = {
   height: number,
   hash: string,
   url: string,
+  dhash: string | null,
 };
 
 type CapeData = {

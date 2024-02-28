@@ -30,7 +30,7 @@ type SearchOptions = {
       console.error(e);
     }
   }
-})();
+});//();
 
 async function generateUsersCache(bannerId: string, path: string): Promise<void> {
   const profiles = await querySync(

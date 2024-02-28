@@ -1,4 +1,23 @@
 import crypto from 'crypto';
+import Jimp from 'jimp';
+
+const PIXEL_LENGTH = 4;
+
+function px(pixels: Buffer, width: number, x: number, y: number): number {
+  return pixels[width * PIXEL_LENGTH * y + x * PIXEL_LENGTH];
+}
+
+function binaryToHex(s: string): string {
+  let output = '';
+  for (let i = 0; i < s.length; i += 4) {
+    const bytes = s.substr(i, 4);
+    const decimal = parseInt(bytes, 2);
+    const hex = decimal.toString(16);
+    output += hex.toUpperCase();
+  }
+
+  return output;
+}
 
 export function generateImageHash(data: Buffer, width: number = 64, height: number = 64, slight_transparent: boolean = false): string {
   if (slight_transparent) {
@@ -22,4 +41,21 @@ export function generateImageHash(data: Buffer, width: number = 64, height: numb
   sha256.update(data);
 
   return sha256.digest('hex').substring(0, 32);
+}
+
+export async function generateDHash(data: Jimp): Promise<string> {
+  const height = 8;
+  const width = height + 1;
+  const pixels = data.greyscale().resize(width, height).bitmap.data;
+
+  let difference = '';
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < height; col++) { // height is not a mistake here...
+      const left = px(pixels, width, col, row);
+      const right = px(pixels, width, col + 1, row);
+      difference += left < right ? 1 : 0;
+    }
+  }
+
+  return binaryToHex(difference).substring(0, 16);
 }

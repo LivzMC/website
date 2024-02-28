@@ -14,6 +14,7 @@ export default function renderPage(req: Request, res: Response, path: string, op
   options.theme = theme;
   options.language = language;
   if (!options.currentPage) options.currentPage = req.path; // assume currentPage if none are supplied
+  if (options.ads === undefined) options.ads = true;
   // render page
   res.render(path, options, (err, html) => {
     if (err) {

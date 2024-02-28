@@ -7,9 +7,11 @@ CREATE TABLE IF NOT EXISTS `skins` (
   `model` tinyint(1) NOT NULL DEFAULT '0',
   `userCount` int NOT NULL DEFAULT '0',
   `hash` char(32) NOT NULL,
+  `dhash` char(16) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `hash` (`hash`),
   KEY `skinId` (`skinId`),
   KEY `createdAt` (`createdAt`),
-  KEY `url` (`url`)
+  KEY `url` (`url`),
+  KEY `dhash` (`dhash`)
 );
