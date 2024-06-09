@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { connectToDatabase, querySync } from './managers/database/MySQLConnection';
 import {
   clearCache,
+  getGitInfo,
   getLocaleString,
   getUserNameIndex,
   isDevMode,
@@ -106,6 +107,7 @@ app.locals.getLocaleString = getLocaleString;
 app.locals.getUserNameIndex = getUserNameIndex;
 app.locals.LMCButton = 'rounded dark:bg-[#047857] bg-[#059669] text-white font-semibold px-2 py-1 hover:underline';
 app.locals.textureServer = process.env.TEXTURE_SERVER?.toString() || '/textures';
+app.locals.git = getGitInfo();
 // create routes
 app.use('/', HomeRoute);
 app.use('/skins', SkinsRoute);

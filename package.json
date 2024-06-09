@@ -4,7 +4,7 @@
   "description": "A website designed to display Minecraft profiles, skins and capes.",
   "main": "src/index.ts",
   "scripts": {
-    "build": "npm run tailwind:build && npx eslint src && node script/update_git.js && tsc",
+    "build": "npm run tailwind:build && npx eslint src && tsc",
     "tailwind:build": "postcss ./public/style/tailwind.css -o ./public/style/index.css",
     "start": "node --no-deprecation dist/index.js",
     "devStart": "nodemon src/index.ts"

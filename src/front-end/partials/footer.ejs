@@ -15,7 +15,7 @@
     <div class="text-sm flex">
       <p>© 2021 - 2024, Iris</p>
       <p class="ml-[15px]">
-master@<a id="github_hash" class="text-indigo-600 dark:text-indigo-500 hover:underline" href="https://github.com/livzmc/website/commits/ce0c9395f276851c448db3bf2721f09d0966bff5" target="__">ce0c939</a>
+        <%= git.branchName %>@<%- git.isDirty ? 'local' : `<a id="github_hash" class="text-indigo-600 dark:text-indigo-500 hover:underline" href="https://github.com/livzmc/website/commits/${git.hash}" target="__">${git.hash.slice(0, 7)}</a>` %>
       </p>
     </div>
   </div>

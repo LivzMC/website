@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import CryptoJS from 'crypto-js';
 import { querySync } from '../managers/database/MySQLConnection';
 import { UserNameHistory } from '../managers/database/types/UserTypes';
+import { execSync } from 'child_process';
 
 const DEFAULT_LANGUAGE = JSON.parse(fs.readFileSync('LivzMC/lang/en-us/core.json').toString());
 const DEVMODE: boolean = process.env.DEVMODE?.toLowerCase() == 'true';
@@ -137,4 +138,20 @@ export async function clearCache(): Promise<void> {
       }
     }
   }
+}
+
+export function getGitInfo(): {
+  hash: string,
+  branchName: string,
+  isDirty: boolean,
+} {
+  const hash = execSync(`git rev-parse HEAD`, { stdio: [] })?.toString() || 'UNKNOWN';
+  const branchName = execSync('git rev-parse --abbrev-ref HEAD')?.toString().trim() || 'master';
+  const isDirty = execSync('git status --short || echo true').toString().trim().length > 0;
+
+  return {
+    hash,
+    branchName,
+    isDirty,
+  };
 }

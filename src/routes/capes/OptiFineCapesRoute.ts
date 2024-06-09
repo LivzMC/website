@@ -30,7 +30,7 @@ type SearchOptions = {
       console.error(e);
     }
   }
-});//();
+})();
 
 async function generateUsersCache(bannerId: string, path: string): Promise<void> {
   const profiles = await querySync(
@@ -71,7 +71,7 @@ app.get('/', async function (req, res) {
     const url = req.query.url ? req.query.url.toString() : null;
     // don't use sync functions here for non-blocking reading
     // since this is probably a more popular page
-    const data = await fsp.readFile('cache/banners.json');
+    const data = fs.existsSync('cache/banners.json') ? await fsp.readFile('cache/banners.json') : [];
     const cachedBanners: Banner[] = JSON.parse(data.toString());
     const banners: Banner[][] = parseBanners(
       cachedBanners,
