@@ -13,7 +13,8 @@ const USERNAME_UUID = new NodeCache();
 const RECENTLY_UPDATED_USERS = new NodeCache();
 const IS_UPDATING_PROFILE: Map<string, boolean> = new Map();
 const RATELIMITTED_SEARCHES: Set<string> = new Set(); // todo: add a queue to go through the profiles that were searched but were denied due to ratelimit
-let IS_RATELIMITTED: boolean = false;
+
+let IS_RATELIMITTED = false;
 let LAST_SEARCH = 0;
 
 // public helper funcitons
@@ -37,9 +38,8 @@ export async function usernameToUUID(username: string): Promise<string | null> {
       }
     }
 
-    // Mojang ratelimit is so unforgiving. It can randomly ratelimit me after not sending a single request in hours
-    // It usually ratelimits after 3-5 requests per few minutes...
-    const mojang_response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`, {
+    // use custom proxy server with proper caching
+    const mojang_response = await fetch(`https://render.livzmc.net/mojang/api/users/profiles/minecraft/${username}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
       },
