@@ -44,7 +44,7 @@ app.get('/', async function (req, res) {
     const cached = fs.existsSync('cache/capes.json');
     if (!cached) await generateCapesCache();
 
-    const capes: Cape[] = JSON.parse(fs.readFileSync('cache/capes.json').toString()).filter((cape: Cape) => cape.enabled);
+    const capes: Cape[] = JSON.parse((await fsp.readFile('cache/capes.json')).toString()).filter((cape: Cape) => cape.enabled);
 
     renderPage(req, res, './capes/minecraft', {
       currentPage: '/minecraft-capes',
